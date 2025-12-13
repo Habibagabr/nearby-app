@@ -1,0 +1,16 @@
+{
+  "appName": "NearBuy",
+  "splashTitle": "Scan the world, watch it come alive",
+  "login": "Login",
+  "signup": "Signup",
+  "emailHint": "Enter your email",
+  "emailLabel": "Email",
+  "passwordHint": "Enter your password",
+  "passwordLabel": "Password",
+  "confirmPasswordHint": "Re-enter your password",
+  "confirmPasswordLabel":"Confirm password",
+  "usernameHint": "Enter your username",
+  "usernameLabel": "Username",
+  "dontHaveAccount": "Don’t have an account?",
+  "alreadyHaveAccount": "Already have an account?"
+}

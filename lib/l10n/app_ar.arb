@@ -1,0 +1,17 @@
+{
+  "appName": "NearBuy",
+  "splashTitle": "استكشف العالم، وشاهده ينبض بالحياة",
+  "login": "تسجيل الدخول",
+  "signup": "انشاء حساب",
+  "emailHint": "ادخل حسابك",
+  "emailLabel": "حسابك",
+  "passwordHint": "ادخل كلمة السر الخاصه بك",
+  "passwordLabel": "رقمك السري",
+  "confirmPasswordHint": "اعد كتابة كلمة السر الخاصه بك مره اخرى",
+  "confirmPasswordLabel":"كلمة السر مرة اخرى",
+  "usernameHint": "ادخل اسم المستخدم الخاص بك",
+  "usernameLabel": "اسم المستخدم",
+  "dontHaveAccount": "ليس لديك حساب؟",
+  "alreadyHaveAccount": "لديك حساب بالفعل؟"
+
+}
