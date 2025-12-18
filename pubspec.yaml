@@ -34,6 +34,10 @@ dependencies:
   flutter:
     sdk: flutter
 
+  geolocator: ^14.0.1
+  permission_handler: ^11.1.0
+
+
   flutter_localizations:
     sdk: flutter
 

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:near_buy_gp/core/routing/app_router.dart';
-import 'package:near_buy_gp/features/splashScreen/splash_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:near_buy_gp/features/homeScreen/ui/home_screen.dart';
 
+import 'core/routing/app_router.dart';
 import 'core/themes/app_btn_theme.dart';
 import 'core/themes/app_colors.dart';
 import 'core/themes/app_input_fields_theme.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 
+//  blocs
+import 'features/location/bloc/location_bloc.dart';
+
 void main() {
-  runApp(NearBuy());
+  runApp(const NearBuy());
 }
 
 class NearBuy extends StatelessWidget {
@@ -17,28 +21,43 @@ class NearBuy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
+    return MultiBlocProvider(
+      providers: [
 
-
-      // dictionary
-      localizationsDelegates: const [
-        AppLocalizations.delegate, // my dictionary
-        GlobalMaterialLocalizations.delegate, // material dictionary
-        GlobalWidgetsLocalizations.delegate, // LRT , RLT
-        GlobalCupertinoLocalizations.delegate, // for ios
+        ///  Location Bloc (Global)
+        BlocProvider<LocationBloc>(
+          create: (_) => LocationBloc()
+            ..add(StartLocationTracking()),
+        ),
       ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
 
-      supportedLocales: const [Locale('en'), Locale('ar')],
-      theme: ThemeData(
-        elevatedButtonTheme: AppBtnTheme.elevatedButtonTheme,
-        inputDecorationTheme: AppInputFieldsTheme.inputDecorationTheme,
-        textSelectionTheme: TextSelectionThemeData(
-          cursorColor: AppColors.white,
+        //  Localization
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en'),
+          Locale('ar'),
+        ],
+
+        //  Theme
+        theme: ThemeData(
+          elevatedButtonTheme: AppBtnTheme.elevatedButtonTheme,
+          inputDecorationTheme: AppInputFieldsTheme.inputDecorationTheme,
+          textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: AppColors.white,
+          ),
         ),
 
+        //  Router
+        // routerConfig: appRouter,
+        home:HomeScreen()
       ),
-        routerConfig:appRouter
     );
   }
 }

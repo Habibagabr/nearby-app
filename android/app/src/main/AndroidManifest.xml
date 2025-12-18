@@ -1,4 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Basic location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+
+    <!-- Background location (Android 10+) -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+
+    <!-- Foreground service (Android 14+) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+
+
     <application
         android:label="near_buy_gp"
         android:name="${applicationName}"
