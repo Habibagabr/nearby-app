@@ -12,5 +12,9 @@
   "usernameHint": "Enter your username",
   "usernameLabel": "Username",
   "dontHaveAccount": "Don’t have an account?",
-  "alreadyHaveAccount": "Already have an account?"
+  "alreadyHaveAccount": "Already have an account?",
+  "weakPassword": "Password must be at least 8 characters long and include one uppercase letter and one special character.",
+  "unmatchedPassword": "Passwords do not match. Please check and try again.",
+  "invalidEmail": "Please enter a valid email address.",
+  "emptyFields": "This field is required."
 }

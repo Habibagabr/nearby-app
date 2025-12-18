@@ -33,6 +33,18 @@ class _InputFieldState extends State<InputField> {
       widget.inputType == AuthFieldType.password ||
           widget.inputType == AuthFieldType.confirmPassword;
 
+  TextInputType get _keyboardType {
+    switch (widget.inputType) {
+      case AuthFieldType.email:
+        return TextInputType.emailAddress;
+      case AuthFieldType.password:
+      case AuthFieldType.confirmPassword:
+        return TextInputType.visiblePassword;
+      default:
+        return TextInputType.text;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -52,6 +64,7 @@ class _InputFieldState extends State<InputField> {
         /// TextField
         TextField(
           controller: widget.controller,
+          keyboardType: _keyboardType,
           obscureText: _isPasswordField ? _isObscured : false,
           style: AppTextStyles.bodyLarge.copyWith(
             color: AppColors.white,
@@ -62,7 +75,23 @@ class _InputFieldState extends State<InputField> {
               color: AppColors.white.withValues(alpha: 0.5),
             ),
 
-            ///  Eye icon
+            /// Error border
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: widget.isError
+                    ? AppColors.error
+                    : AppColors.white,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: widget.isError
+                    ? AppColors.error
+                    : AppColors.white,
+              ),
+            ),
+
+            /// Eye icon
             suffixIcon: _isPasswordField
                 ? IconButton(
               icon: Icon(
@@ -82,10 +111,10 @@ class _InputFieldState extends State<InputField> {
         ),
 
         /// Error message
-        if (widget.isError) ...[
+        if (widget.isError && widget.errorMessage != null) ...[
           const SizedBox(height: 6),
           Text(
-            widget.errorMessage ?? '',
+            widget.errorMessage!,
             style: AppTextStyles.errorText,
           ),
         ],

@@ -49,4 +49,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get alreadyHaveAccount => 'لديك حساب بالفعل؟';
+
+  @override
+  String get weakPassword => 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير ورمز خاص واحد على الأقل.';
+
+  @override
+  String get unmatchedPassword => 'كلمتا المرور غير متطابقتين، يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get invalidEmail => 'يرجى إدخال بريد إلكتروني صحيح.';
+
+  @override
+  String get emptyFields => 'هذا الحقل مطلوب.';
 }

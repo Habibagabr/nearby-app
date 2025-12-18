@@ -49,4 +49,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get weakPassword => 'Password must be at least 8 characters long and include one uppercase letter and one special character.';
+
+  @override
+  String get unmatchedPassword => 'Passwords do not match. Please check and try again.';
+
+  @override
+  String get invalidEmail => 'Please enter a valid email address.';
+
+  @override
+  String get emptyFields => 'This field is required.';
 }

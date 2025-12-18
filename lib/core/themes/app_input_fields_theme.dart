@@ -12,17 +12,17 @@ class AppInputFieldsTheme {
     fillColor: AppColors.darkGray,
 
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppDimens.radiusM),
+      borderRadius: BorderRadius.circular(AppDimens.radiusL),
       borderSide: BorderSide.none,
     ),
 
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppDimens.radiusM),
+      borderRadius: BorderRadius.circular(AppDimens.radiusL),
       borderSide: BorderSide.none,
     ),
 
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppDimens.radiusM),
+      borderRadius: BorderRadius.circular(AppDimens.radiusL),
       borderSide: BorderSide.none,
     ),
 

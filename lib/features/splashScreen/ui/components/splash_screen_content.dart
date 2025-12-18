@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:near_buy_gp/core/routing/app_routes.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/themes/app_text_style.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
@@ -18,11 +19,8 @@ class SplashScreenContent extends StatelessWidget {
       child: BlocConsumer<SplashScreenBloc, SplashScreenState>(
         listener: (context, state) {
           if (state is NavigateToLogin) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => const LoginScreen(),
-              ),
-            );
+            LoginRoute().go(context);
+
           }
         },
         builder: (context, state) {
@@ -32,7 +30,6 @@ class SplashScreenContent extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 /// Logo
                 Image(
                   image: const AssetImage("assets/images/pinicon.png"),

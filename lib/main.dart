@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:near_buy_gp/core/routing/app_router.dart';
 import 'package:near_buy_gp/features/splashScreen/splash_screen.dart';
 
 import 'core/themes/app_btn_theme.dart';
@@ -16,7 +17,7 @@ class NearBuy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
 
 
@@ -37,7 +38,7 @@ class NearBuy extends StatelessWidget {
         ),
 
       ),
-      home: SplashScreen(),
+        routerConfig:appRouter
     );
   }
 }

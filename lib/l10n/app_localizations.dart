@@ -178,6 +178,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already have an account?'**
   String get alreadyHaveAccount;
+
+  /// No description provided for @weakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters long and include one uppercase letter and one special character.'**
+  String get weakPassword;
+
+  /// No description provided for @unmatchedPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match. Please check and try again.'**
+  String get unmatchedPassword;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get invalidEmail;
+
+  /// No description provided for @emptyFields.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required.'**
+  String get emptyFields;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
