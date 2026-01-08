@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:near_buy_gp/features/homeScreen/ui/home_screen.dart';
 
+import 'core/di/injection.dart';
 import 'core/routing/app_router.dart';
 import 'core/themes/app_btn_theme.dart';
 import 'core/themes/app_colors.dart';
@@ -13,6 +13,8 @@ import 'l10n/app_localizations.dart';
 import 'features/location/bloc/location_bloc.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  configureDependencies();
   runApp(const NearBuy());
 }
 
@@ -30,7 +32,7 @@ class NearBuy extends StatelessWidget {
             ..add(StartLocationTracking()),
         ),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
 
         //  Localization
@@ -55,8 +57,7 @@ class NearBuy extends StatelessWidget {
         ),
 
         //  Router
-        // routerConfig: appRouter,
-        home:HomeScreen()
+        routerConfig: appRouter,
       ),
     );
   }

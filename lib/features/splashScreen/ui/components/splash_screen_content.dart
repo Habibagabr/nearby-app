@@ -7,7 +7,6 @@ import 'package:near_buy_gp/core/values/app_dimen.dart';
 import 'package:near_buy_gp/l10n/app_localizations.dart';
 import 'package:near_buy_gp/features/splashScreen/bloc/splash_screen_bloc.dart';
 
-import '../../../authenticationScreens/loginScreen/ui/login_screen.dart';
 
 class SplashScreenContent extends StatelessWidget {
   const SplashScreenContent({super.key});

@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:near_buy_gp/features/authenticationScreens/utils/input_field_error.dart';
 
-import '../../utils/common_validations.dart';
+import '../../../utils/common_validations.dart';
+
 
 part 'login_screen_event.dart';
 part 'login_screen_state.dart';

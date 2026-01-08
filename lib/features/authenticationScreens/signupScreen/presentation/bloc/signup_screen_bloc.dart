@@ -1,7 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:near_buy_gp/features/authenticationScreens/utils/input_field_error.dart';
 
-import '../../utils/common_validations.dart';
+import '../../../utils/common_validations.dart';
+
 part 'signup_screen_event.dart';
 part 'signup_screen_state.dart';
 

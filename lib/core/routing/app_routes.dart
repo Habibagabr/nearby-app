@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:near_buy_gp/features/authenticationScreens/loginScreen/ui/login_screen.dart';
-import 'package:near_buy_gp/features/authenticationScreens/signupScreen/ui/signup_screen.dart';
 
+import '../../features/authenticationScreens/loginScreen/presentation/ui/login_screen.dart';
+import '../../features/authenticationScreens/signupScreen/presentation/ui/signup_screen.dart';
 import '../../features/splashScreen/splash_screen.dart';
 
 part 'app_routes.g.dart';
