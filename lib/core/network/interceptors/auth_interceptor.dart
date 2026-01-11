@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@lazySingleton
 class AuthInterceptor extends Interceptor {
   final FlutterSecureStorage _storage;
 

@@ -16,6 +16,8 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:near_buy_gp/core/di/register_module.dart' as _i1038;
 import 'package:near_buy_gp/core/network/interceptors/auth_interceptor.dart'
     as _i434;
+import 'package:near_buy_gp/core/network/interceptors/error_interceptor.dart'
+    as _i100;
 import 'package:near_buy_gp/core/network/interceptors/logger_interceptor.dart'
     as _i852;
 
@@ -30,7 +32,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(() => registerModule.storage);
     gh.lazySingleton<_i361.BaseOptions>(() => registerModule.options);
     gh.lazySingleton<_i852.LoggerInterceptor>(() => _i852.LoggerInterceptor());
-    gh.factory<_i434.AuthInterceptor>(
+    gh.lazySingleton<_i100.ErrorInterceptor>(() => _i100.ErrorInterceptor());
+    gh.lazySingleton<_i434.AuthInterceptor>(
       () => _i434.AuthInterceptor(gh<_i558.FlutterSecureStorage>()),
     );
     gh.lazySingleton<_i361.Dio>(
@@ -38,6 +41,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i361.BaseOptions>(),
         gh<_i852.LoggerInterceptor>(),
         gh<_i434.AuthInterceptor>(),
+        gh<_i100.ErrorInterceptor>(),
       ),
     );
     return this;
