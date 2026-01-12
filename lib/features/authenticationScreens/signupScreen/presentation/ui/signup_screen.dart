@@ -10,6 +10,7 @@ import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/themes/app_text_style.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
 
+import '../../../../../core/di/injection.dart';
 import '../../../../../shared/components/app_logo.dart';
 import '../../../commonWidgets/auth_bottom_actions.dart';
 import '../../../commonWidgets/input_fields.dart';
@@ -22,10 +23,8 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SignupScreenBloc>(
-      create : (_) => SignupScreenBloc(),
-      child : _SignupView()
-
-
+      create: (_) => getIt<SignupScreenBloc>(),
+      child: const _SignupView(),
     );
   }
 }
@@ -64,134 +63,186 @@ class _SignupViewState extends State<_SignupView> {
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
-    final size = MediaQuery.of(context).size;
-    final bloc = context.read<SignupScreenBloc>();
+    final size = MediaQuery
+        .of(context)
+        .size;
 
-    return BlocListener<SignupScreenBloc,SignupScreenState>(
-      listener: (context,state) {
-        if (state is NavigateToLoginScreen) {
-          LoginRoute().go(context);
-        }
-      },
-      child : BaseScreen(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
 
-            /// Logo
-            const Align(
-              alignment: Alignment.topLeft,
-              child: AppLogo(),
-            ),
-            SizedBox(height: AppDimens.spacingXL),
-
-            /// Title
-            Padding(
-              padding: EdgeInsetsDirectional.only(start: AppDimens.paddingM),
-              child: Text(
-                local.signup,
-                style: AppTextStyles.headlineMedium.copyWith(
-                  color: AppColors.white,
-                ),
+    return BlocListener<SignupScreenBloc, SignupScreenState>(
+        listener: (context, state) {
+          // handle signup failure (server/domain error)
+          if (state is SignupFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("error"),
               ),
-            ),
+            );
+          }
 
-            SizedBox(height: size.height * 0.03),
-            Expanded(
-              child:
+          // Existing logic (unchanged)
+          if (state is NavigateToLoginScreen) {
+            LoginRoute().go(context);
+          }
+        },
+        child: BaseScreen(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-              /// White Card
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(AppDimens.radiusL),
+                  /// Logo
+                  const Align(
+                    alignment: Alignment.topLeft,
+                    child: AppLogo(),
                   ),
-                ),
-                padding: EdgeInsets.all(AppDimens.paddingM),
-                child: BlocBuilder<SignupScreenBloc,SignupScreenState>(
-                  builder: (BuildContext context, state) {
-                    String ? emailErrorKey;
-                    String ? userNameErrorKey;
-                    String ? passwordErrorKey;
-                    String ? confirmPasswordErrorKey;
+                  SizedBox(height: AppDimens.spacingXL),
 
-                    if(state is SignupValidationError){
-                      emailErrorKey = state.emailError?.localizationKey;
-                      userNameErrorKey = state.userNameError?.localizationKey;
-                      passwordErrorKey = state.passwordError?.localizationKey;
-                      confirmPasswordErrorKey = state.confirmPasswordError?.localizationKey;
-                    }
-
-                    return ListView(
-                    children: [
-                    InputField(
-                    inputType: AuthFieldType.username,
-                    label: local.usernameLabel,
-                    hint: local.usernameHint,
-                      controller:_userNameController ,
-                      isError: userNameErrorKey != null,
-                      errorMessage: local.translate(userNameErrorKey),
+                  /// Title
+                  Padding(
+                    padding:
+                    EdgeInsetsDirectional.only(start: AppDimens.paddingM),
+                    child: Text(
+                      local.signup,
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        color: AppColors.white,
+                      ),
                     ),
+                  ),
 
-                    const SizedBox(height: AppDimens.spacingL),
+                  SizedBox(height: size.height * 0.03),
 
-                    InputField(
-                    inputType: AuthFieldType.email,
-                    label: local.emailLabel,
-                    hint: local.emailHint, 
-                      isError: emailErrorKey != null,
-                      errorMessage: local.translate(emailErrorKey),
-                      controller: _emailController,
-                    ),
+                  Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(AppDimens.radiusL),
+                          ),
+                        ),
+                        padding: EdgeInsets.all(AppDimens.paddingM),
+                        child: BlocBuilder<SignupScreenBloc, SignupScreenState>(
+                          builder: (BuildContext context, state) {
+                            String? emailErrorKey;
+                            String? userNameErrorKey;
+                            String? passwordErrorKey;
+                            String? confirmPasswordErrorKey;
 
-                    const SizedBox(height: AppDimens.spacingL),
+                            if (state is SignupValidationError) {
+                              emailErrorKey =
+                                  state.emailError?.localizationKey;
+                              userNameErrorKey =
+                                  state.userNameError?.localizationKey;
+                              passwordErrorKey =
+                                  state.passwordError?.localizationKey;
+                              confirmPasswordErrorKey =
+                                  state.confirmPasswordError?.localizationKey;
+                            }
+                            final isLoading = state is SignupLoading;
 
-                    InputField(
-                    inputType: AuthFieldType.password,
-                    label: local.passwordLabel,
-                    hint: local.passwordHint,
-                      controller: _passwordController,
-                      isError: passwordErrorKey != null,
-                      errorMessage: local.translate(passwordErrorKey),
-                    ),
+                            return ListView(
+                              children: [
+                                InputField(
+                                  inputType: AuthFieldType.username,
+                                  label: local.usernameLabel,
+                                  hint: local.usernameHint,
+                                  controller: _userNameController,
+                                  isError: userNameErrorKey != null,
+                                  // null-safe translate
+                                  errorMessage: userNameErrorKey != null
+                                      ? local.translate(userNameErrorKey)
+                                      : null,
+                                ),
 
-                    const SizedBox(height: AppDimens.spacingL),
+                                const SizedBox(height: AppDimens.spacingL),
 
-                    InputField(
-                    inputType: AuthFieldType.confirmPassword,
-                    label: local.confirmPasswordLabel,
-                    hint: local.confirmPasswordHint,
-                      controller: _confirmPasswordController,
-                      isError: confirmPasswordErrorKey != null,
-                      errorMessage: local.translate(confirmPasswordErrorKey),
-                    ),
+                                InputField(
+                                  inputType: AuthFieldType.email,
+                                  label: local.emailLabel,
+                                  hint: local.emailHint,
+                                  controller: _emailController,
+                                  isError: emailErrorKey != null,
+                                  errorMessage: emailErrorKey != null
+                                      ? local.translate(emailErrorKey)
+                                      : null,
+                                ),
 
-                    const SizedBox(height: AppDimens.spacingL),
+                                const SizedBox(height: AppDimens.spacingL),
 
-                    AuthBottomActions(
-                    screenType: AuthScreenType.signup,
-                    onPrimaryBtnPressed: () {
-                      bloc.add(PrimaryBtnClicked(email: _emailController.text, password: _passwordController.text, userName: _userNameController.text, confirmPassword: _confirmPasswordController.text));
-                    },
-                    onSecondaryBtnPressed: () {
-                      bloc.add(SecondaryBtnClicked());
-                    },
-                    )
-                    ,
-                    ]
-                    ,
-                    );
-                  }
-              ),
-            ),
+                                InputField(
+                                  inputType: AuthFieldType.password,
+                                  label: local.passwordLabel,
+                                  hint: local.passwordHint,
+                                  controller: _passwordController,
+                                  isError: passwordErrorKey != null,
+                                  errorMessage: passwordErrorKey != null
+                                      ? local.translate(passwordErrorKey)
+                                      : null,
+                                ),
+
+                                const SizedBox(height: AppDimens.spacingL),
+
+                                InputField(
+                                  inputType: AuthFieldType.confirmPassword,
+                                  label: local.confirmPasswordLabel,
+                                  hint: local.confirmPasswordHint,
+                                  controller: _confirmPasswordController,
+                                  isError: confirmPasswordErrorKey != null,
+                                  errorMessage: confirmPasswordErrorKey != null
+                                      ? local.translate(confirmPasswordErrorKey)
+                                      : null,
+                                ),
+
+                                const SizedBox(height: AppDimens.spacingL),
+
+                                AuthBottomActions(
+                                  screenType: AuthScreenType.signup,
+                                  onPrimaryBtnPressed: () {
+                                    context
+                                        .read<SignupScreenBloc>()
+                                        .add(
+                                      PrimaryBtnClicked(
+                                        email:
+                                        _emailController.text,
+                                        password:
+                                        _passwordController.text,
+                                        userName:
+                                        _userNameController.text,
+                                        confirmPassword:
+                                        _confirmPasswordController
+                                            .text,
+                                      ),
+                                    );
+                                  },
+                                  onSecondaryBtnPressed: () {
+                                    context
+                                        .read<SignupScreenBloc>()
+                                        .add(SecondaryBtnClicked());
+                                  },
+                                ),
+                                Visibility(
+                                  visible: isLoading,
+                                  child: Positioned.fill(
+                                    child: const Align(
+                                      alignment: Alignment.bottomCenter,
+                                      // NOT centered
+                                      child: Padding(
+                                        padding: EdgeInsets.only(top: 5),
+                                        child: CircularProgressIndicator(
+                                          color:AppColors.darkGray ,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      )
+                  )
+                ]
             )
-          ],
-        ),
-      )
+        )
     );
-    }
   }
-
-
+}

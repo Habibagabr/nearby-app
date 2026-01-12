@@ -57,6 +57,7 @@ dependencies:
   go_router: ^17.0.1
   dio: ^5.9.0
   flutter_secure_storage: ^10.0.0
+  fpdart: ^1.2.0
 
 # any thing under this used during development not running
 dev_dependencies:

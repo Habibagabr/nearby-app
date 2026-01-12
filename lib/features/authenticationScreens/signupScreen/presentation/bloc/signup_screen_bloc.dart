@@ -1,13 +1,18 @@
 import 'package:bloc/bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'package:near_buy_gp/features/authenticationScreens/utils/input_field_error.dart';
 
 import '../../../utils/common_validations.dart';
+import '../../domain/usecases/register_usecase.dart';
 
 part 'signup_screen_event.dart';
 part 'signup_screen_state.dart';
 
+@injectable
 class SignupScreenBloc extends Bloc<SignupScreenEvent, SignupScreenState> {
-  SignupScreenBloc() : super(SignupScreenInitial()) {
+  final RegisterUseCase registerUseCase;
+
+  SignupScreenBloc(this.registerUseCase) : super(SignupScreenInitial()) {
     on<SecondaryBtnClicked>(_onSecondaryBtnClicked);
     on<PrimaryBtnClicked>(_onSignupPressed);
   }
@@ -19,10 +24,10 @@ class SignupScreenBloc extends Bloc<SignupScreenEvent, SignupScreenState> {
     emit(NavigateToLoginScreen());
   }
 
-  void _onSignupPressed(
+  Future<void> _onSignupPressed(
     PrimaryBtnClicked event,
     Emitter<SignupScreenState> emit,
-  ) {
+  ) async {
     InputFieldError? emailError;
     InputFieldError? userNameError;
     InputFieldError? passwordError;
@@ -51,18 +56,49 @@ class SignupScreenBloc extends Bloc<SignupScreenEvent, SignupScreenState> {
       confirmPasswordError = InputFieldError.required;
     } else if (!isStrongPassword(event.confirmPassword)) {
       confirmPasswordError = InputFieldError.passwordsIsWeak;
-    } else if (event.confirmPassword != event.confirmPassword) {
+    } else if (event.confirmPassword != event.password) {
       confirmPasswordError = InputFieldError.passwordsNotMatched;
     }
 
     //local validation failed
-    if(emailError != null || passwordError !=null || confirmPasswordError !=null || userNameError!=null){
-      emit(SignupValidationError(
-        emailError: emailError,
-        passwordError: passwordError,
-        confirmPasswordError: confirmPasswordError,
-        userNameError: userNameError
-      ));
+    if (emailError != null ||
+        passwordError != null ||
+        confirmPasswordError != null ||
+        userNameError != null) {
+      emit(
+        SignupValidationError(
+          emailError: emailError,
+          passwordError: passwordError,
+          confirmPasswordError: confirmPasswordError,
+          userNameError: userNameError,
+        ),
+      );
+    }
+
+    if (emailError == null &&
+        passwordError == null &&
+        confirmPasswordError == null &&
+        userNameError == null) {
+      emit(SignupLoading());
+
+      final result = await registerUseCase(
+        RegisterParams(
+          email: event.email,
+          password: event.password,
+          userName: event.userName,
+          role: 'user',
+        ),
+      );
+
+      // ===== HANDLE RESULT =====
+      result.fold(
+        (failure) {
+          emit(SignupFailure(failure.key));
+        },
+        (_) {
+          emit(SignupSuccess());
+        },
+      );
     }
   }
 }
