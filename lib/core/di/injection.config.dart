@@ -24,14 +24,26 @@ import 'package:near_buy_gp/core/network/sessionManager/session_manager_implemen
     as _i850;
 import 'package:near_buy_gp/core/network/sessionManager/session_manager_interface.dart'
     as _i447;
-import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/dataSource/auth_remote_datasource.dart'
-    as _i914;
-import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/dataSource/auth_remote_datasource_interface.dart'
-    as _i935;
-import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/repository/authentication_repository.dart'
-    as _i611;
-import 'package:near_buy_gp/features/authenticationScreens/signupScreen/domain/repositories/auth_repo_interface.dart'
-    as _i571;
+import 'package:near_buy_gp/features/authenticationScreens/loginScreen/data/dataSource/login_remote_datasource.dart'
+    as _i490;
+import 'package:near_buy_gp/features/authenticationScreens/loginScreen/data/dataSource/login_remote_datasource_interface.dart'
+    as _i895;
+import 'package:near_buy_gp/features/authenticationScreens/loginScreen/data/repository/login_repository.dart'
+    as _i529;
+import 'package:near_buy_gp/features/authenticationScreens/loginScreen/domain/repository/login_repository_interface.dart'
+    as _i363;
+import 'package:near_buy_gp/features/authenticationScreens/loginScreen/domain/usecases/login_usecase.dart'
+    as _i600;
+import 'package:near_buy_gp/features/authenticationScreens/loginScreen/presentation/bloc/login_screen_bloc.dart'
+    as _i292;
+import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/dataSource/register_remote_datasource.dart'
+    as _i34;
+import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/dataSource/register_remote_datasource_interface.dart'
+    as _i732;
+import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/repository/register_repository.dart'
+    as _i757;
+import 'package:near_buy_gp/features/authenticationScreens/signupScreen/domain/repositories/register_repo_interface.dart'
+    as _i514;
 import 'package:near_buy_gp/features/authenticationScreens/signupScreen/domain/usecases/register_usecase.dart'
     as _i184;
 import 'package:near_buy_gp/features/authenticationScreens/signupScreen/presentation/bloc/signup_screen_bloc.dart'
@@ -63,20 +75,35 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i100.ErrorInterceptor>(),
       ),
     );
-    gh.lazySingleton<_i935.AuthRemoteDataSource>(
-      () => _i914.AuthRemoteDataSourceImpl(gh<_i361.Dio>()),
+    gh.lazySingleton<_i732.RegisterRemoteDataSource>(
+      () => _i34.RegisterRemoteDataSourceImpl(gh<_i361.Dio>()),
     );
-    gh.lazySingleton<_i571.AuthRepositoryInterface>(
-      () => _i611.AuthRepositoryImpl(gh<_i935.AuthRemoteDataSource>()),
+    gh.lazySingleton<_i895.LoginRemoteDataSource>(
+      () => _i490.LoginRemoteDataSourceImpl(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i514.RegisterRepositoryInterface>(
+      () => _i757.AuthRepositoryImpl(gh<_i732.RegisterRemoteDataSource>()),
+    );
+    gh.factory<_i363.LoginRepository>(
+      () => _i529.LoginRepositoryImp(gh<_i895.LoginRemoteDataSource>()),
     );
     gh.lazySingleton<_i184.RegisterUseCase>(
       () => _i184.RegisterUseCase(
-        gh<_i571.AuthRepositoryInterface>(),
+        gh<_i514.RegisterRepositoryInterface>(),
         gh<_i447.SessionManager>(),
       ),
     );
     gh.factory<_i764.SignupScreenBloc>(
       () => _i764.SignupScreenBloc(gh<_i184.RegisterUseCase>()),
+    );
+    gh.lazySingleton<_i600.LoginUseCase>(
+      () => _i600.LoginUseCase(
+        gh<_i363.LoginRepository>(),
+        gh<_i447.SessionManager>(),
+      ),
+    );
+    gh.factory<_i292.LoginScreenBloc>(
+      () => _i292.LoginScreenBloc(gh<_i600.LoginUseCase>()),
     );
     return this;
   }

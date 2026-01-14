@@ -20,3 +20,7 @@ class LoginValidationError extends LoginScreenState {
 class LoginLoading extends LoginScreenState{}
 
 class LoginSuccess extends LoginScreenState{}
+class LoginFailure extends LoginScreenState{
+  final String? errorMsg ;
+  LoginFailure(this.errorMsg);
+}

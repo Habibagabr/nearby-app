@@ -3,6 +3,7 @@ abstract class SessionManager{
     required String token,
     required String userId,
     required String role,
+    required String userName,
   });
 
   Future<String?> getToken();

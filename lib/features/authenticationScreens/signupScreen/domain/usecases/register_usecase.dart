@@ -6,7 +6,7 @@ import 'package:near_buy_gp/features/authenticationScreens/signupScreen/domain/e
 
 import '../../../../../core/network/sessionManager/session_manager_interface.dart';
 import '../../../../../core/usecase/base_usecase.dart';
-import '../repositories/auth_repo_interface.dart';
+import '../repositories/register_repo_interface.dart';
 
 class RegisterParams {
   final String email;
@@ -23,14 +23,14 @@ class RegisterParams {
 }
 
 @lazySingleton
-class RegisterUseCase extends UseCase<AuthEntity, RegisterParams> {
-  final AuthRepositoryInterface authRepo;
+class RegisterUseCase extends UseCase<LoginEntity, RegisterParams> {
+  final RegisterRepositoryInterface authRepo;
   final SessionManager sessionManager;
 
   RegisterUseCase(this.authRepo , this.sessionManager);
 
   @override
-  Future<Either<Failure, AuthEntity>> call(params) async {
+  Future<Either<Failure, LoginEntity>> call(params) async {
     final result =  await authRepo.register(
         email: params.email,
         password: params.password,
@@ -43,6 +43,7 @@ class RegisterUseCase extends UseCase<AuthEntity, RegisterParams> {
         token: authEntity.accessToken,
         userId: authEntity.id,
         role: authEntity.role,
+        userName:  authEntity.userName
       );
       return authEntity;
     });

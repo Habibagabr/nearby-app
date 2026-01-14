@@ -26,7 +26,7 @@ class ErrorInterceptor extends Interceptor {
     }
 
     // Validation
-    if (statusCode == 400) {
+    if (statusCode == 400 || statusCode == 402) {
       handler.reject(
         err.copyWith(
           error: ValidationException(msg: backendMessage),

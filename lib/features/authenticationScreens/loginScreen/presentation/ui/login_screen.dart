@@ -8,6 +8,7 @@ import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/themes/app_text_style.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
 
+import '../../../../../core/di/injection.dart';
 import '../../../../../shared/components/app_logo.dart';
 import '../../../commonWidgets/auth_bottom_actions.dart';
 import '../../../commonWidgets/input_fields.dart';
@@ -22,7 +23,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => LoginScreenBloc(),
+      create: (_) => getIt<LoginScreenBloc>(),
       child: const _LoginView(),
     );
   }
@@ -64,6 +65,14 @@ class _LoginViewState extends State<_LoginView> {
         if (state is NavigateToSignupScreen) {
           SignupRoute().go(context);
         }
+        if (state is LoginFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("${state.errorMsg}"),
+              )
+          );
+        }
+
       },
       child: BaseScreen(
         child: Column(
@@ -107,6 +116,8 @@ class _LoginViewState extends State<_LoginView> {
                       emailErrorKey = state.emailError?.localizationKey;
                       passwordErrorKey = state.passwordError?.localizationKey;
                     }
+                    final isLoading = state is LoginLoading;
+
 
                     return ListView(
                       children: [
@@ -150,12 +161,30 @@ class _LoginViewState extends State<_LoginView> {
                             bloc.add(SecondaryBtnClicked());
                           },
                         ),
+                        Visibility(
+                          visible: isLoading,
+                          child: Positioned.fill(
+                            child: const Align(
+                              alignment: Alignment.bottomCenter,
+                              // NOT centered
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 5),
+                                child: CircularProgressIndicator(
+                                  color:AppColors.darkGray ,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
                       ],
                     );
                   },
                 ),
               ),
             ),
+
+
           ],
         ),
       ),

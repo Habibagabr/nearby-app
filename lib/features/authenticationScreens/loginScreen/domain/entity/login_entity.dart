@@ -1,4 +1,4 @@
-class LoginEntity {
+class LoginEntity{
   final String id;
   final String userName;
   final String role;
@@ -10,4 +10,5 @@ class LoginEntity {
     required this.role,
     required this.accessToken,
   });
+
 }

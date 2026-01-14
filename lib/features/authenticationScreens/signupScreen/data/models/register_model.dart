@@ -1,20 +1,20 @@
 import '../../domain/entity/auth_entity.dart';
 
-class AuthModel{
+class RegisterModel{
   final String id;
   final String userName;
   final String role;
   final String accessToken;
 
-  const AuthModel({
+  const RegisterModel({
     required this.id,
     required this.userName,
     required this.role,
     required this.accessToken,
   });
 
-  factory AuthModel.fromJson(Map<String,dynamic> json){
-    return AuthModel(
+  factory RegisterModel.fromJson(Map<String,dynamic> json){
+    return RegisterModel(
         id: json['userPayload']['id'],
         userName: json['userPayload']['userName'],
         role: json['userPayload']['role'],
@@ -24,8 +24,8 @@ class AuthModel{
   }
 
   // extension function " AuthModel.toEntity "
-  AuthEntity toEntity(){
-    return AuthEntity(id: id, userName: userName, role: role, accessToken: accessToken);
+  LoginEntity toEntity(){
+    return LoginEntity(id: id, userName: userName, role: role, accessToken: accessToken);
 
   }
 

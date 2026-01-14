@@ -28,9 +28,11 @@ class SessionManagerImpl extends SessionManager {
     required String token,
     required String userId,
     required String role,
+    required String userName,
   }) async {
     await storage.write(key: 'auth_token', value: token);
     await storage.write(key: 'user_id', value: userId);
     await storage.write(key: 'user_role', value: role);
+    await storage.write(key: 'user_name', value: userName);
   }
 }

@@ -1,23 +1,22 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/models/auth_model.dart';
 import 'package:near_buy_gp/features/authenticationScreens/signupScreen/domain/entity/auth_entity.dart';
-import 'package:near_buy_gp/features/authenticationScreens/signupScreen/domain/repositories/auth_repo_interface.dart';
 import 'package:fpdart/fpdart.dart';
 
 import '../../../../../core/errors/error_mapper.dart';
 import '../../../../../core/errors/exceptions.dart';
 import '../../../../../core/errors/failures.dart';
-import '../dataSource/auth_remote_datasource_interface.dart';
+import '../../domain/repositories/register_repo_interface.dart';
+import '../dataSource/register_remote_datasource_interface.dart';
 
-@LazySingleton(as: AuthRepositoryInterface)
-class AuthRepositoryImpl implements AuthRepositoryInterface {
-  final AuthRemoteDataSource remote;
+@LazySingleton(as: RegisterRepositoryInterface)
+class AuthRepositoryImpl implements RegisterRepositoryInterface {
+  final RegisterRemoteDataSource remote;
 
   AuthRepositoryImpl(this.remote);
 
   @override
-  Future<Either<Failure, AuthEntity>> register({
+  Future<Either<Failure, LoginEntity>> register({
     required String email,
     required String password,
     required String userName,

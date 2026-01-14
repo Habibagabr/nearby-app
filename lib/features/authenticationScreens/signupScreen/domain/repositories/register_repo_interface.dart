@@ -3,8 +3,8 @@ import 'package:near_buy_gp/features/authenticationScreens/signupScreen/domain/e
 import '../../../../../core/errors/failures.dart';
 import 'package:fpdart/fpdart.dart';
 
-abstract class AuthRepositoryInterface {
-  Future<Either<Failure, AuthEntity>> register({
+abstract class RegisterRepositoryInterface {
+  Future<Either<Failure, LoginEntity>> register({
     required String email,
     required String password,
     required String userName,
