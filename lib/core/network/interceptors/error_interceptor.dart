@@ -6,42 +6,39 @@ import '../../errors/exceptions.dart';
 class ErrorInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    final type = err.type;
-    final status = err.response?.statusCode;
+    final statusCode = err.response?.statusCode;
+    final data = err.response?.data;
 
-    if (type == DioExceptionType.connectionTimeout ||
-        type == DioExceptionType.receiveTimeout ||
-        type == DioExceptionType.unknown) {
-      return handler.reject(
-        DioException(
-          requestOptions: err.requestOptions,
-          error: const NetworkException(),
+    final backendMessage = data is Map<String, dynamic>
+        ? data['message'] as String?
+        : null;
+
+    // Network errors
+    if (err.type == DioExceptionType.connectionTimeout ||
+        err.type == DioExceptionType.receiveTimeout ||
+        err.type == DioExceptionType.connectionError) {
+      handler.reject(
+        err.copyWith(
+          error: NetworkException(msg: "Network connection failed , please check your connection"),
         ),
       );
+      return;
     }
 
-    if (status == 401) {
-      return handler.reject(
-        DioException(
-          requestOptions: err.requestOptions,
-          error: const UnauthorizedException(),
+    // Validation
+    if (statusCode == 400) {
+      handler.reject(
+        err.copyWith(
+          error: ValidationException(msg: backendMessage),
         ),
       );
+      return;
     }
 
-    if (status == 400) {
-      return handler.reject(
-        DioException(
-          requestOptions: err.requestOptions,
-          error: const ValidationException(),
-        ),
-      );
-    }
-
-    return handler.reject(
-      DioException(
-        requestOptions: err.requestOptions,
-        error: ServerException(statusCode: status),
+    // Server
+    handler.reject(
+      err.copyWith(
+        error: ServerException(msg: backendMessage),
       ),
     );
   }

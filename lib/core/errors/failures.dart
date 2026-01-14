@@ -1,25 +1,19 @@
-import 'errors_key.dart';
-
 abstract class Failure {
-  final String key;
-  const Failure(this.key);
+  final String ? msg;
+  const Failure(this.msg);
 }
 class ServerFailure extends Failure {
-  const ServerFailure() : super(ErrorKeys.serverError);
+  const ServerFailure({required String ? msg}) : super(msg);
 }
 
 class ValidationFailure extends Failure {
-  const ValidationFailure() : super(ErrorKeys.validationError);
+  const ValidationFailure({required String ? msg}) : super(msg);
 }
 
 class NetworkFailure extends Failure{
-  const NetworkFailure():super(ErrorKeys.networkError);
-}
-
-class UnauthorizedFailure extends Failure {
-  const UnauthorizedFailure() : super(ErrorKeys.unauthorized);
+  const NetworkFailure({required String ? msg}):super(msg);
 }
 
 class UnknownFailure extends Failure {
-  const UnknownFailure() : super(ErrorKeys.unknownError);
+  const UnknownFailure({required String ? msg}) : super(msg);
 }

@@ -7,7 +7,7 @@ final class SignupScreenInitial extends SignupScreenState {}
 final class SignupLoading extends SignupScreenState {}
 final class SignupSuccess extends SignupScreenState {}
 final class SignupFailure extends SignupScreenState {
-  final String failureMsg;
+  final String ? failureMsg;
   SignupFailure(this.failureMsg);
 }
 

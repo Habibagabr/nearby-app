@@ -1,28 +1,20 @@
-import 'errors_key.dart';
-
 sealed class AppException implements Exception {
-  final String key;
+  final String ? msg;
   final int ? statusCode;
 
-  const AppException(this.key, {this.statusCode});
+  const AppException({this.msg, this.statusCode});
 }
 
 class ServerException extends AppException {
-  const ServerException({int? statusCode})
-      : super(ErrorKeys.serverError, statusCode: statusCode);
+  const ServerException({super.msg,super.statusCode});
 }
 
 class ValidationException extends AppException{
-  const ValidationException(): super(ErrorKeys.validationError);
+  const ValidationException({super.msg,super.statusCode});
 }
 
 class NetworkException extends AppException {
-  const NetworkException() : super(ErrorKeys.networkError);
-}
-
-class UnauthorizedException extends AppException {
-  const UnauthorizedException()
-      : super(ErrorKeys.unauthorized);
+  const NetworkException({super.msg,super.statusCode});
 }
 
 

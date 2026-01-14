@@ -74,7 +74,7 @@ class _SignupViewState extends State<_SignupView> {
           if (state is SignupFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("error"),
+                content: Text("${state.failureMsg}"),
               ),
             );
           }

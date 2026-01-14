@@ -3,14 +3,14 @@ import 'failures.dart';
 
 
 Failure mapExceptionToFailure(Exception exception) {
+
   if (exception is AppException) {
     return switch (exception) {
-      ServerException() => const ServerFailure(),
-      NetworkException() => const NetworkFailure(),
-      UnauthorizedException() => const UnauthorizedFailure(),
-      ValidationException() => throw UnimplementedError(),
+      ServerException() =>  ServerFailure(msg: exception.msg),
+      NetworkException() => NetworkFailure(msg: exception.msg),
+      ValidationException() => ValidationFailure(msg:exception.msg),
     };
   }
+  return UnknownFailure(msg: "Something went wrong , please try again later");
 
-  return const UnknownFailure();
 }

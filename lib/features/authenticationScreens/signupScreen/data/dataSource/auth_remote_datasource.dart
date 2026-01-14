@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/models/auth_model.dart';
 
 import 'auth_remote_datasource_interface.dart';
 import 'package:dio/dio.dart';
@@ -10,13 +11,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<void> register({
+  Future<AuthModel> register({
     required String email,
     required String password,
     required String userName,
     required String role,
   }) async {
-    await dio.post(
+   Response response = await dio.post(
       '/api/auth/register',
       data: {
         "email": email,
@@ -26,5 +27,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       },
       options: Options(extra: {'requiresToken': false}),
     );
+   return AuthModel.fromJson(response.data);
   }
 }

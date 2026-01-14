@@ -20,6 +20,10 @@ import 'package:near_buy_gp/core/network/interceptors/error_interceptor.dart'
     as _i100;
 import 'package:near_buy_gp/core/network/interceptors/logger_interceptor.dart'
     as _i852;
+import 'package:near_buy_gp/core/network/sessionManager/session_manager_implementation.dart'
+    as _i850;
+import 'package:near_buy_gp/core/network/sessionManager/session_manager_interface.dart'
+    as _i447;
 import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/dataSource/auth_remote_datasource.dart'
     as _i914;
 import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/dataSource/auth_remote_datasource_interface.dart'
@@ -45,6 +49,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i361.BaseOptions>(() => registerModule.options);
     gh.lazySingleton<_i100.ErrorInterceptor>(() => _i100.ErrorInterceptor());
     gh.lazySingleton<_i852.LoggerInterceptor>(() => _i852.LoggerInterceptor());
+    gh.lazySingleton<_i447.SessionManager>(
+      () => _i850.SessionManagerImpl(gh<_i558.FlutterSecureStorage>()),
+    );
     gh.lazySingleton<_i434.AuthInterceptor>(
       () => _i434.AuthInterceptor(gh<_i558.FlutterSecureStorage>()),
     );
@@ -63,7 +70,10 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i611.AuthRepositoryImpl(gh<_i935.AuthRemoteDataSource>()),
     );
     gh.lazySingleton<_i184.RegisterUseCase>(
-      () => _i184.RegisterUseCase(gh<_i571.AuthRepositoryInterface>()),
+      () => _i184.RegisterUseCase(
+        gh<_i571.AuthRepositoryInterface>(),
+        gh<_i447.SessionManager>(),
+      ),
     );
     gh.factory<_i764.SignupScreenBloc>(
       () => _i764.SignupScreenBloc(gh<_i184.RegisterUseCase>()),

@@ -93,7 +93,7 @@ class SignupScreenBloc extends Bloc<SignupScreenEvent, SignupScreenState> {
       // ===== HANDLE RESULT =====
       result.fold(
         (failure) {
-          emit(SignupFailure(failure.key));
+          emit(SignupFailure(failure.msg));
         },
         (_) {
           emit(SignupSuccess());
