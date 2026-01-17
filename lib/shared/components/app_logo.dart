@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
 
-import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_style.dart';
 import '../../l10n/app_localizations.dart';
 
 class AppLogo extends StatelessWidget {
-  const AppLogo({super.key});
+  final Color logoColor;
+  const AppLogo(this.logoColor, {super.key});
+
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Padding(
-        padding: EdgeInsets.only(left: AppDimens.paddingM),
+        padding: EdgeInsets.only(left: AppDimens.paddingS , top: 40),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -26,7 +27,7 @@ class AppLogo extends StatelessWidget {
             Text(
               AppLocalizations.of(context)!.appName,
               style: AppTextStyles.displaySmall.copyWith(
-                color: AppColors.white,
+                color: logoColor,
               ),
             ),
           ],

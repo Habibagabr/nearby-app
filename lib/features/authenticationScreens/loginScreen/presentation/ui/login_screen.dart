@@ -3,19 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:near_buy_gp/core/routing/app_routes.dart';
 import 'package:near_buy_gp/features/authenticationScreens/utils/input_fields_mapper.dart';
 import 'package:near_buy_gp/l10n/app_localizations.dart';
-import 'package:near_buy_gp/shared/components/base_screen.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/themes/app_text_style.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
 
 import '../../../../../core/di/injection.dart';
 import '../../../../../shared/components/app_logo.dart';
+import '../../../../../shared/components/auth_base_screen.dart';
 import '../../../commonWidgets/auth_bottom_actions.dart';
 import '../../../commonWidgets/input_fields.dart';
 import '../../../utils/auth_field_type.dart';
 import '../../../utils/auth_screen_type.dart';
 import '../bloc/login_screen_bloc.dart';
-
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -66,21 +65,18 @@ class _LoginViewState extends State<_LoginView> {
           SignupRoute().go(context);
         }
         if (state is LoginFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("${state.errorMsg}"),
-              )
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("${state.errorMsg}")));
         }
-
       },
-      child: BaseScreen(
+      child: AuthBaseScreen(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Align(
               alignment: Alignment.topLeft,
-              child: AppLogo(),
+              child: AppLogo(AppColors.white),
             ),
 
             SizedBox(height: size.height / 4),
@@ -118,7 +114,6 @@ class _LoginViewState extends State<_LoginView> {
                     }
                     final isLoading = state is LoginLoading;
 
-
                     return ListView(
                       children: [
                         InputField(
@@ -128,8 +123,10 @@ class _LoginViewState extends State<_LoginView> {
                           controller: _emailController,
                           isError: emailErrorKey != null,
                           errorMessage: emailErrorKey != null
-                              ?  AppLocalizations.of(context)!.translate(emailErrorKey)
-                          : null,
+                              ? AppLocalizations.of(
+                                  context,
+                                )!.translate(emailErrorKey)
+                              : null,
                         ),
 
                         const SizedBox(height: AppDimens.spacingL),
@@ -141,7 +138,9 @@ class _LoginViewState extends State<_LoginView> {
                           controller: _passwordController,
                           isError: passwordErrorKey != null,
                           errorMessage: passwordErrorKey != null
-                         ? AppLocalizations.of(context)!.translate(passwordErrorKey)
+                              ? AppLocalizations.of(
+                                  context,
+                                )!.translate(passwordErrorKey)
                               : null,
                         ),
 
@@ -170,21 +169,18 @@ class _LoginViewState extends State<_LoginView> {
                               child: Padding(
                                 padding: EdgeInsets.only(top: 5),
                                 child: CircularProgressIndicator(
-                                  color:AppColors.darkGray ,
+                                  color: AppColors.darkGray,
                                 ),
                               ),
                             ),
                           ),
                         ),
-
                       ],
                     );
                   },
                 ),
               ),
             ),
-
-
           ],
         ),
       ),

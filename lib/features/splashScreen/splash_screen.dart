@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/features/splashScreen/ui/components/splash_screen_content.dart';
+import 'package:near_buy_gp/shared/components/auth_base_screen.dart';
 
-import '../../shared/components/base_screen.dart';
 
 
 class SplashScreen extends StatelessWidget{
@@ -12,7 +11,7 @@ class SplashScreen extends StatelessWidget{
   Widget build(BuildContext context) {
     return Scaffold(
         extendBodyBehindAppBar: true,
-        body: BaseScreen(
+        body: AuthBaseScreen(
           child: SplashScreenContent(),
         )
     );

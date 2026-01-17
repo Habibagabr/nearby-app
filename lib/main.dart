@@ -7,6 +7,7 @@ import 'core/routing/app_router.dart';
 import 'core/themes/app_btn_theme.dart';
 import 'core/themes/app_colors.dart';
 import 'core/themes/app_input_fields_theme.dart';
+import 'features/homeScreen/ui/home_screen.dart';
 import 'l10n/app_localizations.dart';
 
 //  blocs
@@ -25,7 +26,6 @@ class NearBuy extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-
         ///  Location Bloc (Global)
         BlocProvider<LocationBloc>(
           create: (_) => LocationBloc()
@@ -58,6 +58,7 @@ class NearBuy extends StatelessWidget {
 
         //  Router
         routerConfig: appRouter,
+
       ),
     );
   }

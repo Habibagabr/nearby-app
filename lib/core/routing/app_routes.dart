@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/authenticationScreens/loginScreen/presentation/ui/login_screen.dart';
 import '../../features/authenticationScreens/signupScreen/presentation/ui/signup_screen.dart';
 import '../../features/splashScreen/splash_screen.dart';
+import '../../main_layout/main_shell.dart';
 
 part 'app_routes.g.dart';
 
@@ -44,4 +45,16 @@ class SignupRoute extends GoRouteData with _$SignupRoute {
   Widget build(BuildContext context, GoRouterState state) {
     return const SignupScreen();
   }
+}
+
+@TypedGoRoute<MainShellRoute>(
+  path:'/main',
+)
+class MainShellRoute extends GoRouteData with _$MainShellRoute{
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return  MainShell();
+  }
+
 }

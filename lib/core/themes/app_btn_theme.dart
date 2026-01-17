@@ -1,7 +1,8 @@
 import 'app_colors.dart';
-import 'app_text_style.dart';
 import '../values/app_dimen.dart';
 import 'package:flutter/material.dart';
+
+import 'app_text_style.dart';
 
 class AppBtnTheme {
   static ElevatedButtonThemeData elevatedButtonTheme = ElevatedButtonThemeData(

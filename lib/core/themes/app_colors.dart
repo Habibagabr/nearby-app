@@ -7,6 +7,7 @@ class AppColors {
   static const Color darkGray = Color(0XFF1D1D1D);
   static const Color white = Color(0XFFFFFFFF);
   static const Color orange = Color(0XFFFF7807);
+  static const Color lightGray = Color(0XFF9E9E9EFF);
 
   // Accent
   static const Color success = Color(0xFF28A745);

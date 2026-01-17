@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
 import '../../core/themes/app_colors.dart';
 
-class BaseScreen extends StatelessWidget {
+class AuthBaseScreen extends StatelessWidget {
   final Widget child;
 
-  const BaseScreen({super.key, required this.child});
+  const AuthBaseScreen({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class BaseScreen extends StatelessWidget {
             ),
           ),
           child: Padding(
-            padding: EdgeInsetsGeometry.only( top:  AppDimens.paddingL),
+            padding: EdgeInsetsGeometry.only(top:  AppDimens.paddingL),
             child:child,
           )
       ),

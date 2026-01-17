@@ -5,7 +5,7 @@ import 'package:near_buy_gp/core/routing/app_routes.dart';
 import 'package:near_buy_gp/features/authenticationScreens/utils/auth_field_type.dart';
 import 'package:near_buy_gp/features/authenticationScreens/utils/input_fields_mapper.dart';
 import 'package:near_buy_gp/l10n/app_localizations.dart';
-import 'package:near_buy_gp/shared/components/base_screen.dart';
+import 'package:near_buy_gp/shared/components/auth_base_screen.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/themes/app_text_style.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
@@ -84,7 +84,7 @@ class _SignupViewState extends State<_SignupView> {
             LoginRoute().go(context);
           }
         },
-        child: BaseScreen(
+        child: AuthBaseScreen(
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -92,7 +92,9 @@ class _SignupViewState extends State<_SignupView> {
                   /// Logo
                   const Align(
                     alignment: Alignment.topLeft,
-                    child: AppLogo(),
+                    child: AppLogo(
+                        AppColors.white
+                    ),
                   ),
                   SizedBox(height: AppDimens.spacingXL),
 
