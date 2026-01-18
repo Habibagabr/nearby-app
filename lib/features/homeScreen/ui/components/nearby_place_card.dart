@@ -36,7 +36,8 @@ class _NearbyPlaceCardState extends State<NearbyPlaceCard> {
     bool halfStar = starsNumber.toDouble() != widget.rating;
 
     return Card(
-      surfaceTintColor: AppColors.white,
+       color: AppColors.white,
+      elevation: 3.0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

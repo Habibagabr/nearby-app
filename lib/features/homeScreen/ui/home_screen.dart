@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
+import 'package:near_buy_gp/features/map/map_utils.dart';
 import 'package:near_buy_gp/shared/components/app_logo.dart';
 
 import '../../../shared/components/header_text_style.dart';
@@ -148,9 +149,10 @@ const List<NearbyPlaceEntity> nearbyPlacesMock = [
       'https://res.cloudinary.com/da7zzomwl/image/upload/v1768605857/images_yyarid.jpg',
       'https://res.cloudinary.com/da7zzomwl/image/upload/v1768605857/images_yyarid.jpg',
     ],
-    servicesProvided: ['Groceries', 'Fresh Produce', 'Online Ordering',],
+    servicesProvided: ['Groceries', 'Fresh Produce', 'Online Ordering'],
   ),
 ];
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -162,37 +164,72 @@ class HomeScreen extends StatelessWidget {
         preferredSize: const Size.fromHeight(60.0),
         child: AppLogo(AppColors.darkGray),
       ),
-      body: CustomScrollView(
-        slivers: [
-          // places header
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(AppDimens.paddingM),
-              child: HeaderText("Nearby places"),
-            ),
+      body: Stack( // Use a Stack to layer widgets
+        children: [
+          // The Map
+          SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: getMap(),
           ),
 
-          // places List (Performance-optimized lazy loading)
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                final place = nearbyPlacesMock[index];
-                return NearbyPlaceCard(
-                  name: place.name,
-                  category: place.category,
-                  description: place.description,
-                  servicesProvided: place.servicesProvided,
-                  address: place.address,
-                  imageUrls: place.imageUrls,
-                  rating: place.rating,
-                );
-              },
-              childCount: nearbyPlacesMock.length,
-            ),
+          // The Draggable Panel (Foreground)
+          DraggableScrollableSheet(
+            initialChildSize: 0.75, // Starts at 35% of the screen
+            minChildSize: 0.1,    // Can collapse to 15%
+            maxChildSize: 1,     // Can expand to 90%
+            builder: (BuildContext context, ScrollController scrollController) {
+              return Container(
+                // Add decoration for rounded top corners and background color
+                decoration: const BoxDecoration(
+                  color: Colors.white, // Must set a background color
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(25),
+                    topRight: Radius.circular(25),
+                  ),
+                ),
+                child: ListView.builder(
+                  controller: scrollController, // links scrolling behavior
+                  itemCount: nearbyPlacesMock.length + 1, // +1 for the header section
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      // The "Nearby places" header and drag handle area
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center( // Optional drag indicator (handle)
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 10),
+                              height: 5,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(AppDimens.paddingM),
+                            child: HeaderText("Nearby places"),
+                          ),
+                        ],
+                      );
+                    }
+                    // The actual list items
+                    final place = nearbyPlacesMock[index - 1];
+                    return NearbyPlaceCard(
+                      name: place.name,
+                      category: place.category,
+                      description: place.description,
+                      servicesProvided: place.servicesProvided,
+                      address: place.address,
+                      imageUrls: place.imageUrls,
+                      rating: place.rating,
+                    );
+                  },
+                ),
+              );
+            },
           ),
-
-          //  bottom padding so the last card isn't cut off
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
         ],
       ),
     );

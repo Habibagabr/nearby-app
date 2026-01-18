@@ -26,7 +26,7 @@ class AppLogo extends StatelessWidget {
             SizedBox(width: AppDimens.spacingS),
             Text(
               AppLocalizations.of(context)!.appName,
-              style: AppTextStyles.displaySmall.copyWith(
+              style: AppTextStyles.headlineMedium.copyWith(
                 color: logoColor,
               ),
             ),
