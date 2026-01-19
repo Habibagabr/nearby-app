@@ -4,7 +4,7 @@ import 'location_permission_status.dart';
 
 
 class LocationService {
-  /// Check if GPS is enabled and request permissions
+  // Check if GPS is enabled and request permissions
   static Future<LocationPermissionStatus> handlePermission() async {
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -15,9 +15,11 @@ class LocationService {
         permission = await Geolocator.requestPermission();
       }
 
+      // FIX: geolocator returns 'denied', 'deniedForever', 'whileInUse', or 'always'
       if (permission == LocationPermission.denied) return LocationPermissionStatus.denied;
       if (permission == LocationPermission.deniedForever) return LocationPermissionStatus.deniedForever;
 
+      // If we reach here, it's either .whileInUse or .always
       return LocationPermissionStatus.granted;
     } catch (_) {
       return LocationPermissionStatus.serviceDisabled;

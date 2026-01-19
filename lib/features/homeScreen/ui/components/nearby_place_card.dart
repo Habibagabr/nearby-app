@@ -50,15 +50,14 @@ class _NearbyPlaceCardState extends State<NearbyPlaceCard> {
               height: 200,
               width: 150,
               child: Stack(
-                alignment: Alignment.bottomCenter,
+                alignment: Alignment.bottomCenter, // to mak ethe dots in the center " keda keda itsn't affect the images as it takes the whole space "
                 children: [
                   CarouselSlider.builder(
                     itemCount: widget.imageUrls.length,
                     options: CarouselOptions(
                       height: double.infinity,
                       viewportFraction: 1.0,
-                      enlargeCenterPage: false,
-                      enableInfiniteScroll: false,
+                      enableInfiniteScroll: widget.imageUrls.length == 1 ? false : true,
                       onPageChanged: (index, reason) {
                         setState(() {
                           _currentIndex = index;
@@ -79,7 +78,7 @@ class _NearbyPlaceCardState extends State<NearbyPlaceCard> {
                     },
                   ),
                   // DOT INDICATOR
-                  if (widget.imageUrls.length >= 1)
+                  if (widget.imageUrls.isNotEmpty)
                     Positioned(
                       bottom: 8,
                       child: Row(

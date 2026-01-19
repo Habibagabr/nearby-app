@@ -1,4 +1,3 @@
-part of 'location_bloc.dart';
 
 sealed class LocationState {}
 
@@ -16,8 +15,9 @@ class LocationReady extends LocationState {
   final double lat;
   final double lng;
 
-  LocationReady({
-    required this.lat,
-    required this.lng,
-  });
+  LocationReady({required this.lat, required this.lng});
+}
+class LocationError extends LocationState{
+  final String error;
+  LocationError({required this.error});
 }

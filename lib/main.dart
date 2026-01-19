@@ -11,7 +11,7 @@ import 'features/homeScreen/ui/home_screen.dart';
 import 'l10n/app_localizations.dart';
 
 //  blocs
-import 'features/location/bloc/location_bloc.dart';
+import 'features/location/presentation/bloc/location_bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,8 +28,7 @@ class NearBuy extends StatelessWidget {
       providers: [
         ///  Location Bloc (Global)
         BlocProvider<LocationBloc>(
-          create: (_) => LocationBloc()
-            ..add(StartLocationTracking()),
+          create: (_) => LocationBloc()..add(StartLocationTracking())
         ),
       ],
       child: MaterialApp.router(

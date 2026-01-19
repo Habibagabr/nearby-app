@@ -84,7 +84,7 @@ class AppTextStyles {
   );
 
   // -------------------------------------------------------------
-  //  LABEL — Buttons, chips, tags, helper text (Small UI)
+  //  LABEL — Buttons, chips, tags, resources text (Small UI)
   // -------------------------------------------------------------
   static const TextStyle labelLarge = TextStyle(
     fontSize: 20,

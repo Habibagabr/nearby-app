@@ -14,7 +14,7 @@ class AppLogo extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Padding(
-        padding: EdgeInsets.only(left: AppDimens.paddingS , top: 40),
+        padding: EdgeInsets.only(left: AppDimens.paddingS , top: 40,bottom: 10),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,

@@ -16,7 +16,7 @@ class HeaderText extends StatelessWidget{
         Text(
           headerTitle,
           style: AppTextStyles.headlineSmall.copyWith(
-            color: AppColors.darkGray
+            color: AppColors.white
           ),
 
         )
