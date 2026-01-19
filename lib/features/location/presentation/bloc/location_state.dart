@@ -1,3 +1,4 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 sealed class LocationState {}
 
@@ -14,8 +15,9 @@ class LocationPermissionDeniedForever extends LocationState {}
 class LocationReady extends LocationState {
   final double lat;
   final double lng;
+  final Set<Marker> markers;
 
-  LocationReady({required this.lat, required this.lng});
+  LocationReady({required this.lat, required this.lng, this.markers = const {}});
 }
 class LocationError extends LocationState{
   final String error;

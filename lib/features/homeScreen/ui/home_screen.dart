@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
 import 'package:near_buy_gp/features/location/presentation/bloc/location_bloc.dart';
+import 'package:near_buy_gp/features/location/presentation/resources/assests_cach.dart';
 
 import '../../../shared/components/header_text_style.dart';
 import '../../location/presentation/bloc/location_state.dart';
@@ -188,6 +190,16 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final Completer<GoogleMapController> _mapCompleter = Completer();
   bool _isFirstLoad = true; // Track if it's the first time getting location
+  String? _mapStyle;
+
+  @override
+  void initState() {
+    super.initState();
+    MarkerIconsCache.instance.loadIcons();
+    rootBundle.loadString('assets/map_style.json').then((style) {
+      _mapStyle = style;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -210,9 +222,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildMap() {
     return BlocBuilder<LocationBloc, LocationState>(
+      // Crucial optimization: Only rebuild the Map widget if the MARKERS change,
+      // not every time the user's lat/lng changes.
+      buildWhen: (previous, current) {
+        if (previous is LocationReady && current is LocationReady) {
+          return previous.markers != current.markers;
+        }
+        return true;
+      },
       builder: (context, state) {
         if (state is LocationReady) {
           return GoogleMap(
+            // initialCameraPosition is ONLY used the very first time the map loads
             initialCameraPosition: CameraPosition(
               target: LatLng(state.lat, state.lng),
               zoom: 15,
@@ -221,8 +242,20 @@ class _HomeScreenState extends State<HomeScreen> {
               if (!_mapCompleter.isCompleted) {
                 _mapCompleter.complete(controller);
               }
+
+              controller.setMapStyle('''
+  [
+    {
+      "featureType": "poi",
+      "elementType": "labels.icon",
+      "stylers": [{ "visibility": "off" }]
+    }
+  ]
+  ''');
             },
-            myLocationEnabled: true,
+
+            markers: state.markers,
+            myLocationEnabled: true, // This handles the blue dot automatically
             myLocationButtonEnabled: true,
             zoomControlsEnabled: true,
           );

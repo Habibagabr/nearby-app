@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
-import 'location_permission_status.dart';
+import '../../location_permission_status.dart';
 
 
 class LocationService {

@@ -30,7 +30,7 @@ class MarkerIconsCache{
   }
 
   BitmapDescriptor getIcon(String category) {
-    return _cachedIcons[category] ?? BitmapDescriptor.defaultMarker;
+    return _cachedIcons[category] ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet);
   }
 
 
