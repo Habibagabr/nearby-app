@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
-import '../../location_permission_status.dart';
+import 'package:injectable/injectable.dart';
 
+import '../../Location_permission_status.dart';
+import 'location_service.dart';
 
-class LocationService {
+@LazySingleton(as:LocationService)
+class LocationServiceImpl implements LocationService {
   // Check if GPS is enabled and request permissions
-  static Future<LocationPermissionStatus> handlePermission() async {
+  @override
+  Future<LocationPermissionStatus> handlePermissions() async {
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) return LocationPermissionStatus.serviceDisabled;
@@ -15,9 +19,13 @@ class LocationService {
         permission = await Geolocator.requestPermission();
       }
 
-      // FIX: geolocator returns 'denied', 'deniedForever', 'whileInUse', or 'always'
-      if (permission == LocationPermission.denied) return LocationPermissionStatus.denied;
-      if (permission == LocationPermission.deniedForever) return LocationPermissionStatus.deniedForever;
+      // geolocator returns 'denied', 'deniedForever', 'whileInUse', or 'always'
+      if (permission == LocationPermission.denied) {
+        return LocationPermissionStatus.denied;
+      }
+      if (permission == LocationPermission.deniedForever) {
+        return LocationPermissionStatus.deniedForever;
+      }
 
       // If we reach here, it's either .whileInUse or .always
       return LocationPermissionStatus.granted;
@@ -26,13 +34,10 @@ class LocationService {
     }
   }
 
-  /// Listen to GPS Hardware Toggle (On/Off)
-  static Stream<ServiceStatus> get serviceStatusStream => Geolocator.getServiceStatusStream();
-
-  /// Continuous tracking with  background settings
-  static Stream<Position> locationStream() {
+  // Continuous tracking with  background settings
+  @override
+  Stream<Position> locationStream() {
     LocationSettings settings;
-
     if (defaultTargetPlatform == TargetPlatform.android) {
       settings = AndroidSettings(
         accuracy: LocationAccuracy.best,
@@ -53,7 +58,17 @@ class LocationService {
     return Geolocator.getPositionStream(locationSettings: settings);
   }
 
-  static Future<Position> getCurrentLocation() async => await Geolocator.getCurrentPosition();
+  // Listen to GPS Hardware Toggle (On/Off)
+  // if user turn off the location from the screen inside the application
+  @override
+  Stream<ServiceStatus> serviceStatusStream() =>
+      Geolocator.getServiceStatusStream();
 
-  static Future<void> openAppSettings() async => await Geolocator.openAppSettings();
+
+  @override
+  Future<Position> getCurrentLocation() async =>
+      await Geolocator.getCurrentPosition();
+
+  @override
+  Future<void> openAppSettings() async => await Geolocator.openAppSettings();
 }

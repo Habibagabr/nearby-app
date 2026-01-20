@@ -1,7 +1,6 @@
 import 'exceptions.dart';
 import 'failures.dart';
 
-
 Failure mapExceptionToFailure(Exception exception) {
 
   if (exception is AppException) {

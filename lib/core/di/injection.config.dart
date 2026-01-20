@@ -14,6 +14,24 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:near_buy_gp/core/di/register_module.dart' as _i1038;
+import 'package:near_buy_gp/core/location/data/datasource/location_service.dart'
+    as _i342;
+import 'package:near_buy_gp/core/location/data/datasource/location_service_impl.dart'
+    as _i293;
+import 'package:near_buy_gp/core/location/data/repository/location_repositry_impl.dart'
+    as _i417;
+import 'package:near_buy_gp/core/location/domain/repository/location_repo.dart'
+    as _i342;
+import 'package:near_buy_gp/core/location/domain/usecases/get_current_location.dart'
+    as _i1069;
+import 'package:near_buy_gp/core/location/domain/usecases/initialize_location_usecase.dart'
+    as _i790;
+import 'package:near_buy_gp/core/location/domain/usecases/watch%20_GPS_servicestatus_usecase.dart'
+    as _i262;
+import 'package:near_buy_gp/core/location/domain/usecases/watch_user_location%20_usecase.dart'
+    as _i1059;
+import 'package:near_buy_gp/core/location/presentation/bloc/location_bloc.dart'
+    as _i835;
 import 'package:near_buy_gp/core/network/interceptors/auth_interceptor.dart'
     as _i434;
 import 'package:near_buy_gp/core/network/interceptors/error_interceptor.dart'
@@ -61,11 +79,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i361.BaseOptions>(() => registerModule.options);
     gh.lazySingleton<_i100.ErrorInterceptor>(() => _i100.ErrorInterceptor());
     gh.lazySingleton<_i852.LoggerInterceptor>(() => _i852.LoggerInterceptor());
+    gh.lazySingleton<_i342.LocationService>(() => _i293.LocationServiceImpl());
     gh.lazySingleton<_i447.SessionManager>(
       () => _i850.SessionManagerImpl(gh<_i558.FlutterSecureStorage>()),
     );
     gh.lazySingleton<_i434.AuthInterceptor>(
       () => _i434.AuthInterceptor(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i342.LocationRepository>(
+      () => _i417.LocationRepositoryImpl(gh<_i342.LocationService>()),
     );
     gh.lazySingleton<_i361.Dio>(
       () => registerModule.dio(
@@ -73,6 +95,26 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i852.LoggerInterceptor>(),
         gh<_i434.AuthInterceptor>(),
         gh<_i100.ErrorInterceptor>(),
+      ),
+    );
+    gh.lazySingleton<_i1069.GetCurrentLocation>(
+      () => _i1069.GetCurrentLocation(gh<_i342.LocationRepository>()),
+    );
+    gh.lazySingleton<_i790.InitializeLocation>(
+      () => _i790.InitializeLocation(gh<_i342.LocationRepository>()),
+    );
+    gh.lazySingleton<_i262.WatchGpsStatus>(
+      () => _i262.WatchGpsStatus(gh<_i342.LocationRepository>()),
+    );
+    gh.lazySingleton<_i1059.WatchUserLocation>(
+      () => _i1059.WatchUserLocation(gh<_i342.LocationRepository>()),
+    );
+    gh.factory<_i835.LocationBloc>(
+      () => _i835.LocationBloc(
+        gh<_i790.InitializeLocation>(),
+        gh<_i1059.WatchUserLocation>(),
+        gh<_i262.WatchGpsStatus>(),
+        gh<_i1069.GetCurrentLocation>(),
       ),
     );
     gh.lazySingleton<_i732.RegisterRemoteDataSource>(

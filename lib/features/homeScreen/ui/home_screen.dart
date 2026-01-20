@@ -6,11 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
-import 'package:near_buy_gp/features/location/presentation/bloc/location_bloc.dart';
 import 'package:near_buy_gp/features/location/presentation/resources/assests_cach.dart';
 
+import '../../../core/location/presentation/bloc/location_bloc.dart';
+import '../../../core/location/presentation/bloc/location_event.dart';
+import '../../../core/location/presentation/bloc/location_state.dart';
 import '../../../shared/components/header_text_style.dart';
-import '../../location/presentation/bloc/location_state.dart';
 import '../domain/entities/nearby_places_entity.dart';
 import 'components/nearby_place_card.dart';
 
@@ -179,6 +180,7 @@ const List<NearbyPlaceEntity> nearbyPlacesMock = [
   ),
 ];
 
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -186,144 +188,156 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-// home_screen.dart
 class _HomeScreenState extends State<HomeScreen> {
   final Completer<GoogleMapController> _mapCompleter = Completer();
-  bool _isFirstLoad = true; // Track if it's the first time getting location
+  bool _isFirstCameraMove = true;
   String? _mapStyle;
 
   @override
   void initState() {
     super.initState();
+
+    /// Load marker icons
     MarkerIconsCache.instance.loadIcons();
+
+    /// Load map style
     rootBundle.loadString('assets/map_style.json').then((style) {
       _mapStyle = style;
+    });
+
+    /// Start location flow
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LocationBloc>().add(RequestPermission());
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Changed to standard for example
+      backgroundColor: Colors.black,
       body: BlocListener<LocationBloc, LocationState>(
         listener: (context, state) async {
-          if (state is LocationReady && _isFirstLoad) {
+          if (state.status == LocationStatus.tracking &&
+              state.location != null &&
+              _isFirstCameraMove) {
             final controller = await _mapCompleter.future;
             controller.animateCamera(
-              CameraUpdate.newLatLng(LatLng(state.lat, state.lng)),
+              CameraUpdate.newLatLng(
+                LatLng(
+                  state.location!.latitude,
+                  state.location!.longitude,
+                ),
+              ),
             );
-            _isFirstLoad = false; // Stop auto-following after first jump
+            _isFirstCameraMove = false;
           }
         },
-        child: Stack(children: [_buildMap(), _buildDraggableSheet()]),
+        child: Stack(
+          children: [
+            _buildMap(),
+            _buildDraggableSheet(),
+          ],
+        ),
       ),
     );
   }
 
+  // ================= MAP =================
+
   Widget _buildMap() {
     return BlocBuilder<LocationBloc, LocationState>(
-      // Crucial optimization: Only rebuild the Map widget if the MARKERS change,
-      // not every time the user's lat/lng changes.
-      buildWhen: (previous, current) {
-        if (previous is LocationReady && current is LocationReady) {
-          return previous.markers != current.markers;
-        }
-        return true;
-      },
       builder: (context, state) {
-        if (state is LocationReady) {
+        // 🟢 Tracking
+        if (state.status == LocationStatus.tracking &&
+            state.location != null) {
           return GoogleMap(
-            // initialCameraPosition is ONLY used the very first time the map loads
             initialCameraPosition: CameraPosition(
-              target: LatLng(state.lat, state.lng),
+              target: LatLng(
+                state.location!.latitude,
+                state.location!.longitude,
+              ),
               zoom: 15,
             ),
             onMapCreated: (controller) {
               if (!_mapCompleter.isCompleted) {
                 _mapCompleter.complete(controller);
               }
-
-              controller.setMapStyle('''
-  [
-    {
-      "featureType": "poi",
-      "elementType": "labels.icon",
-      "stylers": [{ "visibility": "off" }]
-    }
-  ]
-  ''');
+              if (_mapStyle != null) {
+                controller.setMapStyle(_mapStyle);
+              }
             },
-
-            markers: state.markers,
-            myLocationEnabled: true, // This handles the blue dot automatically
+            myLocationEnabled: true,
             myLocationButtonEnabled: true,
-            zoomControlsEnabled: true,
+            zoomControlsEnabled: false,
           );
         }
 
-        if (state is LocationError) {
-          return Center(
-            child: Text(state.error, style: const TextStyle(color: Colors.red)),
+        // 🚫 GPS OFF
+        if (state.status == LocationStatus.serviceDisabled) {
+          return _buildCenterMessage(
+            "Please enable GPS from device settings",
           );
         }
 
-        if (state is LocationServiceDisabled) {
-          return const Center(
-            child: Text(
-              "Please enable GPS Hardware",
-              style: TextStyle(color: Colors.white),
-            ),
+        // 🔐 Permission denied
+        if (state.status == LocationStatus.permissionDenied) {
+          return _buildCenterMessage(
+            "Location permission is required",
           );
         }
 
-        return const Center(child: CircularProgressIndicator());
+        // ❌ Error
+        if (state.status == LocationStatus.error) {
+          return _buildCenterMessage(
+            state.errorMessage ?? "Unknown error",
+            isError: true,
+          );
+        }
+
+        // ⏳ Loading / Initial
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
       },
     );
   }
 
+  Widget _buildCenterMessage(String text, {bool isError = false}) {
+    return Center(
+      child: Text(
+        text,
+        style: TextStyle(
+          color: isError ? Colors.red : Colors.white,
+          fontSize: 16,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  // ================= DRAGGABLE SHEET =================
+
   Widget _buildDraggableSheet() {
     return DraggableScrollableSheet(
-      initialChildSize: 0.5, // Starts at 50% of the screen
-      minChildSize: 0.1, // Can collapse to 15%
-      maxChildSize: 1, // Can expand to 90%
-      builder: (BuildContext context, ScrollController scrollController) {
+      initialChildSize: 0.45,
+      minChildSize: 0.1,
+      maxChildSize: 0.9,
+      builder: (context, scrollController) {
         return Container(
-          // Add decoration for rounded top corners and background color
           decoration: const BoxDecoration(
-            color: AppColors.darkGray, // Must set a background color
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(25),
-              topRight: Radius.circular(25),
+            color: AppColors.darkGray,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(25),
             ),
           ),
           child: ListView.builder(
-            controller: scrollController, // links scrolling behavior
+            controller: scrollController,
             itemCount: nearbyPlacesMock.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {
-                // The "Nearby places" header and drag handle area
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 10),
-                        height: 5,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(AppDimens.paddingM),
-                      child: HeaderText("Nearby places"),
-                    ),
-                  ],
-                );
+                return _buildSheetHeader();
               }
-              // The actual list items
+
               final place = nearbyPlacesMock[index - 1];
               return NearbyPlaceCard(
                 name: place.name,
@@ -338,6 +352,29 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSheetHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10),
+        Center(
+          child: Container(
+            height: 5,
+            width: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[400],
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(AppDimens.paddingM),
+          child: HeaderText("Nearby Places"),
+        ),
+      ],
     );
   }
 }
