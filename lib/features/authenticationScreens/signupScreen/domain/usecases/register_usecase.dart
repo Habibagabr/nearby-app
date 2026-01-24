@@ -37,7 +37,7 @@ class RegisterUseCase extends UseCase<LoginEntity, RegisterParams> {
         userName: params.userName,
         role: params.role
     );
-    // map only calling in the term of success not in failure
+    // markers only calling in the term of success not in failure
     return result.map((authEntity) {
       sessionManager.saveSession(
         token: authEntity.accessToken,

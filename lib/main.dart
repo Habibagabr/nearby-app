@@ -8,6 +8,7 @@ import 'core/routing/app_router.dart';
 import 'core/themes/app_btn_theme.dart';
 import 'core/themes/app_colors.dart';
 import 'core/themes/app_input_fields_theme.dart';
+import 'features/mapScreen/presentation/bloc/map_bloc.dart';
 import 'l10n/app_localizations.dart';
 
 void main() {
@@ -27,6 +28,9 @@ class NearBuy extends StatelessWidget {
         BlocProvider<LocationBloc>(
           create: (_) => getIt<LocationBloc>(),
         ),
+        BlocProvider<MapBloc>(
+          create: (_) => getIt<MapBloc>(),
+        )
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

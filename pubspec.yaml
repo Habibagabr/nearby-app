@@ -49,6 +49,8 @@ dependencies:
   flutter_bloc: ^9.0.0
 
   persistent_bottom_nav_bar: 6.0.0
+  skeletonizer: ^2.1.2
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -64,6 +66,8 @@ dependencies:
   cached_network_image: ^3.4.1
   carousel_slider: ^5.1.1
   google_maps_flutter: ^2.14.0
+  widget_to_marker: ^1.0.6
+
 
 
 # any thing under this used during development not running

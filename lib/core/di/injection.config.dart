@@ -66,6 +66,18 @@ import 'package:near_buy_gp/features/authenticationScreens/signupScreen/domain/u
     as _i184;
 import 'package:near_buy_gp/features/authenticationScreens/signupScreen/presentation/bloc/signup_screen_bloc.dart'
     as _i764;
+import 'package:near_buy_gp/features/homeScreen/data/datasource/home_remote_service.dart'
+    as _i859;
+import 'package:near_buy_gp/features/homeScreen/data/datasource/home_remote_service_impl.dart'
+    as _i217;
+import 'package:near_buy_gp/features/homeScreen/data/repository/home_repository_impl.dart'
+    as _i1041;
+import 'package:near_buy_gp/features/homeScreen/domain/repository/home_repository.dart'
+    as _i269;
+import 'package:near_buy_gp/features/homeScreen/domain/usecases/get_places_in_bound.dart'
+    as _i712;
+import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_bloc.dart'
+    as _i809;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -80,6 +92,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i100.ErrorInterceptor>(() => _i100.ErrorInterceptor());
     gh.lazySingleton<_i852.LoggerInterceptor>(() => _i852.LoggerInterceptor());
     gh.lazySingleton<_i342.LocationService>(() => _i293.LocationServiceImpl());
+    gh.lazySingleton<_i859.HomeRemoteService>(
+      () => _i217.HomeRemoteServiceImpl(),
+    );
     gh.lazySingleton<_i447.SessionManager>(
       () => _i850.SessionManagerImpl(gh<_i558.FlutterSecureStorage>()),
     );
@@ -88,6 +103,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i342.LocationRepository>(
       () => _i417.LocationRepositoryImpl(gh<_i342.LocationService>()),
+    );
+    gh.lazySingleton<_i269.HomeRepository>(
+      () => _i1041.HomeRepositoryImpl(gh<_i859.HomeRemoteService>()),
     );
     gh.lazySingleton<_i361.Dio>(
       () => registerModule.dio(
@@ -122,6 +140,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i895.LoginRemoteDataSource>(
       () => _i490.LoginRemoteDataSourceImpl(gh<_i361.Dio>()),
+    );
+    gh.factory<_i712.GetPlacesInBoundsUseCase>(
+      () => _i712.GetPlacesInBoundsUseCase(gh<_i269.HomeRepository>()),
+    );
+    gh.factory<_i809.MapBloc>(
+      () => _i809.MapBloc(gh<_i712.GetPlacesInBoundsUseCase>()),
     );
     gh.lazySingleton<_i514.RegisterRepositoryInterface>(
       () => _i757.AuthRepositoryImpl(gh<_i732.RegisterRemoteDataSource>()),

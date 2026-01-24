@@ -14,7 +14,7 @@
 //     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
 //     if (!serviceEnabled) return const Left(LocationPermissionStatus.serviceDisabled);
 //
-//     // permissionsHandling returns Either<String, bool>, we map Left to Status
+//     // permissionsHandling returns Either<String, bool>, we markers Left to Status
 //     final result = await repository.permissionsHandling();
 //     return result.fold(
 //           (error) => const Left(LocationPermissionStatus.denied),

@@ -1,4 +1,6 @@
-class NearbyPlaceEntity{
+import 'package:near_buy_gp/features/homeScreen/domain/entities/nearby_places_entity.dart';
+
+class NearbyPlaceModel {
   final String id;
   final String name;
   final String category;
@@ -10,7 +12,7 @@ class NearbyPlaceEntity{
   final String? status = "opened";
   final List<String> imageUrls;
   final List<String>? servicesProvided;
-  const NearbyPlaceEntity({
+  const NearbyPlaceModel({
     required this.id,
     required this.name,
     required this.category,
@@ -23,16 +25,18 @@ class NearbyPlaceEntity{
     required this.lng,
   });
 
-
-
-
-
-
-
-
-
-
-
-
-
+  NearbyPlaceEntity toEntity() {
+    return NearbyPlaceEntity(
+      id: id,
+      name: name,
+      category: category,
+      description: description,
+      servicesProvided: servicesProvided,
+      address: address,
+      rating: rating,
+      imageUrls: imageUrls,
+      lat: lat,
+      lng: lng,
+    );
+  }
 }
