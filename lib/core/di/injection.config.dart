@@ -32,12 +32,12 @@ import 'package:near_buy_gp/core/location/domain/usecases/watch_user_location%20
     as _i1059;
 import 'package:near_buy_gp/core/location/presentation/bloc/location_bloc.dart'
     as _i835;
-import 'package:near_buy_gp/core/network/interceptors/auth_interceptor.dart'
-    as _i434;
 import 'package:near_buy_gp/core/network/interceptors/error_interceptor.dart'
     as _i100;
 import 'package:near_buy_gp/core/network/interceptors/logger_interceptor.dart'
     as _i852;
+import 'package:near_buy_gp/core/network/interceptors/request_interceptor.dart'
+    as _i617;
 import 'package:near_buy_gp/core/network/sessionManager/session_manager_implementation.dart'
     as _i850;
 import 'package:near_buy_gp/core/network/sessionManager/session_manager_interface.dart'
@@ -74,8 +74,12 @@ import 'package:near_buy_gp/features/homeScreen/data/repository/home_repository_
     as _i1041;
 import 'package:near_buy_gp/features/homeScreen/domain/repository/home_repository.dart'
     as _i269;
+import 'package:near_buy_gp/features/homeScreen/domain/usecases/get_nearby_places.dart'
+    as _i716;
 import 'package:near_buy_gp/features/homeScreen/domain/usecases/get_places_in_bound.dart'
     as _i712;
+import 'package:near_buy_gp/features/homeScreen/ui/bloc/home_bloc.dart'
+    as _i715;
 import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_bloc.dart'
     as _i809;
 
@@ -92,28 +96,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i100.ErrorInterceptor>(() => _i100.ErrorInterceptor());
     gh.lazySingleton<_i852.LoggerInterceptor>(() => _i852.LoggerInterceptor());
     gh.lazySingleton<_i342.LocationService>(() => _i293.LocationServiceImpl());
-    gh.lazySingleton<_i859.HomeRemoteService>(
-      () => _i217.HomeRemoteServiceImpl(),
-    );
     gh.lazySingleton<_i447.SessionManager>(
       () => _i850.SessionManagerImpl(gh<_i558.FlutterSecureStorage>()),
     );
-    gh.lazySingleton<_i434.AuthInterceptor>(
-      () => _i434.AuthInterceptor(gh<_i558.FlutterSecureStorage>()),
+    gh.lazySingleton<_i617.RequestInterceptor>(
+      () => _i617.RequestInterceptor(gh<_i558.FlutterSecureStorage>()),
     );
     gh.lazySingleton<_i342.LocationRepository>(
       () => _i417.LocationRepositoryImpl(gh<_i342.LocationService>()),
-    );
-    gh.lazySingleton<_i269.HomeRepository>(
-      () => _i1041.HomeRepositoryImpl(gh<_i859.HomeRemoteService>()),
-    );
-    gh.lazySingleton<_i361.Dio>(
-      () => registerModule.dio(
-        gh<_i361.BaseOptions>(),
-        gh<_i852.LoggerInterceptor>(),
-        gh<_i434.AuthInterceptor>(),
-        gh<_i100.ErrorInterceptor>(),
-      ),
     );
     gh.lazySingleton<_i1069.GetCurrentLocation>(
       () => _i1069.GetCurrentLocation(gh<_i342.LocationRepository>()),
@@ -135,23 +125,37 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1069.GetCurrentLocation>(),
       ),
     );
+    gh.lazySingleton<_i361.Dio>(
+      () => registerModule.dio(
+        gh<_i361.BaseOptions>(),
+        gh<_i852.LoggerInterceptor>(),
+        gh<_i617.RequestInterceptor>(),
+        gh<_i100.ErrorInterceptor>(),
+      ),
+    );
     gh.lazySingleton<_i732.RegisterRemoteDataSource>(
       () => _i34.RegisterRemoteDataSourceImpl(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i859.HomeRemoteService>(
+      () => _i217.HomeRemoteServiceImpl(gh<_i361.Dio>()),
     );
     gh.lazySingleton<_i895.LoginRemoteDataSource>(
       () => _i490.LoginRemoteDataSourceImpl(gh<_i361.Dio>()),
     );
-    gh.factory<_i712.GetPlacesInBoundsUseCase>(
-      () => _i712.GetPlacesInBoundsUseCase(gh<_i269.HomeRepository>()),
-    );
-    gh.factory<_i809.MapBloc>(
-      () => _i809.MapBloc(gh<_i712.GetPlacesInBoundsUseCase>()),
+    gh.lazySingleton<_i269.HomeRepository>(
+      () => _i1041.HomeRepositoryImpl(gh<_i859.HomeRemoteService>()),
     );
     gh.lazySingleton<_i514.RegisterRepositoryInterface>(
       () => _i757.AuthRepositoryImpl(gh<_i732.RegisterRemoteDataSource>()),
     );
     gh.factory<_i363.LoginRepository>(
       () => _i529.LoginRepositoryImp(gh<_i895.LoginRemoteDataSource>()),
+    );
+    gh.factory<_i712.GetPlacesInBoundsUseCase>(
+      () => _i712.GetPlacesInBoundsUseCase(gh<_i269.HomeRepository>()),
+    );
+    gh.lazySingleton<_i716.GetNearbyPlacesUseCase>(
+      () => _i716.GetNearbyPlacesUseCase(gh<_i269.HomeRepository>()),
     );
     gh.lazySingleton<_i184.RegisterUseCase>(
       () => _i184.RegisterUseCase(
@@ -162,6 +166,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i764.SignupScreenBloc>(
       () => _i764.SignupScreenBloc(gh<_i184.RegisterUseCase>()),
     );
+    gh.factory<_i809.MapBloc>(
+      () => _i809.MapBloc(gh<_i712.GetPlacesInBoundsUseCase>()),
+    );
     gh.lazySingleton<_i600.LoginUseCase>(
       () => _i600.LoginUseCase(
         gh<_i363.LoginRepository>(),
@@ -170,6 +177,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i292.LoginScreenBloc>(
       () => _i292.LoginScreenBloc(gh<_i600.LoginUseCase>()),
+    );
+    gh.lazySingleton<_i715.HomeBloc>(
+      () => _i715.HomeBloc(gh<_i716.GetNearbyPlacesUseCase>()),
     );
     return this;
   }

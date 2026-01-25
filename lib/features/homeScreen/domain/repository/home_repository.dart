@@ -10,4 +10,8 @@ abstract class HomeRepository {
     required double south,
 });
 
+  Future<Either<Failure, List<NearbyPlaceEntity>>> getNearbyPlaces(
+      {required double lat, required  double lng ,required int pageNum , required int limit});
+
+
 }

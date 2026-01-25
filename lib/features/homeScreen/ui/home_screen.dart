@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:near_buy_gp/core/themes/app_colors.dart';
+import 'package:near_buy_gp/features/homeScreen/ui/bloc/home_bloc.dart';
 import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_bloc.dart';
 import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_state.dart';
-import 'package:near_buy_gp/features/mapScreen/presentation/markers/marker_cache.dart';
 import 'package:near_buy_gp/features/mapScreen/presentation/markers/nearby_pin_entity.dart';
+import 'package:near_buy_gp/shared/components/app_logo.dart';
 
+import '../../../core/di/injection.dart';
 import '../../../core/location/presentation/bloc/location_bloc.dart';
 import '../../../core/location/presentation/bloc/location_event.dart';
 import '../../../core/location/presentation/bloc/location_state.dart';
@@ -33,7 +36,7 @@ final List<NearbyPinEntity> pins = [
     placeRate: '4.3',
     placeState: true,
     placeLat: 29.959156356469357,
-    placeLng:  31.02907002649949,
+    placeLng: 31.02907002649949,
   ),
   NearbyPinEntity(
     placeId: '3',
@@ -118,10 +121,9 @@ Future<void> preloadMarkerIcons(BuildContext context) async {
 
   // Start all precaching tasks simultaneously
   await Future.wait(
-      iconPaths.map((path) => precacheImage(AssetImage(path), context))
+    iconPaths.map((path) => precacheImage(AssetImage(path), context)),
   );
 }
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -141,7 +143,9 @@ class _HomeScreenState extends State<HomeScreen> {
     /// Start location flow
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<LocationBloc>().add(RequestPermission());
-      preloadMarkerIcons(context);
+      if (mounted) {
+        preloadMarkerIcons(context);
+      }
 
     });
   }
@@ -159,26 +163,49 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: BlocListener<MapBloc, MapState>(
-        listenWhen: (prev , curr) => prev.places!=curr.places,
-        listener: (context, state) {
-          _buildMarkers(pins);
-        },
-        child: Stack(
-          children: [
-            Positioned.fill(child: _buildMap()),
-            buildDraggableSheet(),
+    return BlocProvider(
+      create: (context) => getIt<HomeBloc>(),
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: MultiBlocListener(
+          listeners: [
+            // 1. Map Listener: Handles drawing markers
+            BlocListener<MapBloc, MapState>(
+              listenWhen: (prev, curr) => prev.places != curr.places,
+              listener: (context, state) {
+                _buildMarkers(pins);
+              },
+            ),
+            BlocListener<LocationBloc, LocationState>(
+              listenWhen:(prev,curr) => prev.location != curr.location,
+              listener: (context, state) {
+                if (state.location != null) {
+                  if (state.location!.latitude == 0.0 || state.location!.longitude == 0.0) return;
+                  context.read<HomeBloc>().add(
+                    FetchNearbyPlacesEvent(
+                      lat: state.location!.latitude,
+                      lng:state.location!.longitude,
+                      pageNum:1,
+                      limit: 10,
+                    ),
+                  );
+                }
+              },
+            ),
           ],
+          child: Stack(
+            children: [
+              Positioned.fill(child: _buildMap()),
+              // Your sheet will now have access to HomeBloc state via BlocBuilder
+              DraggableNearbyPlacesSheet(),
+            ],
+          ),
         ),
       ),
     );
   }
-
 
   // ================= MAP =================
 
@@ -195,10 +222,9 @@ class _HomeScreenState extends State<HomeScreen> {
               target: LatLng(lat, lng),
               zoom: 15,
             ),
-            onMapCreated: (controller) async{
+            onMapCreated: (controller) async {
               _mapController = controller;
               await _buildMarkers(pins);
-
             },
             onCameraIdle: _onCameraIdle,
             myLocationEnabled: true,
@@ -240,6 +266,4 @@ class _HomeScreenState extends State<HomeScreen> {
       _markers = markerList.toSet();
     });
   }
-
-
 }

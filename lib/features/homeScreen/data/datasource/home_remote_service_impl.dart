@@ -2,9 +2,11 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:near_buy_gp/features/homeScreen/data/datasource/home_remote_service.dart';
 import 'package:near_buy_gp/features/homeScreen/data/models/nearby_places_model.dart';
+import 'package:dio/dio.dart';
 
 const List<NearbyPlaceModel> nearbyPlacesMock = [
   NearbyPlaceModel(
+    mainImage: "",
     id: '1',
     name: 'Costa Coffee',
     category: 'cafe',
@@ -18,10 +20,13 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     ],
     servicesProvided: ['Coffee', 'Desserts', 'Wi-Fi', 'Takeaway'],
     lat: 29.932848523370154,
-    lng:  31.02229750250379,
+    lng:  31.02229750250379, status: 'opened',
+    type: '',
   ),
 
   NearbyPlaceModel(
+      mainImage: "",
+      status: 'opened',
     id: '2',
     name: 'McDonald’s',
     category: 'cafe',
@@ -34,9 +39,12 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     servicesProvided: ['Burgers', 'Delivery', 'Kids Meals'],
     lat: 29.96280478624338,
     lng: 31.048943534109487,
+      type: ''
   ),
 
   NearbyPlaceModel(
+      mainImage: "",
+      status: 'opened',
     id: '3',
     name: 'City Pharmacy',
     category: 'cafe',
@@ -51,9 +59,12 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     servicesProvided: ['Medicines', 'Medical Supplies', 'Home Delivery'],
     lat: 29.96280478624338,
     lng: 31.048943534109487,
+      type: ''
   ),
 
   NearbyPlaceModel(
+      mainImage: "",
+      status: 'opened',
     id: '4',
     name: 'Gold’s Gym',
     category: 'cafe',
@@ -71,9 +82,12 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     ],
     lat: 29.96280478624338,
     lng: 31.048943534109487,
+      type: ''
   ),
 
   NearbyPlaceModel(
+      mainImage: "",
+      status: 'opened',
     id: '5',
     name: 'Pizza Hut',
     category: 'cafe',
@@ -88,9 +102,13 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     servicesProvided: ['Pizza', 'Delivery', 'Dine-in'],
     lat: 29.96280478624338,
     lng: 31.048943534109487,
+      type: ''
   ),
 
   NearbyPlaceModel(
+      mainImage: "",
+
+      status: 'opened',
     id: '6',
     name: 'Orange Mobile Store',
     category: 'cafe',
@@ -105,9 +123,12 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     servicesProvided: ['SIM Cards', 'Mobile Phones', 'Customer Support'],
     lat: 29.96280478624338,
     lng: 31.048943534109487,
+      type: ''
   ),
 
   NearbyPlaceModel(
+      mainImage: "",
+      status: 'opened',
     id: '7',
     name: 'Royal Beauty Salon',
     category: 'cafe',
@@ -118,9 +139,12 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     servicesProvided: ['Hair Styling', 'Makeup', 'Skin Care'],
     lat: 29.96280478624338,
     lng: 31.048943534109487,
+      type: ''
   ),
 
   NearbyPlaceModel(
+      mainImage: "",
+      status: 'opened',
     id: '8',
     name: 'Car Care Center',
     category: 'cafe',
@@ -135,9 +159,12 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     servicesProvided: ['Car Wash', 'Oil Change', 'Tire Services'],
     lat: 29.96280478624338,
     lng: 31.048943534109487,
+      type: ''
   ),
 
   NearbyPlaceModel(
+      mainImage: "",
+      status: 'opened',
     id: '9',
     name: 'Alpha Medical Lab',
     category: 'cafe',
@@ -148,9 +175,12 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     servicesProvided: ['Blood Tests', 'PCR Tests', 'Home Visit'],
     lat: 29.96280478624338,
     lng: 31.048943534109487,
+      type: ''
   ),
 
   NearbyPlaceModel(
+      mainImage: "",
+      status: 'opened',
     id: '10',
     name: 'Spinneys Market',
     category: 'cafe',
@@ -165,11 +195,15 @@ const List<NearbyPlaceModel> nearbyPlacesMock = [
     servicesProvided: ['Groceries', 'Fresh Produce', 'Online Ordering'],
     lat: 29.961281408621428,
     lng: 31.04866114616476,
+      type: ''
   ),
 ];
 
 @LazySingleton(as: HomeRemoteService)
 class HomeRemoteServiceImpl implements HomeRemoteService {
+  final Dio dio ;
+  HomeRemoteServiceImpl(this.dio);
+
   @override
   Future<Either<Exception, List<NearbyPlaceModel>>> getPlacesInBounds(
       double west,
@@ -178,10 +212,42 @@ class HomeRemoteServiceImpl implements HomeRemoteService {
       double south,
       ) async {
     try {
-      // In real API → Dio request here
       return Right(nearbyPlacesMock);
     } catch (e) {
       return Left(Exception(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Exception, List<NearbyPlaceModel>>> getNearbyPlaces(
+      {required double lat, required double lng , required int pageNum , required int limit}) async {
+    try {
+      final result = await dio.get(
+        "/api/business/nearby",
+        queryParameters: {
+          'lat': lat,
+          'lng': lng,
+          'page':pageNum,
+          'limit':limit
+        },
+        options: Options(extra: {'requiresToken': false}),
+      );
+
+      final Map<String, dynamic> responseBody = result.data;
+
+      final List<dynamic> businessList = responseBody['businesses'];
+
+
+
+      final List<NearbyPlaceModel> places = businessList
+          .map((json) => NearbyPlaceModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      return Right(places);
+    } on DioException catch (e) {
+      return Left(Exception(e.message ?? "Connection Error"));
+    } catch (e) {
+      return Left(Exception("Unexpected Error: ${e.toString()}"));
     }
   }
 }

@@ -45,6 +45,7 @@ class _NearbyPlaceCardState extends State<NearbyPlaceCard> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if(widget.imageUrls.isNotEmpty)
             // LEFT SIDE: Image Gallery with Dots
             SizedBox(
               height: 200,
@@ -73,7 +74,13 @@ class _NearbyPlaceCardState extends State<NearbyPlaceCard> {
                         placeholder: (context, url) =>
                         const Center(child: CircularProgressIndicator()),
                         errorWidget: (context, url, error) =>
-                        const Icon(Icons.broken_image),
+                         Image.asset(
+                          'assets/images/mapbackground.jpg',
+                          height: 200,
+                          width: 150,
+                          fit: BoxFit.cover,
+                        ),
+
                       );
                     },
                   ),
@@ -100,7 +107,13 @@ class _NearbyPlaceCardState extends State<NearbyPlaceCard> {
                     ),
                 ],
               ),
-            ),
+            )else
+              Image.asset(
+                'assets/images/mapbackground.jpg',
+                height: 200,
+                width: 150,
+                fit: BoxFit.cover,
+              ),
 
             // RIGHT SIDE: Details
             Expanded(

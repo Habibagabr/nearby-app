@@ -1,4 +1,4 @@
-class NearbyPlaceEntity{
+class NearbyPlaceEntity {
   final String id;
   final String name;
   final String category;
@@ -7,9 +7,11 @@ class NearbyPlaceEntity{
   final double rating;
   final double lat;
   final double lng;
-  final String? status = "opened";
+  final String status;
+  final String type;
   final List<String> imageUrls;
-  final List<String>? servicesProvided;
+  final List<String> servicesProvided;
+
   const NearbyPlaceEntity({
     required this.id,
     required this.name,
@@ -18,21 +20,10 @@ class NearbyPlaceEntity{
     required this.servicesProvided,
     required this.address,
     required this.rating,
+    required this.status,
     required this.imageUrls,
     required this.lat,
     required this.lng,
+    required this.type,
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
