@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:near_buy_gp/features/place_screen/presentation/place_base_screen.dart';
 
 import 'core/di/injection.dart';
 import 'core/location/presentation/bloc/location_bloc.dart';
-import 'core/routing/app_router.dart';
 import 'core/themes/app_btn_theme.dart';
 import 'core/themes/app_colors.dart';
 import 'core/themes/app_input_fields_theme.dart';
@@ -32,7 +32,7 @@ class NearBuy extends StatelessWidget {
           create: (_) => getIt<MapBloc>(),
         )
       ],
-      child: MaterialApp.router(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
 
         //  Localization
@@ -57,7 +57,8 @@ class NearBuy extends StatelessWidget {
         ),
 
         //  Router
-        routerConfig: appRouter,
+        // routerConfig: appRouter,
+        home: PlaceBaseScreen(),
 
       ),
     );

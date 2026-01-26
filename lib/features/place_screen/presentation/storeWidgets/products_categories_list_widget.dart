@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-class ProductsCategoriesList extends StatefulWidget {
+import 'components/products_categories_component.dart';
 
+class ProductsCategoriesList extends StatefulWidget {
+  final List<String> availableProductsCategories;
   const ProductsCategoriesList({super.key, required this.availableProductsCategories});
 
   @override
@@ -10,8 +12,6 @@ class ProductsCategoriesList extends StatefulWidget {
 }
 
 class _ProductsCategoriesListState extends State<ProductsCategoriesList> {
-  final List<String> availableProductsCategories;
-  _ProductsCategoriesListState({required this.availableProductsCategories});
   int selectedIndex = 0;
 
   @override
@@ -21,11 +21,11 @@ class _ProductsCategoriesListState extends State<ProductsCategoriesList> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: av.length,
+        itemCount: widget.availableProductsCategories.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           return ProductsComponent(
-            productCategory: categories[index],
+            productCategory: widget.availableProductsCategories[index],
             isSelected: selectedIndex == index,
             onTap: () {
               setState(() {
