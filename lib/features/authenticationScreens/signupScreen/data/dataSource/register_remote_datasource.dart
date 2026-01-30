@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
-import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/dataSource/register_remote_datasource_interface.dart';
 
 import 'package:dio/dio.dart';
+import 'package:near_buy_gp/features/authenticationScreens/signupScreen/data/dataSource/register_remote_datasource_interface.dart';
 
 import '../models/register_model.dart';
 

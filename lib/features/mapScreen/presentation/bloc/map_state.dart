@@ -1,27 +1,30 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import '../../../homeScreen/domain/entities/nearby_places_entity.dart';
 
 enum MapStatus { initial, loading, loaded , error}
 
 class MapState {
   final MapStatus status;
-  final List<NearbyPlaceEntity> places;
+  final Set<Marker> currentMarkers;
 
   const MapState({
     required this.status,
-    required this.places,
+    required this.currentMarkers
   });
 
   factory MapState.initial() {
-    return const MapState(status: MapStatus.initial, places: []);
+    return const MapState(status: MapStatus.initial, currentMarkers: {});
   }
 
   MapState copyWith({
     MapStatus? status,
-    List<NearbyPlaceEntity>? places,
+    Set<Marker>? currentMarkers,
   }) {
     return MapState(
       status: status ?? this.status,
-      places: places ?? this.places,
+        currentMarkers: currentMarkers ?? this.currentMarkers
+
     );
   }
 }

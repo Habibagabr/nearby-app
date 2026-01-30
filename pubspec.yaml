@@ -68,6 +68,7 @@ dependencies:
   google_maps_flutter: ^2.14.0
   widget_to_marker: ^1.0.6
   readmore: ^3.0.0
+  dart_geohash: ^2.1.0
 
 
 

@@ -80,6 +80,16 @@ import 'package:near_buy_gp/features/homeScreen/domain/usecases/get_places_in_bo
     as _i712;
 import 'package:near_buy_gp/features/homeScreen/ui/bloc/home_bloc.dart'
     as _i715;
+import 'package:near_buy_gp/features/mapScreen/data/map_remote_data_source_service/map_remote_data_source_service.dart'
+    as _i659;
+import 'package:near_buy_gp/features/mapScreen/data/map_remote_data_source_service/map_remote_data_source_service_imp.dart'
+    as _i819;
+import 'package:near_buy_gp/features/mapScreen/data/mapRepository/map_repository_impl.dart'
+    as _i467;
+import 'package:near_buy_gp/features/mapScreen/domain/repositories/mapRepository.dart'
+    as _i576;
+import 'package:near_buy_gp/features/mapScreen/domain/usecases/get_nearby_pins.dart'
+    as _i876;
 import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_bloc.dart'
     as _i809;
 
@@ -133,6 +143,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i100.ErrorInterceptor>(),
       ),
     );
+    gh.lazySingleton<_i659.MapRemoteDataSource>(
+      () => _i819.MapRemoteDataSourceImpl(dio: gh<_i361.Dio>()),
+    );
     gh.lazySingleton<_i732.RegisterRemoteDataSource>(
       () => _i34.RegisterRemoteDataSourceImpl(gh<_i361.Dio>()),
     );
@@ -141,6 +154,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i895.LoginRemoteDataSource>(
       () => _i490.LoginRemoteDataSourceImpl(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i576.MapRepository>(
+      () => _i467.MapRepositoryImpl(
+        mapRemoteDataSource: gh<_i659.MapRemoteDataSource>(),
+      ),
     );
     gh.lazySingleton<_i269.HomeRepository>(
       () => _i1041.HomeRepositoryImpl(gh<_i859.HomeRemoteService>()),
@@ -157,6 +175,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i716.GetNearbyPlacesUseCase>(
       () => _i716.GetNearbyPlacesUseCase(gh<_i269.HomeRepository>()),
     );
+    gh.lazySingleton<_i876.GetNearbyPinsUseCase>(
+      () => _i876.GetNearbyPinsUseCase(repository: gh<_i576.MapRepository>()),
+    );
+    gh.lazySingleton<_i809.MapBloc>(
+      () => _i809.MapBloc(useCase: gh<_i876.GetNearbyPinsUseCase>()),
+    );
     gh.lazySingleton<_i184.RegisterUseCase>(
       () => _i184.RegisterUseCase(
         gh<_i514.RegisterRepositoryInterface>(),
@@ -165,9 +189,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i764.SignupScreenBloc>(
       () => _i764.SignupScreenBloc(gh<_i184.RegisterUseCase>()),
-    );
-    gh.factory<_i809.MapBloc>(
-      () => _i809.MapBloc(gh<_i712.GetPlacesInBoundsUseCase>()),
     );
     gh.lazySingleton<_i600.LoginUseCase>(
       () => _i600.LoginUseCase(

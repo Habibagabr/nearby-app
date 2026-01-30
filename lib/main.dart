@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:near_buy_gp/features/homeScreen/ui/home_screen.dart';
 import 'package:near_buy_gp/features/place_screen/presentation/place_base_screen.dart';
 
 import 'core/di/injection.dart';
@@ -58,7 +59,7 @@ class NearBuy extends StatelessWidget {
 
         //  Router
         // routerConfig: appRouter,
-        home: PlaceBaseScreen(),
+        home: HomeScreen(),
 
       ),
     );

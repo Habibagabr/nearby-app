@@ -11,6 +11,7 @@ class NearbyPlaceEntity {
   final String type;
   final List<String> imageUrls;
   final List<String> servicesProvided;
+  final int count;
 
   const NearbyPlaceEntity({
     required this.id,
@@ -25,5 +26,6 @@ class NearbyPlaceEntity {
     required this.lat,
     required this.lng,
     required this.type,
+    this.count =1
   });
 }

@@ -1,14 +1,15 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 abstract class MapEvent {}
 
-class ViewportChanged extends MapEvent{
-  final double north, south, east, west;
+class FetchMapData extends MapEvent {
+  final LatLngBounds bounds;
+  final double zoom;
+  final LatLng center;
 
-  ViewportChanged({
-    required this.north,
-    required this.south,
-    required this.east,
-    required this.west,
+  FetchMapData({
+    required this.bounds,
+    required this.zoom,
+    required this.center,
   });
-
 }
