@@ -1,6 +1,5 @@
-
-import 'package:near_buy_gp/features/place_screen/domain/entities/store_entity/social_entity.dart';
-import 'package:near_buy_gp/features/place_screen/domain/entities/store_entity/store_product.dart';
+import 'package:near_buy_gp/features/place_screen/domain/entities/commonEntities/social_entity.dart';
+import 'package:near_buy_gp/features/place_screen/domain/entities/storeEntity/store_product.dart';
 
 class StoreEntity {
   final String storeId;

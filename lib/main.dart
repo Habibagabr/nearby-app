@@ -59,7 +59,7 @@ class NearBuy extends StatelessWidget {
 
         //  Router
         // routerConfig: appRouter,
-        home: HomeScreen(),
+        home: PlaceBaseScreen(),
 
       ),
     );

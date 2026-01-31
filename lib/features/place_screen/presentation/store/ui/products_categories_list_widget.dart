@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'components/products_categories_component.dart';
+import '../components/products_categories_component.dart';
 
 class ProductsCategoriesList extends StatefulWidget {
   final List<String> availableProductsCategories;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
-import 'package:near_buy_gp/features/place_screen/domain/entities/store_entity/store_product.dart';
+import 'package:near_buy_gp/features/place_screen/domain/entities/storeEntity/store_product.dart';
 
-import '../../commonWidgets/carosel_images_widget.dart';
+import '../../common/carosel_images_widget.dart';
 
 class ProductItemWidget extends StatelessWidget {
   final StoreProductEntity storeProductEntity;
@@ -29,16 +29,19 @@ class ProductItemWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ///  Product Images
-          ClipRRect(
+          Align(
+            alignment: Alignment.center,
+            child:ClipRRect(
             borderRadius: BorderRadius.circular(14),
             child: SizedBox(
               width: 90,
-              height: 90,
+              height: 100,
               child: CarouselSliderWidget(
                 images: storeProductEntity.productImages,
-                height: 90,
+                height: 100,
               ),
             ),
+          )
           ),
 
           const SizedBox(width: 14),
@@ -84,9 +87,10 @@ class ProductItemWidget extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     /// category
-                    Container(
+                    SizedBox(
+                      width: 100,
+                      child:Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 4,
@@ -95,8 +99,10 @@ class ProductItemWidget extends StatelessWidget {
                         color: Colors.orange.shade100, // background color
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        storeProductEntity.productCategory,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child:Text(
+                          storeProductEntity.productCategory,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -104,6 +110,8 @@ class ProductItemWidget extends StatelessWidget {
                         ),
                       ),
                     ),
+                    )
+                    )
                   ],
                 ),
               ],

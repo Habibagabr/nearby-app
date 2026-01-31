@@ -1,48 +1,43 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
+import 'package:near_buy_gp/features/place_screen/presentation/common/place_services_header.dart';
 import 'package:readmore/readmore.dart';
 
 import 'communication_icon.dart';
 
 class PlaceDescriptionWidget extends StatelessWidget {
-  final String storeName;
+  final String placeName;
   final int reviewsCount;
-  final String storeDescription;
+  final String placeDescription;
   final bool placeStatus;
-  final String storeType;
-  final String openingHours;
-  final String closingHours;
+  final String placeType;
+  final String ? openingHours;
+  final String ? closingHours;
   final double rate;
   //
   const PlaceDescriptionWidget({
     super.key,
-    required this.storeName,
-    required this.openingHours,
+    required this.placeName,
+     this.openingHours,
     required this.reviewsCount,
     required this.placeStatus,
-    required this.storeDescription,
-    required this.closingHours,
-    required this.storeType,
+    required this.placeDescription,
+     this.closingHours,
+    required this.placeType,
     required this.rate,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      spacing: 12,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // place name
-        Text(
-          storeName,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            color: AppColors.darkGray,
-          ),
+        ServicesHeader(
+          headerText: placeName,
         ),
-        SizedBox(height: 6),
         // place type
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -51,7 +46,7 @@ class PlaceDescriptionWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
           ),
           child: Text(
-            storeType,
+            placeType,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
@@ -59,10 +54,9 @@ class PlaceDescriptionWidget extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 6),
         //place description
         ReadMoreText(
-          storeDescription,
+          placeDescription,
           trimLines: 2,
           // This mode ensures it cuts based on line count, not character count
           trimMode: TrimMode.Line,
@@ -86,7 +80,6 @@ class PlaceDescriptionWidget extends StatelessWidget {
             color: AppColors.darkGray,
           ),
         ),
-        SizedBox(height: 6),
         // place rate and reviews count
         Row(
           mainAxisSize: MainAxisSize.max,
@@ -113,8 +106,9 @@ class PlaceDescriptionWidget extends StatelessWidget {
           ],
         ),
         // the place time
-        SizedBox(height: 12),
-        Row(
+        if(openingHours != null && closingHours !=null)
+          Row(
+          spacing: 10,
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -142,7 +136,6 @@ class PlaceDescriptionWidget extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: 12),
             Text(
               "$openingHours - $closingHours",
               style: TextStyle(
@@ -155,7 +148,6 @@ class PlaceDescriptionWidget extends StatelessWidget {
 
           ],
         ),
-        SizedBox(height: 12),
         Padding(
     padding: EdgeInsetsGeometry.only(left: 20,right: 20),
     child:Row(
