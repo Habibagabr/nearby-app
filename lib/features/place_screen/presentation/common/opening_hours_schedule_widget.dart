@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/entities/genericEntities/opening_day_hour_entity.dart';
+import '../../domain/entities/genericEntities/opening_day_hour_entity.dart';
 
 import 'package:intl/intl.dart';
 
