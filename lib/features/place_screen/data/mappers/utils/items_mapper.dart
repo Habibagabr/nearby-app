@@ -1,26 +1,29 @@
-import '../../models/itemModels/class_session_attribute.dart';
-import '../../models/itemModels/clinic_item_attribute.dart';
-import '../../models/itemModels/clothing_item_attribute.dart';
-import '../../models/itemModels/gym_membership_attributes.dart';
-import '../../models/itemModels/item_attribute_model.dart';
-import '../../models/itemModels/phramacy_item_attribute.dart';
-import '../../models/itemModels/restaurant_item_attribute.dart';
-import '../../models/itemModels/super_market_item_attribute.dart';
+// items_mapper.dart
+
+import '../../models/attributeModels/clinic_item_attribute.dart';
+import '../../models/attributeModels/clothing_item_attribute.dart';
+import '../../models/attributeModels/phramacy_item_attribute.dart';
+import '../../models/attributeModels/restaurant_item_attribute.dart';
+import '../../models/attributeModels/super_market_item_attribute.dart';
+import '../../models/attributeModels/class_session_attribute.dart';
+import '../../models/attributeModels/gym_membership_attributes.dart';
+import '../../models/attributeModels/item_attribute_model.dart';
 
 ItemAttributesModel mapItemAttributes({
-  required String category,
+  required String type,
   required Map<String, dynamic> attributesJson,
 }) {
-  switch (category) {
+  switch (type) {
     case "restaurant":
       return RestaurantItemAttributes.fromJson(attributesJson);
 
-    case "clothing":
+    case "clothing_product":
       return ClothingProductAttributes.fromJson(attributesJson);
 
-    case "pharmacy":
+    case "pharmacy_product":
       return PharmacyProductAttributes.fromJson(attributesJson);
 
+    case "super_market_product":
     case "supermarket":
       return SupermarketProductAttributes.fromJson(attributesJson);
 
@@ -30,10 +33,10 @@ ItemAttributesModel mapItemAttributes({
     case "gym":
       return GymMembershipAttributes.fromJson(attributesJson);
 
-    case "class":
+    case "class_session":
       return ClassSessionAttributes.fromJson(attributesJson);
 
     default:
-      throw Exception("Unknown category type: $category");
+      throw Exception("Unknown category type: $type");
   }
 }

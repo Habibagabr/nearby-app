@@ -11,6 +11,7 @@ class NearbyPlaceModel {
   final double? lng;
   final String? status;
   final String? type;
+  final String? subCategory;
   final String? mainImage; // Added to match "image": ""
   final List<String>? imageUrls;
   final List<String>? servicesProvided;
@@ -29,6 +30,7 @@ class NearbyPlaceModel {
     required this.lng,
     required this.type,
     required this.mainImage,
+    required this.subCategory
   });
 
   factory NearbyPlaceModel.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class NearbyPlaceModel {
       lat: (coordinates.isNotEmpty ? (coordinates[1] as num).toDouble() : 0.0),
       lng: (coordinates.length > 1 ? (coordinates[0] as num).toDouble() : 0.0),
       type: json['type'] ?? "",
+      subCategory: json['subcategory'] ??""
     );
   }
 
@@ -66,6 +69,7 @@ class NearbyPlaceModel {
       lng: lng ?? 0.0,
       status: status ?? "",
       type: type ?? "",
+      subCategory: subCategory??""
     );
   }
 }

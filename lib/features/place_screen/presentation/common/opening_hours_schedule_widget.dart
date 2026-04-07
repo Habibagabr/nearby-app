@@ -4,10 +4,10 @@ import '../../domain/entities/genericEntities/opening_day_hour_entity.dart';
 
 import 'package:intl/intl.dart';
 
-class GenericOpeningHours extends StatelessWidget {
+class OpeningHoursSchedule extends StatelessWidget {
   final List<OpeningDayHour> openingHours;
 
-  const GenericOpeningHours({super.key, required this.openingHours});
+  const OpeningHoursSchedule({super.key, required this.openingHours});
 
   @override
   Widget build(BuildContext context) {

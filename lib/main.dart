@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:near_buy_gp/features/homeScreen/ui/home_screen.dart';
-import 'package:near_buy_gp/features/place_screen/presentation/place_base_screen.dart';
+import 'package:near_buy_gp/features/homeScreen/ui/bloc/home_bloc.dart';
+import 'package:near_buy_gp/features/profileScreen/presentation/ui/bloc/profile_bloc.dart';
+import 'package:near_buy_gp/features/splashScreen/bloc/splash_screen_bloc.dart';
 
 import 'core/di/injection.dart';
 import 'core/location/presentation/bloc/location_bloc.dart';
+import 'core/routing/app_router.dart';
 import 'core/themes/app_btn_theme.dart';
 import 'core/themes/app_colors.dart';
 import 'core/themes/app_input_fields_theme.dart';
@@ -29,11 +31,26 @@ class NearBuy extends StatelessWidget {
         BlocProvider<LocationBloc>(
           create: (_) => getIt<LocationBloc>(),
         ),
+        ///  map Bloc (Global)
         BlocProvider<MapBloc>(
           create: (_) => getIt<MapBloc>(),
-        )
+        ),
+        BlocProvider<HomeBloc>(
+          create: (_) => getIt<HomeBloc>(),
+        ),
+
+        BlocProvider<SplashScreenBloc>(
+          create: (_) => SplashScreenBloc(),
+        ),
+
+        BlocProvider<ProfileBloc>(
+          create: (_) =>
+          getIt<ProfileBloc>()
+            ..add(ProfileScreenStarted()), // will be changed
+        ),
+
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
 
         //  Localization
@@ -58,8 +75,7 @@ class NearBuy extends StatelessWidget {
         ),
 
         //  Router
-        // routerConfig: appRouter,
-        home: PlaceBaseScreen(),
+        routerConfig: appRouter,
 
       ),
     );

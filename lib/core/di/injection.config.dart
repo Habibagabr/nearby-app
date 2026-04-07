@@ -76,8 +76,6 @@ import 'package:near_buy_gp/features/homeScreen/domain/repository/home_repositor
     as _i269;
 import 'package:near_buy_gp/features/homeScreen/domain/usecases/get_nearby_places.dart'
     as _i716;
-import 'package:near_buy_gp/features/homeScreen/domain/usecases/get_places_in_bound.dart'
-    as _i712;
 import 'package:near_buy_gp/features/homeScreen/ui/bloc/home_bloc.dart'
     as _i715;
 import 'package:near_buy_gp/features/mapScreen/data/map_remote_data_source_service/map_remote_data_source_service.dart'
@@ -92,6 +90,24 @@ import 'package:near_buy_gp/features/mapScreen/domain/usecases/get_nearby_pins.d
     as _i876;
 import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_bloc.dart'
     as _i809;
+import 'package:near_buy_gp/features/place_screen/data/dataSource/places_remote_data_source.dart'
+    as _i90;
+import 'package:near_buy_gp/features/place_screen/data/dataSource/places_remote_data_source_impl.dart'
+    as _i801;
+import 'package:near_buy_gp/features/place_screen/data/repository/place_repository_impl.dart'
+    as _i354;
+import 'package:near_buy_gp/features/place_screen/domain/repository/place_repository.dart'
+    as _i434;
+import 'package:near_buy_gp/features/place_screen/domain/usecase/check_user_register.dart'
+    as _i624;
+import 'package:near_buy_gp/features/place_screen/domain/usecase/get_initial_place_data_usecase.dart'
+    as _i809;
+import 'package:near_buy_gp/features/place_screen/domain/usecase/get_place_items_usecase.dart'
+    as _i166;
+import 'package:near_buy_gp/features/place_screen/presentation/bloc/place_bloc.dart'
+    as _i496;
+import 'package:near_buy_gp/features/profileScreen/presentation/ui/bloc/profile_bloc.dart'
+    as _i335;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -114,6 +130,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i342.LocationRepository>(
       () => _i417.LocationRepositoryImpl(gh<_i342.LocationService>()),
+    );
+    gh.lazySingleton<_i624.CheckUserRegister>(
+      () => _i624.CheckUserRegister(sessionManager: gh<_i447.SessionManager>()),
+    );
+    gh.factory<_i335.ProfileBloc>(
+      () => _i335.ProfileBloc(sessionManager: gh<_i447.SessionManager>()),
     );
     gh.lazySingleton<_i1069.GetCurrentLocation>(
       () => _i1069.GetCurrentLocation(gh<_i342.LocationRepository>()),
@@ -155,6 +177,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i895.LoginRemoteDataSource>(
       () => _i490.LoginRemoteDataSourceImpl(gh<_i361.Dio>()),
     );
+    gh.lazySingleton<_i90.PlacesRemoteDataSource>(
+      () => _i801.PlacesRemoteDataSourceImpl(gh<_i361.Dio>()),
+    );
     gh.lazySingleton<_i576.MapRepository>(
       () => _i467.MapRepositoryImpl(
         mapRemoteDataSource: gh<_i659.MapRemoteDataSource>(),
@@ -169,8 +194,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i363.LoginRepository>(
       () => _i529.LoginRepositoryImp(gh<_i895.LoginRemoteDataSource>()),
     );
-    gh.factory<_i712.GetPlacesInBoundsUseCase>(
-      () => _i712.GetPlacesInBoundsUseCase(gh<_i269.HomeRepository>()),
+    gh.lazySingleton<_i434.PlaceRepository>(
+      () => _i354.PlaceRepositoryImpl(gh<_i90.PlacesRemoteDataSource>()),
     );
     gh.lazySingleton<_i716.GetNearbyPlacesUseCase>(
       () => _i716.GetNearbyPlacesUseCase(gh<_i269.HomeRepository>()),
@@ -199,8 +224,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i292.LoginScreenBloc>(
       () => _i292.LoginScreenBloc(gh<_i600.LoginUseCase>()),
     );
+    gh.lazySingleton<_i809.LoadPlaceScreenUseCase>(
+      () => _i809.LoadPlaceScreenUseCase(gh<_i434.PlaceRepository>()),
+    );
+    gh.lazySingleton<_i166.LoadPlaceItemsUseCase>(
+      () => _i166.LoadPlaceItemsUseCase(gh<_i434.PlaceRepository>()),
+    );
     gh.lazySingleton<_i715.HomeBloc>(
       () => _i715.HomeBloc(gh<_i716.GetNearbyPlacesUseCase>()),
+    );
+    gh.factory<_i496.PlaceBloc>(
+      () => _i496.PlaceBloc(
+        loadPlaceScreen: gh<_i809.LoadPlaceScreenUseCase>(),
+        loadPlaceItems: gh<_i166.LoadPlaceItemsUseCase>(),
+        checkUserRegister: gh<_i624.CheckUserRegister>(),
+      ),
     );
     return this;
   }

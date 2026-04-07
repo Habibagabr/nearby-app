@@ -1,7 +1,9 @@
 // signup_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:near_buy_gp/core/routing/app_routes.dart';
+import 'package:near_buy_gp/core/ui/popup_component.dart';
 import 'package:near_buy_gp/features/authenticationScreens/utils/auth_field_type.dart';
 import 'package:near_buy_gp/features/authenticationScreens/utils/input_fields_mapper.dart';
 import 'package:near_buy_gp/l10n/app_localizations.dart';
@@ -11,6 +13,7 @@ import 'package:near_buy_gp/core/themes/app_text_style.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
 
 import '../../../../../core/di/injection.dart';
+import '../../../../../main_layout/main_shell.dart';
 import '../../../../../shared/components/app_logo.dart';
 import '../../../commonWidgets/auth_bottom_actions.dart';
 import '../../../commonWidgets/input_fields.dart';
@@ -63,188 +66,179 @@ class _SignupViewState extends State<_SignupView> {
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
-    final size = MediaQuery
-        .of(context)
-        .size;
-
+    final size = MediaQuery.of(context).size;
 
     return BlocListener<SignupScreenBloc, SignupScreenState>(
-        listener: (context, state) {
-          // handle signup failure (server/domain error)
-          if (state is SignupFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("${state.failureMsg}"),
+      listener: (context, state) async {
+        // handle signup failure (server/domain error)
+        if (state is SignupFailure) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("${state.failureMsg}")));
+        } else if (state is SignupSuccess)  {
+          appPopup(context: context, icon: Icons.done_sharp, title: "You Sign up Successfully");
+         await Future.delayed(
+            const Duration(milliseconds: 2000)
+          );
+          if (context.mounted) {
+            Navigator.of(context).pop();
+            context.go(MainShellRoute().location);
+          }
+        }
+
+        // Existing logic (unchanged)
+        if (state is NavigateToLoginScreen) {
+          LoginRoute().go(context);
+        }
+      },
+      child: AuthBaseScreen(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// Logo
+            const Align(
+              alignment: Alignment.topLeft,
+              child: AppLogo(AppColors.white),
+            ),
+            SizedBox(height: AppDimens.spacingXL),
+
+            /// Title
+            Padding(
+              padding: EdgeInsetsDirectional.only(start: AppDimens.paddingM),
+              child: Text(
+                local.signup,
+                style: AppTextStyles.headlineMedium.copyWith(
+                  color: AppColors.white,
+                ),
               ),
-            );
-          }
+            ),
 
-          // Existing logic (unchanged)
-          if (state is NavigateToLoginScreen) {
-            LoginRoute().go(context);
-          }
-        },
-        child: AuthBaseScreen(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            SizedBox(height: size.height * 0.03),
 
-                  /// Logo
-                  const Align(
-                    alignment: Alignment.topLeft,
-                    child: AppLogo(
-                        AppColors.white
-                    ),
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(AppDimens.radiusL),
                   ),
-                  SizedBox(height: AppDimens.spacingXL),
+                ),
+                padding: EdgeInsets.all(AppDimens.paddingM),
+                child: BlocBuilder<SignupScreenBloc, SignupScreenState>(
+                  builder: (BuildContext context, state) {
+                    String? emailErrorKey;
+                    String? userNameErrorKey;
+                    String? passwordErrorKey;
+                    String? confirmPasswordErrorKey;
 
-                  /// Title
-                  Padding(
-                    padding:
-                    EdgeInsetsDirectional.only(start: AppDimens.paddingM),
-                    child: Text(
-                      local.signup,
-                      style: AppTextStyles.headlineMedium.copyWith(
-                        color: AppColors.white,
-                      ),
-                    ),
-                  ),
+                    if (state is SignupValidationError) {
+                      emailErrorKey = state.emailError?.localizationKey;
+                      userNameErrorKey = state.userNameError?.localizationKey;
+                      passwordErrorKey = state.passwordError?.localizationKey;
+                      confirmPasswordErrorKey =
+                          state.confirmPasswordError?.localizationKey;
+                    }
+                    final isLoading = state is SignupLoading;
 
-                  SizedBox(height: size.height * 0.03),
-
-                  Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(AppDimens.radiusL),
-                          ),
+                    return ListView(
+                      children: [
+                        InputField(
+                          inputType: AuthFieldType.username,
+                          label: local.usernameLabel,
+                          hint: local.usernameHint,
+                          controller: _userNameController,
+                          isError: userNameErrorKey != null,
+                          // null-safe translate
+                          errorMessage: userNameErrorKey != null
+                              ? local.translate(userNameErrorKey)
+                              : null,
                         ),
-                        padding: EdgeInsets.all(AppDimens.paddingM),
-                        child: BlocBuilder<SignupScreenBloc, SignupScreenState>(
-                          builder: (BuildContext context, state) {
-                            String? emailErrorKey;
-                            String? userNameErrorKey;
-                            String? passwordErrorKey;
-                            String? confirmPasswordErrorKey;
 
-                            if (state is SignupValidationError) {
-                              emailErrorKey =
-                                  state.emailError?.localizationKey;
-                              userNameErrorKey =
-                                  state.userNameError?.localizationKey;
-                              passwordErrorKey =
-                                  state.passwordError?.localizationKey;
-                              confirmPasswordErrorKey =
-                                  state.confirmPasswordError?.localizationKey;
-                            }
-                            final isLoading = state is SignupLoading;
+                        const SizedBox(height: AppDimens.spacingL),
 
-                            return ListView(
-                              children: [
-                                InputField(
-                                  inputType: AuthFieldType.username,
-                                  label: local.usernameLabel,
-                                  hint: local.usernameHint,
-                                  controller: _userNameController,
-                                  isError: userNameErrorKey != null,
-                                  // null-safe translate
-                                  errorMessage: userNameErrorKey != null
-                                      ? local.translate(userNameErrorKey)
-                                      : null,
-                                ),
+                        InputField(
+                          inputType: AuthFieldType.email,
+                          label: local.emailLabel,
+                          hint: local.emailHint,
+                          controller: _emailController,
+                          isError: emailErrorKey != null,
+                          errorMessage: emailErrorKey != null
+                              ? local.translate(emailErrorKey)
+                              : null,
+                        ),
 
-                                const SizedBox(height: AppDimens.spacingL),
+                        const SizedBox(height: AppDimens.spacingL),
 
-                                InputField(
-                                  inputType: AuthFieldType.email,
-                                  label: local.emailLabel,
-                                  hint: local.emailHint,
-                                  controller: _emailController,
-                                  isError: emailErrorKey != null,
-                                  errorMessage: emailErrorKey != null
-                                      ? local.translate(emailErrorKey)
-                                      : null,
-                                ),
+                        InputField(
+                          inputType: AuthFieldType.password,
+                          label: local.passwordLabel,
+                          hint: local.passwordHint,
+                          controller: _passwordController,
+                          isError: passwordErrorKey != null,
+                          errorMessage: passwordErrorKey != null
+                              ? local.translate(passwordErrorKey)
+                              : null,
+                        ),
 
-                                const SizedBox(height: AppDimens.spacingL),
+                        const SizedBox(height: AppDimens.spacingL),
 
-                                InputField(
-                                  inputType: AuthFieldType.password,
-                                  label: local.passwordLabel,
-                                  hint: local.passwordHint,
-                                  controller: _passwordController,
-                                  isError: passwordErrorKey != null,
-                                  errorMessage: passwordErrorKey != null
-                                      ? local.translate(passwordErrorKey)
-                                      : null,
-                                ),
+                        InputField(
+                          inputType: AuthFieldType.confirmPassword,
+                          label: local.confirmPasswordLabel,
+                          hint: local.confirmPasswordHint,
+                          controller: _confirmPasswordController,
+                          isError: confirmPasswordErrorKey != null,
+                          errorMessage: confirmPasswordErrorKey != null
+                              ? local.translate(confirmPasswordErrorKey)
+                              : null,
+                        ),
 
-                                const SizedBox(height: AppDimens.spacingL),
+                        const SizedBox(height: AppDimens.spacingL),
 
-                                InputField(
-                                  inputType: AuthFieldType.confirmPassword,
-                                  label: local.confirmPasswordLabel,
-                                  hint: local.confirmPasswordHint,
-                                  controller: _confirmPasswordController,
-                                  isError: confirmPasswordErrorKey != null,
-                                  errorMessage: confirmPasswordErrorKey != null
-                                      ? local.translate(confirmPasswordErrorKey)
-                                      : null,
-                                ),
-
-                                const SizedBox(height: AppDimens.spacingL),
-
-                                AuthBottomActions(
-                                  screenType: AuthScreenType.signup,
-                                  onPrimaryBtnPressed: () {
-                                    context
-                                        .read<SignupScreenBloc>()
-                                        .add(
-                                      PrimaryBtnClicked(
-                                        email:
-                                        _emailController.text,
-                                        password:
-                                        _passwordController.text,
-                                        userName:
-                                        _userNameController.text,
-                                        confirmPassword:
-                                        _confirmPasswordController
-                                            .text,
-                                      ),
-                                    );
-                                  },
-                                  onSecondaryBtnPressed: () {
-                                    context
-                                        .read<SignupScreenBloc>()
-                                        .add(SecondaryBtnClicked());
-                                  },
-                                ),
-                                Visibility(
-                                  visible: isLoading,
-                                  child: Positioned.fill(
-                                    child: const Align(
-                                      alignment: Alignment.bottomCenter,
-                                      // NOT centered
-                                      child: Padding(
-                                        padding: EdgeInsets.only(top: 5),
-                                        child: CircularProgressIndicator(
-                                          color:AppColors.darkGray ,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                        AuthBottomActions(
+                          screenType: AuthScreenType.signup,
+                          onPrimaryBtnPressed: () {
+                            context.read<SignupScreenBloc>().add(
+                              PrimaryBtnClicked(
+                                email: _emailController.text,
+                                password: _passwordController.text,
+                                userName: _userNameController.text,
+                                confirmPassword:
+                                    _confirmPasswordController.text,
+                              ),
+                            );
+                          },
+                          onSecondaryBtnPressed: () {
+                            context.read<SignupScreenBloc>().add(
+                              SecondaryBtnClicked(),
                             );
                           },
                         ),
-                      )
-                  )
-                ]
-            )
-        )
+                        Visibility(
+                          visible: isLoading,
+                          child: Positioned.fill(
+                            child: const Align(
+                              alignment: Alignment.bottomCenter,
+                              // NOT centered
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 5),
+                                child: CircularProgressIndicator(
+                                  color: AppColors.darkGray,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

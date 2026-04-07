@@ -5,8 +5,9 @@ import '../../core/themes/app_text_style.dart';
 
 class HeaderText extends StatelessWidget{
   final String headerTitle;
+  final Color? textColor;
 
-  const HeaderText(this.headerTitle,{super.key});
+  const HeaderText(this.headerTitle,{super.key , this.textColor} );
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class HeaderText extends StatelessWidget{
         Text(
           headerTitle,
           style: AppTextStyles.headlineSmall.copyWith(
-            color: AppColors.white
+            color: textColor ?? AppColors.white
           ),
 
         )

@@ -6,7 +6,7 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import '../features/discoveryScreen/presentation/discovery_screen.dart';
 import '../features/homeScreen/ui/home_screen.dart';
 import '../features/mapScreen/presentation/map_screen.dart';
-import '../features/profileScreen/presentation/profile_screen.dart';
+import '../features/profileScreen/presentation/ui/profile_screen.dart';
 import '../features/searchScreen/presentation/search_screen.dart';
 
 
@@ -19,9 +19,9 @@ class MainShell extends StatelessWidget {
 
   List<Widget> _screens() {
     return const [
-      DiscoveryScreen(),
-      MapScreen(),
       HomeScreen(),
+      DiscoveryScreen(),
+      // MapScreen(),
       SearchScreen(),
       ProfileScreen(),
     ];
@@ -30,27 +30,28 @@ class MainShell extends StatelessWidget {
   List<PersistentBottomNavBarItem> _items() {
     return [
       PersistentBottomNavBarItem(
-        icon: Icon(Icons.explore),
-        title: "Discover",
-        activeColorPrimary: AppColors.white,
-        activeColorSecondary: AppColors.darkGray,
-        inactiveColorPrimary: AppColors.white,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(Icons.map),
-        title: "Map",
-        textStyle: TextStyle(color: AppColors.darkGray),
-        activeColorPrimary: AppColors.white,
-        activeColorSecondary: AppColors.darkGray,
-        inactiveColorPrimary: AppColors.white,
-      ),
-      PersistentBottomNavBarItem(
         icon: Icon(Icons.home),
         title: "Home",
         activeColorPrimary: AppColors.white,
         activeColorSecondary: AppColors.darkGray,
         inactiveColorPrimary: AppColors.white,
       ),
+
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.explore),
+        title: "Discover",
+        activeColorPrimary: AppColors.white,
+        activeColorSecondary: AppColors.darkGray,
+        inactiveColorPrimary: AppColors.white,
+      ),
+      // PersistentBottomNavBarItem(
+      //   icon: Icon(Icons.map),
+      //   title: "Map",
+      //   textStyle: TextStyle(color: AppColors.darkGray),
+      //   activeColorPrimary: AppColors.white,
+      //   activeColorSecondary: AppColors.darkGray,
+      //   inactiveColorPrimary: AppColors.white,
+      // ),
       PersistentBottomNavBarItem(
         icon: Icon(Icons.search),
         title: "Search",

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ProductsComponent extends StatelessWidget {
+class CategoryItem extends StatelessWidget {
   final String productCategory;
   final bool isSelected;
   final VoidCallback? onTap;
 
-  const ProductsComponent({
+  const CategoryItem({
     super.key,
     required this.productCategory,
     required this.isSelected,
@@ -23,10 +23,7 @@ class ProductsComponent extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? Colors.black : Colors.transparent,
           borderRadius: BorderRadius.circular(26),
-          border: Border.all(
-            color: Colors.grey.shade200,
-            width: 2,
-          ),
+          border: Border.all(color: Colors.grey.shade200, width: 2),
         ),
         child: Text(
           productCategory,

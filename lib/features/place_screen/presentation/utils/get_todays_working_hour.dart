@@ -2,23 +2,20 @@ import 'package:intl/intl.dart';
 import 'package:near_buy_gp/features/place_screen/domain/entities/placeEntity/working_hour_entity.dart';
 
 String getTodayWorkingHours(List<WorkingHourEntity> workingHours) {
-  // Get today's full weekday name, e.g., "Monday"
   final today = DateFormat('EEEE').format(DateTime.now());
+  print("today is : $today");
 
-  // Find the WorkingHourEntity for today
   final todayHours = workingHours.firstWhere(
-        (e) => e.day?.toLowerCase() == today.toLowerCase(),
-    orElse: () => const WorkingHourEntity(isOpened: false),
+        (e) => (e.day?.trim().toLowerCase() ?? '') == today.toLowerCase(),
+    orElse: () => const WorkingHourEntity(isClosed: false),
   );
 
-  // If there is no opening time or is closed
   if (todayHours.from == null ||
       todayHours.to == null ||
-      todayHours.isOpened == false) {
+      todayHours.isClosed == true) {
     return "Closed";
   }
 
-  // Parse the 24-hour time strings
   DateTime parseTime(String time) {
     final parts = time.split(":");
     final hour = int.tryParse(parts[0]) ?? 0;
@@ -29,10 +26,6 @@ String getTodayWorkingHours(List<WorkingHourEntity> workingHours) {
   final fromTime = parseTime(todayHours.from!);
   final toTime = parseTime(todayHours.to!);
 
-  // Format as 12-hour AM/PM
-  final timeFormat = DateFormat.jm(); // e.g., 3:00 PM
-  final fromStr = timeFormat.format(fromTime);
-  final toStr = timeFormat.format(toTime);
-
-  return "$fromStr to $toStr";
+  final timeFormat = DateFormat.jm();
+  return "${timeFormat.format(fromTime)} : ${timeFormat.format(toTime)}";
 }

@@ -1,6 +1,18 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:near_buy_gp/features/place_screen/data/models/place_category_model.dart';
 
-abstract class PlaceRepository{
-  Future<Either<String , PlaceCategoryModel>> getPlaceData(String placeId);
+import '../entities/placeEntity/paginated_item_entity.dart';
+import '../entities/placeEntity/place_category_entity.dart';
+
+abstract class PlaceRepository {
+  Future<Either<String, PlaceCategoryEntity>> loadInitialPlaceData(
+      String placeId,
+      );
+
+  Future<Either<String, ItemsPaginatedEntity>> loadMoreItems({
+    required String placeId,
+    required int page,
+    required int limit,
+    String? categoryId,
+  });
+
 }

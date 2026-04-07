@@ -32,13 +32,6 @@ class NearbyPinModel {
       placeLat: (json['coordinates'][1] as num).toDouble(),
       placeLng: (json['coordinates'][0] as num).toDouble(),
     );
-    print(
-        "MODEL: "
-            "name=${model.placeName}, "
-            "lat=${model.placeLat}, "
-            "lng=${model.placeLng}, "
-            "count=${model.count}"
-    );
     return model;
 
   }
@@ -55,14 +48,6 @@ class NearbyPinModel {
       placeState: placeState,
       count: count,
     );
-    print(
-        "ENTITY: "
-            "id=${entity.placeId}, "
-            "lat=${entity.placeLat}, "
-            "lng=${entity.placeLng}, "
-            "count=${entity.count}"
-    );
-
     return entity;
   }
 }

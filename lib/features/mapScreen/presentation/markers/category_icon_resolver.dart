@@ -12,6 +12,6 @@ class CategoryIconResolver {
         ? cleanCategory
         : 'default';
 
-    return '$baseUrl$fileName.png';
+    return 'assets/images/markers/default.png';
   }
 }

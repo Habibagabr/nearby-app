@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:near_buy_gp/core/routing/app_routes.dart';
 import 'package:near_buy_gp/features/authenticationScreens/utils/input_fields_mapper.dart';
 import 'package:near_buy_gp/l10n/app_localizations.dart';
@@ -8,6 +9,7 @@ import 'package:near_buy_gp/core/themes/app_text_style.dart';
 import 'package:near_buy_gp/core/values/app_dimen.dart';
 
 import '../../../../../core/di/injection.dart';
+import '../../../../../core/ui/popup_component.dart';
 import '../../../../../shared/components/app_logo.dart';
 import '../../../../../shared/components/auth_base_screen.dart';
 import '../../../commonWidgets/auth_bottom_actions.dart';
@@ -59,8 +61,8 @@ class _LoginViewState extends State<_LoginView> {
     final size = MediaQuery.of(context).size;
     final bloc = context.read<LoginScreenBloc>();
 
-    return BlocListener<LoginScreenBloc, LoginScreenState>(
-      listener: (context, state) {
+    return BlocListener<LoginScreenBloc, LoginScreenState> (
+      listener: (context, state) async{
         if (state is NavigateToSignupScreen) {
           SignupRoute().go(context);
         }
@@ -68,6 +70,16 @@ class _LoginViewState extends State<_LoginView> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text("${state.errorMsg}")));
+        }
+        else if (state is LoginSuccess)  {
+          appPopup(context: context, icon: Icons.done_sharp, title: "You Login Successfully");
+          await Future.delayed(
+              const Duration(milliseconds: 2000)
+          );
+          if (context.mounted) {
+            Navigator.of(context).pop();
+            context.go(MainShellRoute().location);
+          }
         }
       },
       child: AuthBaseScreen(

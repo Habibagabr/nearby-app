@@ -3,14 +3,15 @@ import 'package:near_buy_gp/features/place_screen/domain/entities/genericEntitie
 
 import '../../common/carosel_images_widget.dart';
 import '../../common/contact_card.dart';
+import '../../common/opening_hours_schedule_widget.dart';
 import '../../common/place_description_widget.dart';
 import '../../common/place_services_header.dart';
 import '../../store/components/location_card.dart';
 import 'available_amenities_widget.dart';
-import 'generic_opening_hours_widget.dart';
 
 class GenericMainWidget extends StatelessWidget {
   final GenericEntity genericEntity;
+
   const GenericMainWidget({super.key, required this.genericEntity});
 
   @override
@@ -32,9 +33,13 @@ class GenericMainWidget extends StatelessWidget {
               placeName: genericEntity.genericPlaceName,
               placeDescription: genericEntity.genericPlaceDescription,
               placeType: genericEntity.genericPlaceType,
-              placeStatus: genericEntity.placeStatus,
+              placeStatus: "genericEntity.placeStatus",
               rate: genericEntity.rate,
-              reviewsCount: genericEntity.reviewsCount,
+              workingHours: "loookoka",
+              phoneNumber: "+02",
+              lng: 0.0,
+              lat: 0.0,
+
             ),
           ),
         ),
@@ -45,7 +50,7 @@ class GenericMainWidget extends StatelessWidget {
           ),
         ),
         SliverToBoxAdapter(
-          child: GenericOpeningHours(
+          child: OpeningHoursSchedule(
             openingHours: genericEntity.openingDayHourList,
           ),
         ),
@@ -57,7 +62,7 @@ class GenericMainWidget extends StatelessWidget {
         ),
         SliverToBoxAdapter(
           child: AvailableAmenitiesWidget(
-            amenitiesList:  genericEntity.amenityList,
+            amenitiesList: genericEntity.amenityList,
           ),
         ),
         SliverToBoxAdapter(
@@ -79,23 +84,17 @@ class GenericMainWidget extends StatelessWidget {
             child: ServicesHeader(headerText: "Contact"),
           ),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.only(bottom: 20),
-          sliver: SliverList.builder(
-            itemCount: genericEntity.socialMediaLinks.length,
-            itemBuilder: (context, index) {
-              return ContactCard(socialData: genericEntity.socialMediaLinks[index]);
-            },
-          ),
-        ),
-
-
-
-
-
-
-
-
+        // SliverPadding(
+        //   padding: const EdgeInsets.only(bottom: 20),
+        //   sliver: SliverList.builder(
+        //     itemCount: genericEntity.socialMediaLinks.length,
+        //     itemBuilder: (context, index) {
+        //       return ContactCard(
+        //         socialData: genericEntity.socialMediaLinks[index],
+        //       );
+        //     },
+        //   ),
+        // ),
       ],
     );
   }

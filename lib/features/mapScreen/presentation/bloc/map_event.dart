@@ -13,3 +13,14 @@ class FetchMapData extends MapEvent {
     required this.center,
   });
 }
+
+class MarkerSelected extends MapEvent{
+  final String placeId;
+  final String businessCategory;
+
+  MarkerSelected({
+    required this.placeId,
+    required this.businessCategory
+});
+
+}

@@ -11,6 +11,8 @@ List<RouteBase> get $appRoutes => [
   $loginRoute,
   $signupRoute,
   $mainShellRoute,
+  $placeDetailsRoute,
+  $notificationScreenRoute,
 ];
 
 RouteBase get $splashRoute =>
@@ -90,6 +92,81 @@ mixin _$MainShellRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/main');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $placeDetailsRoute => GoRouteData.$route(
+  path: '/details/:placeId',
+
+  factory: _$PlaceDetailsRoute._fromState,
+);
+
+mixin _$PlaceDetailsRoute on GoRouteData {
+  static PlaceDetailsRoute _fromState(GoRouterState state) => PlaceDetailsRoute(
+    placeId: state.pathParameters['placeId']!,
+    screensType: _$ScreensTypeEnumMap._$fromName(
+      state.uri.queryParameters['screens-type']!,
+    )!,
+  );
+
+  PlaceDetailsRoute get _self => this as PlaceDetailsRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/details/${Uri.encodeComponent(_self.placeId)}',
+    queryParams: {'screens-type': _$ScreensTypeEnumMap[_self.screensType]},
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+const _$ScreensTypeEnumMap = {
+  ScreensType.store: 'store',
+  ScreensType.clinic: 'clinic',
+  ScreensType.generic: 'generic',
+  ScreensType.gym: 'gym',
+};
+
+extension<T extends Enum> on Map<T, String> {
+  T? _$fromName(String? value) =>
+      entries.where((element) => element.value == value).firstOrNull?.key;
+}
+
+RouteBase get $notificationScreenRoute => GoRouteData.$route(
+  path: '/notification',
+
+  factory: _$NotificationScreenRoute._fromState,
+);
+
+mixin _$NotificationScreenRoute on GoRouteData {
+  static NotificationScreenRoute _fromState(GoRouterState state) =>
+      NotificationScreenRoute();
+
+  @override
+  String get location => GoRouteData.$location('/notification');
 
   @override
   void go(BuildContext context) => context.go(location);

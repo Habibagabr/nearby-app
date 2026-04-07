@@ -1,26 +1,35 @@
 import 'package:flutter/material.dart';
-
 import 'category_icon_resolver.dart';
 import '../../domain/entity/nearby_pin_entity.dart';
 
 class PlaceMarkerWidget extends StatelessWidget {
   final NearbyPinEntity place;
+  // 1. Define the callback function
+  final VoidCallback onTap;
 
-  const PlaceMarkerWidget({super.key, required this.place});
+  const PlaceMarkerWidget({
+    super.key,
+    required this.place,
+    required this.onTap, // 2. Require it in the constructor
+  });
 
   @override
   Widget build(BuildContext context) {
     final bool isCluster = place.count > 1;
 
-    return Material(
-      color: Colors.transparent,
-      child: isCluster ? _buildClusterUI() : _buildBusinessUI(),
+    // 3. Wrap the UI in a GestureDetector to handle the click
+    return GestureDetector(
+      onTap: onTap,
+      child: Material(
+        color: Colors.transparent,
+        child: isCluster ? _buildClusterUI() : _buildBusinessUI(),
+      ),
     );
   }
 
   Widget _buildClusterUI() {
     return Container(
-      width: 120, // Clusters usually smaller/circular
+      width: 120,
       height: 120,
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A1A),

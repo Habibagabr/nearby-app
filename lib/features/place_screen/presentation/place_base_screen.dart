@@ -1,516 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
+import 'package:near_buy_gp/features/place_screen/domain/entities/placeEntity/place_category_entity.dart';
+import 'package:near_buy_gp/features/place_screen/presentation/bloc/place_bloc.dart';
+import 'package:near_buy_gp/features/place_screen/presentation/bloc/place_event.dart';
+import 'package:near_buy_gp/features/place_screen/presentation/bloc/place_state.dart';
+import 'package:near_buy_gp/features/place_screen/presentation/clinic/ui/clinic_main_widget.dart';
+import 'package:near_buy_gp/features/place_screen/presentation/clinic/ui/clinic_skeleton_widget.dart';
+import 'package:near_buy_gp/features/place_screen/presentation/gym/ui/gym_main_widget.dart';
 import 'package:near_buy_gp/features/place_screen/presentation/store/ui/store_main_widget.dart';
-import 'package:near_buy_gp/shared/components/places_bar.dart';
+import 'package:near_buy_gp/features/place_screen/presentation/store/ui/store_skeleton_widget.dart';
+import 'package:near_buy_gp/shared/util/screens_enum.dart';
 
-import '../domain/entities/clinicEntity/clinic_available_time.dart';
-import '../domain/entities/clinicEntity/clinic_entity.dart';
-import '../domain/entities/clinicEntity/clinic_service.dart';
+import '../../../core/di/injection.dart';
 import '../domain/entities/commonEntities/social_entity.dart';
 import '../domain/entities/commonEntities/social_media_enum.dart';
 import '../domain/entities/genericEntities/amenities_enum.dart';
 import '../domain/entities/genericEntities/generic_entity.dart';
 import '../domain/entities/genericEntities/opening_day_hour_entity.dart';
-import '../domain/entities/storeEntity/store_entity.dart';
-import '../domain/entities/storeEntity/store_product.dart';
-
-final StoreEntity demoPharmacyStore = StoreEntity(
-  storeId: 'pharmacy_001',
-  storeImages: [
-    'https://images.unsplash.com/photo-1580281658629-0f9f2a0c49d5',
-    'https://images.unsplash.com/photo-1587854692152-cbe660dbde88',
-    'https://images.unsplash.com/photo-1615461066841-6116e61058f4',
-  ],
-  storeName: 'LifeCare Pharmacy',
-  storeDescription:
-  'A trusted pharmacy providing prescription medicines, over-the-counter drugs, medical supplies, vitamins, and personal care products. Professional pharmacists available for consultation.',
-  availableProductsCategories: [
-    'All',
-    'Medicines',
-    'Vitamins & Supplements',
-    'Medical Supplies',
-    'Baby Care',
-    'Personal Care',
-    'First Aid',
-  ],
-  storeProducts: [
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1587854692152-cbe660dbde88',
-      ],
-      productName: 'Panadol Extra',
-      productDescription:
-      'Pain relief tablets effective for headaches and fever.',
-      productPrice: '30',
-      productCurrency: 'EGP',
-      productCategory: 'Medicines',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1615461066841-6116e61058f4',
-      ],
-      productName: 'Vitamin C 1000mg',
-      productDescription:
-      'High-potency vitamin C tablets to boost immunity.',
-      productPrice: '95',
-      productCurrency: 'EGP',
-      productCategory: 'Vitamins & Supplements',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1580281658629-0f9f2a0c49d5',
-      ],
-      productName: 'Digital Blood Pressure Monitor',
-      productDescription:
-      'Accurate digital blood pressure monitor for home use.',
-      productPrice: '950',
-      productCurrency: 'EGP',
-      productCategory: 'Medical Supplies',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1598970434795-0c54fe7c0642',
-      ],
-      productName: 'Baby Diapers Size 4',
-      productDescription:
-      'Soft and comfortable diapers with long-lasting protection.',
-      productPrice: '260',
-      productCurrency: 'EGP',
-      productCategory: 'Baby Care',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1600180758890-6b94519a8ba6',
-      ],
-      productName: 'Antibacterial Hand Sanitizer',
-      productDescription:
-      'Kills 99.9% of germs and keeps hands clean and safe.',
-      productPrice: '45',
-      productCurrency: 'EGP',
-      productCategory: 'Personal Care',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1588776814546-1f7c33a66f45',
-      ],
-      productName: 'First Aid Kit',
-      productDescription:
-      'Complete first aid kit for home, car, or travel use.',
-      productPrice: '180',
-      productCurrency: 'EGP',
-      productCategory: 'First Aid',
-    ),
-  ],
-  socialMediaLinks: socialDataExample,
-  address: 'Nasr City, Abbas El Akkad Street, Cairo, Egypt',
-  lat: 30.0561,
-  lng: 31.3444,
-  phoneNumber: '+201066778899',
-  openingHours: "8:00 AM",
-  closingHours: "12:00 AM",
-  reviewsCount: 912,
-  placeStatus: true,
-  storeType: "Pharmacy",
-  rate: 4.6,
-);
-
-final StoreEntity demoClothingStore = StoreEntity(
-  storeId: 'fashion_001',
-  storeImages: [
-    'https://images.unsplash.com/photo-1521335629791-ce4aec67dd47',
-    'https://images.unsplash.com/photo-1512436991641-6745cdb1723f',
-    'https://images.unsplash.com/photo-1555529771-35a38f1b9f6c',
-  ],
-  storeName: 'Urban Style Fashion',
-  storeDescription:
-      'Trendy fashion destination offering a wide range of men’s, women’s, and kids’ clothing. High-quality fabrics, modern designs, and seasonal collections at affordable prices.',
-  availableProductsCategories: [
-    'All',
-    'Men',
-    'Women',
-    'Kids',
-    'Shoes',
-    'Accessories',
-  ],
-  storeProducts: [
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1521336575822-6da63fb45455',
-      ],
-      productName: 'Men Classic Denim Jacket',
-      productDescription: 'Stylish blue denim jacket with a modern slim fit.',
-      productPrice: '850',
-      productCurrency: 'EGP',
-      productCategory: 'Men',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2',
-      ],
-      productName: 'Women Summer Dress',
-      productDescription:
-          'Lightweight floral dress perfect for summer outings.',
-      productPrice: '720',
-      productCurrency: 'EGP',
-      productCategory: 'Women',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1519744792095-2f2205e87b6f',
-      ],
-      productName: 'Kids Cotton T-Shirt',
-      productDescription: 'Soft and comfortable cotton t-shirt for kids.',
-      productPrice: '180',
-      productCurrency: 'EGP',
-      productCategory: 'Kids',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1528701800489-20be3c5b6e12',
-      ],
-      productName: 'Leather Sneakers',
-      productDescription:
-          'Premium leather sneakers suitable for everyday wear.',
-      productPrice: '1100',
-      productCurrency: 'EGP',
-      productCategory: 'Shoes',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1520975922071-a3bfc1cdbf39',
-      ],
-      productName: 'Women Handbag',
-      productDescription: 'Elegant handbag with spacious compartments.',
-      productPrice: '950',
-      productCurrency: 'EGP',
-      productCategory: 'Accessories',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1512436991641-6745cdb1723f',
-      ],
-      productName: 'Men Casual Shirt',
-      productDescription: 'Comfortable casual shirt suitable for daily wear.',
-      productPrice: '420',
-      productCurrency: 'EGP',
-      productCategory: 'Men',
-    ),
-  ],
-  socialMediaLinks: socialDataExample,
-  address: 'City Stars Mall, Nasr City, Cairo, Egypt',
-  lat: 30.0730,
-  lng: 31.3460,
-  phoneNumber: '+201122334455',
-  openingHours: "10:00 AM",
-  closingHours: "11:00 PM",
-  reviewsCount: 564,
-  placeStatus: true,
-  storeType: "Clothing Store",
-  rate: 4.3,
-);
-
-final StoreEntity demoSuperMarket = StoreEntity(
-  storeId: 'market_001',
-  storeImages: [
-    'https://images.unsplash.com/photo-1580910051074-7a1f8b2c2a7c',
-    'https://images.unsplash.com/photo-1542838132-92c53300491e',
-    'https://images.unsplash.com/photo-1604719312566-8912e9227c6a',
-  ],
-  storeName: 'FreshMart Hyper Market',
-  storeDescription:
-      'A one-stop destination for all your daily needs. Fresh groceries, vegetables, fruits, dairy products, household essentials, and imported goods at competitive prices.',
-  availableProductsCategories: [
-    'All',
-    'Groceries',
-    'Fruits & Vegetables',
-    'Dairy',
-    'Bakery',
-    'Beverages',
-    'Household',
-  ],
-  storeProducts: [
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1542838132-92c53300491e',
-      ],
-      productName: 'Fresh Apples (1 Kg)',
-      productDescription:
-          'High-quality fresh red apples sourced from local farms.',
-      productPrice: '35',
-      productCurrency: 'EGP',
-      productCategory: 'Fruits & Vegetables',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1580910051074-7a1f8b2c2a7c',
-      ],
-      productName: 'Organic Milk 1L',
-      productDescription: 'Pure organic milk, rich in calcium and vitamins.',
-      productPrice: '28',
-      productCurrency: 'EGP',
-      productCategory: 'Dairy',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1604719312566-8912e9227c6a',
-      ],
-      productName: 'Whole Wheat Bread',
-      productDescription: 'Freshly baked whole wheat bread, soft and healthy.',
-      productPrice: '12',
-      productCurrency: 'EGP',
-      productCategory: 'Bakery',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1585238342028-6e0f7b4b30d7',
-      ],
-      productName: 'Orange Juice 1L',
-      productDescription: 'Freshly squeezed orange juice with no added sugar.',
-      productPrice: '25',
-      productCurrency: 'EGP',
-      productCategory: 'Beverages',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1581579186989-6c7a93b5d0b4',
-      ],
-      productName: 'Laundry Detergent 2.5Kg',
-      productDescription:
-          'Powerful detergent for deep cleaning and fresh scent.',
-      productPrice: '110',
-      productCurrency: 'EGP',
-      productCategory: 'Household',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1580910051074-7a1f8b2c2a7c',
-      ],
-      productName: 'Cheddar Cheese 200g',
-      productDescription:
-          'Rich and creamy cheddar cheese, perfect for sandwiches.',
-      productPrice: '45',
-      productCurrency: 'EGP',
-      productCategory: 'Dairy',
-    ),
-  ],
-  socialMediaLinks: socialDataExample,
-  address: 'Mall of Egypt, 6th of October City, Giza, Egypt',
-  lat: 29.9730,
-  lng: 30.9466,
-  phoneNumber: '+201155443322',
-  openingHours: "8:00 AM",
-  closingHours: "12:00 AM",
-  reviewsCount: 842,
-  placeStatus: true,
-  storeType: "Supermarket",
-  rate: 4.4,
-);
-
-final StoreEntity demoStore = StoreEntity(
-  storeId: 'store_001',
-  storeImages: [
-    'https://images.unsplash.com/photo-1600891964599-f61ba0e24092',
-    'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
-    'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
-  ],
-  storeName: 'Italiano Restaurant',
-  storeDescription:
-      'Delicious handmade pizzas with fresh toppings, fast service, and cozy dine-in experience. Family-friendly atmosphere with authentic Italian recipes.',
-  availableProductsCategories: [
-    'All',
-    'Breakfast',
-    'Lunch',
-    'Dinner',
-    'Desserts',
-  ],
-  storeProducts: [
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1525755662778-989d0524087e',
-      ],
-      productName: 'Margherita Pizza',
-      productDescription:
-          'Classic Italian pizza with fresh mozzarella, basil, and tomato sauce.',
-      productPrice: '120',
-      productCurrency: 'EGP',
-      productCategory: 'Dinner',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1525755662778-989d0524087e',
-      ],
-      productName: 'Pasta Alfredo',
-      productDescription:
-          'Creamy Alfredo pasta with grilled chicken and parmesan cheese.',
-      productPrice: '150',
-      productCurrency: 'EGP',
-      productCategory: 'Lunch',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1525755662778-989d0524087e',
-      ],
-      productName: 'Tiramisu',
-      productDescription:
-          'Traditional Italian dessert with mascarpone, coffee, and cocoa.',
-      productPrice: '80',
-      productCurrency: 'EGP',
-      productCategory: 'Desserts',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1525755662778-989d0524087e',
-      ],
-      productName: 'Margherita Pizza',
-      productDescription:
-          'Classic Italian pizza with fresh mozzarella, basil, and tomato sauce.',
-      productPrice: '120',
-      productCurrency: 'EGP',
-      productCategory: 'Dinner',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1525755662778-989d0524087e',
-      ],
-      productName: 'Margherita Pizza',
-      productDescription:
-          'Classic Italian pizza with fresh mozzarella, basil, and tomato sauce.',
-      productPrice: '120',
-      productCurrency: 'EGP',
-      productCategory: 'Dinner',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1525755662778-989d0524087e',
-      ],
-      productName: 'Margherita Pizza',
-      productDescription:
-          'Classic Italian pizza with fresh mozzarella, basil, and tomato sauce.',
-      productPrice: '120',
-      productCurrency: 'EGP',
-      productCategory: 'Dinner',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1525755662778-989d0524087e',
-      ],
-      productName: 'Margherita Pizza',
-      productDescription:
-          'Classic Italian pizza with fresh mozzarella, basil, and tomato sauce.',
-      productPrice: '120',
-      productCurrency: 'EGP',
-      productCategory: 'Dinner',
-    ),
-    StoreProductEntity(
-      productImages: [
-        'https://images.unsplash.com/photo-1525755662778-989d0524087e',
-      ],
-      productName: 'Margherita Pizza',
-      productDescription:
-          'Classic Italian pizza with fresh mozzarella, basil, and tomato sauce.',
-      productPrice: '120',
-      productCurrency: 'EGP',
-      productCategory: 'Dinner',
-    ),
-  ],
-  socialMediaLinks: socialDataExample,
-  address: '12 Tahrir Street, Downtown, Cairo, Egypt',
-  lat: 30.0444,
-  lng: 31.2357,
-  phoneNumber: '+201098765432',
-  openingHours: "9:00 AM",
-  closingHours: "10:00 PM",
-  reviewsCount: 127,
-  placeStatus: true,
-  storeType: "Restaurant",
-  rate: 2.5,
-);
-
-final ClinicEntity clinicExample = ClinicEntity(
-  availableSlots: clinicAvailableTimes,
-  clinicType: "skin care",
-  clinicId: "clinic_001",
-  clinicName: "Skin Care Clinic",
-  clinicImages: [
-    "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5",
-    "https://images.unsplash.com/photo-1579154204601-01588f351e67",
-    "https://images.unsplash.com/photo-1580281657521-8e7b2f8b5b99",
-  ],
-  rate: 4.3,
-  reviewsCount: 128,
-  clinicDescription:
-      "Specialized clinic offering advanced skin care and cosmetic treatments using the latest medical technologies.",
-  socialMediaLinks: socialDataExample,
-  address: "15 Zamalek Street, Cairo, Egypt",
-  lat: 29.9482089,
-  lng: 31.0241436,
-  phoneNumber: "+20 102 345 6789",
-  openingHours: "09:00 AM",
-  closingHours: "10:00 PM",
-  placeStatus: true,
-  clinicServices: clinicServicesExample,
-);
-final List<ClinicService> clinicServicesExample = [
-  ClinicService(
-    serviceName: "Laser Hair Removal",
-    serviceDescription:
-        "Advanced laser technology for safe and long-lasting hair removal suitable for all skin types.",
-    serviceTime: "45 minutes",
-    servicePrice: 500.0,
-  ),
-  ClinicService(
-    serviceName: "Skin Deep Cleaning",
-    serviceDescription:
-        "Professional facial cleansing to remove impurities, blackheads, and improve skin texture.",
-    serviceTime: "30 minutes",
-    servicePrice: 300.0,
-  ),
-  ClinicService(
-    serviceName: "Acne Treatment",
-    serviceDescription:
-        "Medical treatment plan to reduce acne, inflammation, and prevent future breakouts.",
-    serviceTime: "40 minutes",
-    servicePrice: 400.0,
-  ),
-  ClinicService(
-    serviceName: "Chemical Peeling",
-    serviceDescription:
-        "Chemical exfoliation procedure to rejuvenate skin, reduce pigmentation, and improve glow.",
-    serviceTime: "35 minutes",
-    servicePrice: 450.0,
-  ),
-];
-final List<SocialData> socialDataExample = [
-  SocialData(
-    socialMedia: SocialMedia.facebook,
-    link: "https://instagram.com/skincareclinic",
-  ),
-  SocialData(
-    socialMedia: SocialMedia.instagram,
-    link: "https://instagram.com/skincareclinic",
-  ),
-  SocialData(
-    socialMedia: SocialMedia.tiktok,
-    link: "https://instagram.com/skincareclinic",
-  ),
-  SocialData(
-    socialMedia: SocialMedia.linkedin,
-    link: "https://instagram.com/skincareclinic",
-  ),
-];
-
-final List<ClinicAvailableTime> clinicAvailableTimes = [
-  ClinicAvailableTime(time: "09:00", amPm: "AM", isAvailable: false),
-  ClinicAvailableTime(time: "09:30", amPm: "AM", isAvailable: false),
-  ClinicAvailableTime(time: "10:00", amPm: "AM", isAvailable: true),
-  ClinicAvailableTime(time: "10:30", amPm: "AM", isAvailable: true),
-  ClinicAvailableTime(time: "11:00", amPm: "AM", isAvailable: false),
-  ClinicAvailableTime(time: "11:30", amPm: "AM", isAvailable: true),
-  ClinicAvailableTime(time: "12:00", amPm: "PM", isAvailable: true),
-  ClinicAvailableTime(time: "12:30", amPm: "PM", isAvailable: false),
-  ClinicAvailableTime(time: "01:00", amPm: "PM", isAvailable: true),
-  ClinicAvailableTime(time: "01:30", amPm: "PM", isAvailable: true),
-];
+import 'generic/ui/generic_main_widget.dart';
 
 final GenericEntity barberShopExample = GenericEntity(
   genericPlaceId: "barber_001",
@@ -543,7 +51,8 @@ final GenericEntity barberShopExample = GenericEntity(
   lat: 30.047998,
   lng: 31.200742,
   phoneNumber: "+20 101 234 5678",
-  placeStatus: true, // open
+  placeStatus: true,
+  // open
   amenityList: [
     Amenity.freeWifi,
     Amenity.airConditioned,
@@ -591,30 +100,117 @@ final GenericEntity barberShopExample = GenericEntity(
   ],
 );
 
-class PlaceBaseScreen extends StatelessWidget {
-  // I have to path object from enum and check over the enum if it x so render y
-  // all of them have the same top bar + the same top photos carousel
+class PlaceBaseScreen extends StatefulWidget {
+  final String placeId;
+  final ScreensType screensType;
 
-  // final StoreEntity store;
+  const PlaceBaseScreen({
+    super.key,
+    required this.placeId,
+    required this.screensType,
+  });
 
-  const PlaceBaseScreen({super.key});
+  @override
+  State<PlaceBaseScreen> createState() => _PlaceBaseScreenState();
+}
+
+class _PlaceBaseScreenState extends State<PlaceBaseScreen> {
+  late final PlaceBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// Create bloc once
+    _bloc = getIt<PlaceBloc>();
+
+    /// Send first event once
+    _bloc.add(EnterPlaceScreen(widget.placeId));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          // for now i will test the store only
-          StoreMainWidget(storeEntity: demoPharmacyStore),
-          // GenericMainWidget(genericEntity:barberShopExample ),
-          SizedBox(
-            width: double.infinity,
-            child: Positioned(top: 200, child: PlacesTopBar()),
-          ),
-        ],
+    return BlocProvider.value(
+      value: _bloc,
+      child: BlocBuilder<PlaceBloc, PlaceState>(
+        builder: (context, state) {
+          // Loading
+          if (state.isLoading) {
+            return Scaffold(
+              backgroundColor: AppColors.white,
+              extendBodyBehindAppBar: true,
+              body: _buildScreenSkeletonizerByType(),
+            );
+          }
+
+          // Error
+          if (state.error != null) {
+            return Scaffold(
+              backgroundColor: AppColors.white,
+              body: Center(child: Text(state.error!)),
+            );
+          }
+
+          // No data
+          if (state.data == null) {
+            return const Scaffold(
+              body: Center(child: Text("No data available")),
+            );
+          }
+
+          final placeData = state.data!;
+
+          return Scaffold(
+            backgroundColor: AppColors.white,
+            extendBodyBehindAppBar: true,
+            body: _buildScreenByType(placeData),
+          );
+        },
       ),
     );
+  }
+
+  Widget _buildScreenByType(PlaceCategoryEntity placeData) {
+    switch (widget.screensType) {
+      case ScreensType.store:
+        return StoreMainWidget(storeEntity: placeData);
+
+      case ScreensType.generic:
+        return GenericMainWidget(genericEntity: barberShopExample);
+
+      case ScreensType.clinic:
+        return ClinicMainWidget(clinicEntity: placeData);
+
+      case ScreensType.gym:
+        return GymMainWidget();
+    }
+  }
+
+  Widget _buildScreenSkeletonizerByType() {
+    switch (widget.screensType) {
+      case ScreensType.store:
+        return StoreMainSkeleton();
+
+      case ScreensType.generic:
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          extendBodyBehindAppBar: true,
+          body: Center(child: CircularProgressIndicator()),
+        );
+
+      case ScreensType.clinic:
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          extendBodyBehindAppBar: true,
+          body: ClinicMainSkeleton(),
+        );
+
+      case ScreensType.gym:
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          extendBodyBehindAppBar: true,
+          body: CircularProgressIndicator(),
+        );
+    }
   }
 }

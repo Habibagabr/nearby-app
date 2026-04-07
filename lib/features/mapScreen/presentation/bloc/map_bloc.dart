@@ -1,8 +1,10 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:injectable/injectable.dart';
+import 'package:near_buy_gp/shared/util/screens_enum.dart';
 import 'map_event.dart';
 import 'map_state.dart';
 import 'package:near_buy_gp/features/mapScreen/domain/usecases/get_nearby_pins.dart';
@@ -28,11 +30,20 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   MapBloc({required GetNearbyPinsUseCase useCase})
       : _useCase = useCase,
         super(MapState.initial()) {
-    // FIX 1: Apply debounce (300ms) and restartable() to cancel old requests
+    //  Apply debounce (300ms) and restartable() to cancel old requests
     on<FetchMapData>(
       _onFetchMapData,
       transformer: debounce(const Duration(milliseconds: 300)),
     );
+    on<MarkerSelected>((event, emit) {
+      print("DEBUG: Marker Tapped! ID: ${event.placeId}, Category: ${event.businessCategory}");
+      _onMarkerSelected(
+        placeId: event.placeId,
+        businessCategory: event.businessCategory,
+        emit: emit,
+      );
+    });
+
   }
 
   Future<void> _onFetchMapData(
@@ -86,7 +97,16 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         emit(state.copyWith(status: MapStatus.error));
       },
           (entities) async {
-        final markers = await Future.wait(entities.map(MarkerMapper.toMarker));
+        final markers = await Future.wait(entities.map((entity) {
+          return MarkerMapper.toMarker(entity, () =>
+              add(
+                  MarkerSelected(
+                      placeId: entity.placeId,
+                      businessCategory: entity.placeCategory
+                  )
+              ));
+        })
+        );
 
         for (final marker in markers) {
           final geohash = _geoHasher.encode(
@@ -146,4 +166,28 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     if (zoom <= 16) return 7; // Street
     return 8; // Building
   }
+
+  void _onMarkerSelected({
+    required String businessCategory,
+    required String placeId,
+    required Emitter<MapState> emit
+  }) {
+    HapticFeedback.lightImpact();
+
+    final category = businessCategory.toLowerCase();
+
+    if (category == "store" || category == "restaurant" || category =="clothing" || category =="pharmacy") {
+      emit(state.copyWith(navAction: NavigateToStoreDetails(placeId: placeId , screensType: ScreensType.store )));
+    }
+    else if (category == "clinic") {
+      emit(state.copyWith(navAction: NavigateToServiceDetails(placeId: placeId , screensType: ScreensType.clinic)));
+    }
+    else {
+      emit(state.copyWith(navAction: NavigateToGeneralDetails(placeId: placeId , screensType: ScreensType.generic)));
+    }
+
+    // Clear the navigation action immediately so it doesn't trigger again
+    emit(state.copyWith(navAction: null));
+  }
+
 }

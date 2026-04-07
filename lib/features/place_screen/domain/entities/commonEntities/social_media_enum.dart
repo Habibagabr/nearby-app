@@ -3,7 +3,9 @@ enum SocialMedia{
   linkedin(iconName: "linkedin"),
   instagram(iconName: "instagram"),
   tiktok(iconName: "tiktok"),
-  whatsApp(iconName: "whatsapp");
+  twitter(iconName: "twitter"),
+  whatsApp(iconName: "whatsapp"),
+  phone(iconName: "phone");
 
   final String iconName;
   const SocialMedia({required this.iconName});

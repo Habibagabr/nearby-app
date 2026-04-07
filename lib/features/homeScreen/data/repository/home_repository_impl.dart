@@ -14,30 +14,10 @@ import '../datasource/home_remote_service_impl.dart';
 class HomeRepositoryImpl implements HomeRepository {
   final HomeRemoteService service;
   HomeRepositoryImpl(this.service);
-  @override
-  Future<Either<Failure, List<NearbyPlaceEntity>>> getPlacesInBounds({
-    required double west,
-    required double north,
-    required double east,
-    required double south,
-  }) async {
-    try {
-      //  Convert MODELS → ENTITIES
-      final entities = nearbyPlacesMock
-          .map((model) => model.toEntity())
-          .toList();
-
-      return Right(entities);
-    } catch (e) {
-      return Left(
-        UnknownFailure(msg: e.toString()),
-      );
-    }
-  }
 
   @override
-  Future<Either<Failure, List<NearbyPlaceEntity>>> getNearbyPlaces( {required double lat, required  double lng ,  required int pageNum , required int limit}) async {
-    final data = await service.getNearbyPlaces(lng:lng, lat:lat ,pageNum: pageNum , limit: limit );
+  Future<Either<Failure, List<NearbyPlaceEntity>>> getNearbyPlaces( {required double lat, required  double lng ,  required int pageNum , required int limit , String? businessCategory}) async {
+    final data = await service.getNearbyPlaces(lng:lng, lat:lat ,pageNum: pageNum , limit: limit , businessCategory: businessCategory );
     return data.fold(
           (exception) => Left(mapExceptionToFailure(exception)),
           (models) => Right(models.map((model) => model.toEntity()).toList(),

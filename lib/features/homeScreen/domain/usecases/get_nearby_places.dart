@@ -12,13 +12,15 @@ class GetNearbyPlacesUseCase {
   Future<Either<String, List<NearbyPlaceEntity>>> call({
    required double lat,
     required double lng,
-    required int pageNum , required int limit
+    required int pageNum , required int limit,
+    String? businessCategory,
   }) async {
     final result = await repository.getNearbyPlaces(
       lat: lat,
       lng: lng,
       pageNum: pageNum,
-      limit: limit
+      limit: limit ,
+      businessCategory: businessCategory
     );
 
     // Use fold to return the final Either result

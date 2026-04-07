@@ -1,8 +1,10 @@
 part of 'splash_screen_bloc.dart';
 
 @immutable
-sealed class SplashScreenState {}
+abstract class SplashScreenState {}
+
+class SplashScreenInitial extends SplashScreenState {}
 
 class SplashScreenLoading extends SplashScreenState {}
 
-class NavigateToLogin extends SplashScreenState{}
+class SplashScreenReady extends SplashScreenState {}

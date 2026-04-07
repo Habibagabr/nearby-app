@@ -4,9 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/themes/app_colors.dart';
 import '../../../../core/values/app_dimen.dart';
 import '../../../../shared/components/header_text_style.dart';
+import '../../../place_screen/presentation/store/ui/store_skeleton_widget.dart';
 import '../bloc/home_bloc.dart';
 import 'nearby_place_card.dart';
-
 
 class DraggableNearbyPlacesSheet extends StatelessWidget {
   const DraggableNearbyPlacesSheet({super.key});
@@ -16,7 +16,7 @@ class DraggableNearbyPlacesSheet extends StatelessWidget {
     return DraggableScrollableSheet(
       initialChildSize: 0.45,
       minChildSize: 0.1,
-      maxChildSize: 0.9,
+      maxChildSize: 0.88,
       builder: (context, scrollController) {
         return Container(
           decoration: const BoxDecoration(
@@ -27,58 +27,98 @@ class DraggableNearbyPlacesSheet extends StatelessWidget {
             builder: (context, state) {
               final int listLength = state.nearbyPlaces.length;
 
-              // Full screen loader only on the first page
-              if (state.status == HomeStatus.loading && listLength == 0) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (state.status == HomeStatus.success && listLength == 0) {
-                return const Center(child: Text("No nearby places found"));
-              }
-              if(state.status ==HomeStatus.failure){
-                return const Center(child: Text("some thing wrong happened , please try again later "));
-
-              }
-
               return NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification scrollInfo) {
-                  // Trigger next page when 200 pixels from the bottom
-                  if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 200 &&
-                      state.status != HomeStatus.loading && // Don't trigger if already loading
-                      !state.isMaxReached) {                // Don't trigger if no more data
-
-                    context.read<HomeBloc>().add(FetchNearbyPlacesEvent(
-                      lat: state.lat,
-                      lng: state.lng,
-                      pageNum: state.pageNum + 1, // Increment page
-                      limit: 10,
-                    ));
+                  if (scrollInfo.metrics.pixels >=
+                          scrollInfo.metrics.maxScrollExtent - 200 &&
+                      state.status != HomeStatus.loading &&
+                      !state.isMaxReached) {
+                    context.read<HomeBloc>().add(
+                      FetchNearbyPlacesEvent(
+                        lat: state.lat,
+                        lng: state.lng,
+                        pageNum: state.pageNum + 1,
+                        limit: 10,
+                        businessCategory: state.businessCategory
+                      ),
+                    );
                   }
-                  return true;
+                  return false;
                 },
                 child: ListView.builder(
                   controller: scrollController,
-                  itemCount: listLength + 2, // +1 for Header, +1 for Footer
+                  itemCount: listLength == 0
+                      ? 2
+                      : listLength + 2,
                   itemBuilder: (context, index) {
-                    if (index == 0) return _buildSheetHeader();
-
-                    // List Footer Logic
-                    if (index == listLength + 1) {
-                      // Don't show footer if the list is empty
-                      return listLength > 0
-                          ? _buildListFooter(state)
-                          : const SizedBox.shrink();
+                    //  Header
+                    if (index == 0) {
+                      return _buildSheetHeader();
                     }
 
+                    //  Empty State
+                    if (listLength == 0) {
+                      if (state.status == HomeStatus.loading) {
+                        return Center(
+                          child: Column(
+                            children: List.generate(
+                              7,
+                              (index) => const ProductItemSkeleton(),
+                            ),
+                          ),
+                        );
+                      }
+
+                      if (state.status == HomeStatus.failure) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 100),
+                          child: Center(
+                            child: Text(
+                              "Something went wrong.\nPlease try again later.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 100),
+                        child: Center(
+                          child: Text(
+                            "No nearby places found",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      );
+                    }
+
+                    // 🔹 Footer
+                    if (index == listLength + 1) {
+                      return _buildListFooter(state);
+                    }
+
+                    // 🔹 Real Items
                     final place = state.nearbyPlaces[index - 1];
-                    return NearbyPlaceCard(
-                      name: place.name,
-                      category: place.type,
-                      description: place.description,
-                      servicesProvided: place.servicesProvided,
-                      address: place.address,
-                      imageUrls: place.imageUrls,
-                      rating: place.rating,
+
+                    return GestureDetector(
+                      onTap: () {
+                        context.read<HomeBloc>().add(
+                          PlaceSelected(
+                            placeId: place.id,
+                            businessCategory: place.category,
+                          ),
+                        );
+                      },
+                      child: NearbyPlaceCard(
+                        name: place.name,
+                        category: place.type,
+                        description: place.description,
+                        servicesProvided: place.servicesProvided,
+                        address: place.address,
+                        imageUrls: place.imageUrls,
+                        rating: place.rating,
+                      ),
                     );
                   },
                 ),
@@ -119,12 +159,17 @@ class DraggableNearbyPlacesSheet extends StatelessWidget {
       child: Center(
         child: state.isMaxReached
             ? Text(
-          "No more places to show",
-          style: TextStyle(color: Colors.grey[500], fontSize: 13),
-        )
-            : const CircularProgressIndicator(strokeWidth: 2), // Mini loader for pagination
-      ),
-    );
+                "No more places to show",
+                style: TextStyle(color: Colors.grey[500], fontSize: 13),
+              )
+            : Column(
+                children:  [
+                  ProductItemSkeleton(),
+                  ProductItemSkeleton(),
+                  CircularProgressIndicator()
+                ],
+                ),
+              ),
+      );
   }
 }
-

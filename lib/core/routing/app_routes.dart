@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:near_buy_gp/features/notificationScreen/ui/notification_main_screen.dart';
+import 'package:near_buy_gp/shared/util/screens_enum.dart';
 
 import '../../features/authenticationScreens/loginScreen/presentation/ui/login_screen.dart';
 import '../../features/authenticationScreens/signupScreen/presentation/ui/signup_screen.dart';
+import '../../features/place_screen/presentation/place_base_screen.dart';
 import '../../features/splashScreen/splash_screen.dart';
 import '../../main_layout/main_shell.dart';
 
@@ -58,3 +61,38 @@ class MainShellRoute extends GoRouteData with _$MainShellRoute{
   }
 
 }
+
+
+@TypedGoRoute<PlaceDetailsRoute>(
+  path: '/details/:placeId',
+)
+class PlaceDetailsRoute extends GoRouteData
+    with _$PlaceDetailsRoute {
+
+  final String placeId;
+  final ScreensType screensType;
+
+  const PlaceDetailsRoute({required this.placeId , required this.screensType});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return PlaceBaseScreen(placeId: placeId, screensType : screensType);
+  }
+}
+
+@TypedGoRoute<NotificationScreenRoute>(
+  path: '/notification',
+)
+class NotificationScreenRoute extends GoRouteData
+    with _$NotificationScreenRoute {
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return NotificationMainScreen();
+  }
+}
+
+
+
+
+
