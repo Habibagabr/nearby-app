@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:near_buy_gp/core/values/app_dimen.dart';
+import 'package:near_buy_gp/core/themes/app_dimen.dart';
 import '../../core/themes/app_colors.dart';
 
 class AuthBaseScreen extends StatelessWidget {
@@ -17,7 +17,7 @@ class AuthBaseScreen extends StatelessWidget {
           height: double.infinity,
           decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage("assets/images/mapbackground.jpg"),
+                image: AssetImage("assets/images/mapbackground.webp"),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   AppColors.darkGray.withValues(alpha:0.9),

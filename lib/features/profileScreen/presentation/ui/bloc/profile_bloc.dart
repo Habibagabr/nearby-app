@@ -10,38 +10,48 @@ part 'profile_state.dart';
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final SessionManager sessionManager;
 
-  ProfileBloc({required this.sessionManager})
-      : super(const ProfileState()) {
+  ProfileBloc({required this.sessionManager}) : super(const ProfileState()) {
     on<ProfileScreenStarted>(_onProfileScreenStarted);
     on<LogoutConfirmed>(_onLogoutConfirmed);
+    on<EditProfileClicked>(_onEditProfileClicked);
+    on<EditProfileCancelled>(_onEditProfileCancelled);
+  }
+
+  void _onEditProfileClicked(
+    EditProfileClicked event,
+    Emitter<ProfileState> emit,
+  ) {
+    emit(state.copyWith(isEditProfileClicked: true));
+  }
+
+  void _onEditProfileCancelled(
+    EditProfileCancelled event,
+    Emitter<ProfileState> emit,
+  ) {
+    emit(state.copyWith(isEditProfileClicked: false));
   }
 
   Future<void> _onProfileScreenStarted(
-      ProfileScreenStarted event,
-      Emitter<ProfileState> emit,
-      ) async {
+    ProfileScreenStarted event,
+    Emitter<ProfileState> emit,
+  ) async {
     emit(state.copyWith(isChecking: true));
 
     final userId = await sessionManager.getUserId();
 
-    emit(state.copyWith(
-      isChecking: false,
-      isRegister: userId != null,
-    ));
+    emit(state.copyWith(isChecking: false, isRegister: userId != null));
   }
 
   Future<void> _onLogoutConfirmed(
-      LogoutConfirmed event,
-      Emitter<ProfileState> emit,
-      ) async {
+    LogoutConfirmed event,
+    Emitter<ProfileState> emit,
+  ) async {
     emit(state.copyWith(isLoading: true));
 
     await sessionManager.clearSession();
 
-    emit(state.copyWith(
-      isLoading: false,
-      isRegister: false,
-      isPostLogout: true,
-    ));
+    emit(
+      state.copyWith(isLoading: false, isRegister: false, isPostLogout: true),
+    );
   }
 }

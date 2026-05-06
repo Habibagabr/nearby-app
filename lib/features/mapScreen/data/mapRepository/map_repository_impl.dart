@@ -9,7 +9,9 @@ import 'package:near_buy_gp/features/mapScreen/domain/repositories/mapRepository
 @LazySingleton(as: MapRepository)
 class MapRepositoryImpl extends MapRepository {
   final MapRemoteDataSource mapRemoteDataSource;
+
   MapRepositoryImpl({required this.mapRemoteDataSource});
+
   @override
   Future<Either<Failure, List<NearbyPinEntity>>> getNearbyPins(
     double swLng,
@@ -17,6 +19,7 @@ class MapRepositoryImpl extends MapRepository {
     double neLng,
     double neLat,
     double zoom,
+    String? businessType,
   ) async {
     final data = await mapRemoteDataSource.getNearbyPlacesMarkers(
       swLng,
@@ -24,6 +27,7 @@ class MapRepositoryImpl extends MapRepository {
       neLng,
       neLat,
       zoom,
+      businessType
     );
     return data.fold(
       (error) => Left(mapExceptionToFailure(error)),

@@ -11,14 +11,11 @@ import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_state.dart'
 import '../../../core/location/presentation/bloc/location_bloc.dart';
 import '../../../core/location/presentation/bloc/location_state.dart';
 import '../../../core/routing/app_routes.dart';
+import '../../../shared/util/business_category.dart';
 import '../../mapScreen/presentation/bloc/map_event.dart';
-import '../domain/entities/business_category.dart';
 import 'components/center_msg_error.dart';
-import 'components/draggable_nearby_places.dart';
 import 'components/home_screen_header.dart';
-
-
-
+import 'widget/draggable_nearby_places.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,18 +29,31 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isFirstScreenMove = false;
   double _currentZoom = 18;
   String categorySelected = businessCategories[0].display;
+  late LatLngBounds bounds;
+  late LatLng center;
 
   Future<void> _onCameraIdle() async {
-    final bounds = await _mapController.getVisibleRegion();
+    bounds = await _mapController.getVisibleRegion();
     if (!mounted) return;
 
-    final center = LatLng(
+    center = LatLng(
       (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
       (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
     );
 
+    final apiValue = businessCategories
+        .firstWhere((item) => item.display == categorySelected)
+        .apiValue;
+
     context.read<MapBloc>().add(
-      FetchMapData(bounds: bounds, zoom: _currentZoom, center: center),
+      FetchMapData(
+        bounds: bounds,
+        zoom: _currentZoom,
+        center: center,
+        businessType: categorySelected == businessCategories[0].display
+            ? null
+            : apiValue,
+      ),
     );
   }
 
@@ -54,28 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
       body: MultiBlocListener(
         listeners: [
           BlocListener<MapBloc, MapState>(
-            listenWhen: (prev, curr) => curr.navAction != null,
+            listenWhen: (prev, curr) =>
+                curr.navAction != prev.navAction && curr.navAction != null,
             listener: (context, state) {
-              final action = state.navAction;
-
-              if (action is NavigateToStoreDetails) {
-                PlaceDetailsRoute(
-                  placeId: action.placeId,
-                  screensType: action.screensType,
-                ).push(context);
-                ;
-              } else if (action is NavigateToServiceDetails) {
-                PlaceDetailsRoute(
-                  placeId: action.placeId,
-                  screensType: action.screensType,
-                ).push(context);
-              } else if (action is NavigateToGeneralDetails) {
-                PlaceDetailsRoute(
-                  placeId: action.placeId,
-                  screensType: action.screensType,
-                ).push(context);
-
-              }
+              final action = state.navAction!;
+              PlaceDetailsRoute(
+                placeId: action.placeId,
+                screensType: action.screenType,
+              ).push(context);
             },
           ),
           BlocListener<LocationBloc, LocationState>(
@@ -97,8 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   lng: state.location!.longitude,
                   pageNum: 1,
                   limit: 10,
-                  businessCategory:
-                      currentCategory, // Pass the current category here!
+                  businessCategory: currentCategory,
                 ),
               );
             },
@@ -129,7 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   final category = businessCategories[index];
-                  // Check if this specific category is the one selected
                   final isSelected = categorySelected == category.display;
 
                   return CategoryItem(
@@ -137,13 +131,32 @@ class _HomeScreenState extends State<HomeScreen> {
                     categoryIcon: category.icon,
                     isSelected: isSelected,
                     onTap: () {
-                      setState(() {
-                        categorySelected = category.display;
-                      });
+                      if (categorySelected != category.display) {
+                        final selectedDisplay = category.display;
+                        final selectedApiValue = category.apiValue;
 
-                      context.read<HomeBloc>().add(
-                        CategorySelected(businessCategory: category.apiValue),
-                      );
+                        setState(() {
+                          categorySelected = category.display;
+                        });
+
+                        context.read<MapBloc>().add(
+                          FetchMapData(
+                            bounds: bounds,
+                            zoom: _currentZoom,
+                            center: center,
+                            businessType:
+                                selectedDisplay == businessCategories[0].display
+                                ? null
+                                : selectedApiValue,
+                          ),
+                        );
+
+                        context.read<HomeBloc>().add(
+                          CategorySelected(businessCategory: category.apiValue),
+                        );
+                      } else {
+                        return;
+                      }
                     },
                   );
                 },
@@ -192,14 +205,14 @@ class _HomeScreenState extends State<HomeScreen> {
         if (locationState.status == LocationStatus.serviceDisabled) {
           return buildCenterMessage(
             "Please enable GPS from device settings",
-            imageUrl: "assets/images/mapbackground.jpg",
+            imageUrl: "assets/images/mapbackground.webp",
           );
         }
 
         if (locationState.status == LocationStatus.permissionDenied) {
           return buildCenterMessage(
             "Please enable GPS from device settings",
-            imageUrl: "assets/images/mapbackground.jpg",
+            imageUrl: "assets/images/mapbackground.webp",
           );
         }
 

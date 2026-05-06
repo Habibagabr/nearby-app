@@ -8,9 +8,8 @@ import 'package:near_buy_gp/features/splashScreen/bloc/splash_screen_bloc.dart';
 import 'core/di/injection.dart';
 import 'core/location/presentation/bloc/location_bloc.dart';
 import 'core/routing/app_router.dart';
-import 'core/themes/app_btn_theme.dart';
 import 'core/themes/app_colors.dart';
-import 'core/themes/app_input_fields_theme.dart';
+import 'core/common_widgets/app_input_fields_theme.dart';
 import 'features/mapScreen/presentation/bloc/map_bloc.dart';
 import 'l10n/app_localizations.dart';
 
@@ -67,7 +66,6 @@ class NearBuy extends StatelessWidget {
 
         //  Theme
         theme: ThemeData(
-          elevatedButtonTheme: AppBtnTheme.elevatedButtonTheme,
           inputDecorationTheme: AppInputFieldsTheme.inputDecorationTheme,
           textSelectionTheme: const TextSelectionThemeData(
             cursorColor: AppColors.white,

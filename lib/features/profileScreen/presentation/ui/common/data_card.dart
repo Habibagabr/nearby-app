@@ -5,7 +5,7 @@ import '../../../../../core/themes/app_colors.dart';
 class DataCard extends StatelessWidget {
   final IconData icon;
   final String cardTitle;
-  final String cardSubTitle;
+  final String? cardSubTitle;
   final Color? iconColor;
   final Color? iconBackgroundColor;
   final Color? titleColor;
@@ -14,6 +14,7 @@ class DataCard extends StatelessWidget {
   final double? bottomRight;
   final double? bottomLeft;
   final VoidCallback? onCardClicked;
+  final Widget? actionWidget;
 
   const DataCard({
     super.key,
@@ -25,9 +26,11 @@ class DataCard extends StatelessWidget {
     this.iconColor,
     this.titleColor,
     required this.cardTitle,
-    required this.cardSubTitle,
+     this.cardSubTitle,
     this.iconBackgroundColor,
     this.onCardClicked,
+    this.actionWidget
+
   });
 
   @override
@@ -92,8 +95,9 @@ class DataCard extends StatelessWidget {
                       ),
                       textAlign: TextAlign.start,
                     ),
+                    if(cardSubTitle != null)
                     Text(
-                      cardSubTitle,
+                      cardSubTitle!,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.normal,
@@ -107,10 +111,7 @@ class DataCard extends StatelessWidget {
             ),
             Align(
               alignment: AlignmentGeometry.centerRight,
-              child: Icon(
-                Icons.navigate_next_outlined,
-                color: AppColors.darkGray.withAlpha(100),
-              ),
+              child: actionWidget,
             ),
           ],
         ),

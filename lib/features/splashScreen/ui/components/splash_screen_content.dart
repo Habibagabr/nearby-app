@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/themes/app_text_style.dart';
-import 'package:near_buy_gp/core/values/app_dimen.dart';
+import 'package:near_buy_gp/core/themes/app_dimen.dart';
 import 'package:near_buy_gp/l10n/app_localizations.dart';
 
 class SplashScreenContent extends StatelessWidget {

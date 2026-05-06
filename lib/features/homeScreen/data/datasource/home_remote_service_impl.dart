@@ -11,7 +11,7 @@ class HomeRemoteServiceImpl implements HomeRemoteService {
   HomeRemoteServiceImpl(this.dio);
 
   @override
-  Future<Either<Exception, List<NearbyPlaceModel>>> getNearbyPlaces({
+  Future<List<NearbyPlaceModel>> getNearbyPlaces({
     required double lat,
     required double lng,
     required int pageNum,
@@ -25,9 +25,8 @@ class HomeRemoteServiceImpl implements HomeRemoteService {
       'limit': limit,
     };
     if(businessCategory!=null){
-      query['category']=businessCategory;
+      query['businessType']=businessCategory;
     }
-    try {
       final result = await dio.get(
         "/api/business/nearby",
         queryParameters: query,
@@ -38,17 +37,8 @@ class HomeRemoteServiceImpl implements HomeRemoteService {
 
       final List<dynamic> businessList = responseBody['businesses'];
 
-      final List<NearbyPlaceModel> places = businessList
-          .map(
-            (json) => NearbyPlaceModel.fromJson(json as Map<String, dynamic>),
-          )
-          .toList();
-
-      return Right(places);
-    } on DioException catch (e) {
-      return Left(Exception(e.message ?? "Connection Error"));
-    } catch (e) {
-      return Left(Exception("Unexpected Error: ${e.toString()}"));
+    return businessList
+        .map((json) => NearbyPlaceModel.fromJson(json as Map<String, dynamic>))
+        .toList();
     }
-  }
 }

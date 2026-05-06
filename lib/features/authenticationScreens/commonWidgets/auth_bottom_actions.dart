@@ -43,8 +43,13 @@ class AuthBottomActions extends StatelessWidget {
           width: 200,
           height: 48,
           child: ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(AppColors.darkGray)
+            ),
             onPressed: onPrimaryBtnPressed,
-            child: Text(primaryText, style: AppTextStyles.labelMedium),
+            child: Text(primaryText, style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.white
+            ) ),
           ),
         ),
 

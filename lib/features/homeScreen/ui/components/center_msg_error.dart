@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+
+// FIXME : THIS IS WILL BE REMOVED AS WE USING THE ERROR WIDGET NOW
 Widget buildCenterMessage(
     String text, {
       bool isError = false,

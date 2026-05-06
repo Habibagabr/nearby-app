@@ -84,7 +84,7 @@ class _CarouselSliderWidgetState extends State<CarouselSliderWidget> {
             child: Stack(
               children: [
                 Image.asset(
-                  'assets/images/mapbackground.jpg',
+                  'assets/images/mapbackground.webp',
                   fit: BoxFit.cover,
                   width: double.infinity,
                 ),

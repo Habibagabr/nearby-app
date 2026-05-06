@@ -1,159 +1,150 @@
+import 'dart:collection';
+
 import 'package:bloc/bloc.dart';
-import 'package:flutter/services.dart';
+import 'package:dart_geohash/dart_geohash.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:dart_geohash/dart_geohash.dart';
 import 'package:injectable/injectable.dart';
-import 'package:near_buy_gp/shared/util/screens_enum.dart';
-import 'map_event.dart';
-import 'map_state.dart';
 import 'package:near_buy_gp/features/mapScreen/domain/usecases/get_nearby_pins.dart';
 import 'package:near_buy_gp/features/mapScreen/presentation/markers/data_to_marker_mapper.dart';
-
-import 'package:stream_transform/stream_transform.dart'; // Required for debouncing
-
-
-// 1. Define a debounce transformer to limit how often events are processed
-EventTransformer<E> debounce<E>(Duration duration) {
-  return (events, mapper) => events.debounce(duration).switchMap(mapper);
-}
+import '../../data/map_worker/process_geohashes_in_background.dart';
+import '../../data/models/map_worker_input.dart';
+import '../../domain/usecases/get_place_screen_category.dart';
+import '../../utils/transformer.dart';
+import 'map_event.dart';
+import 'map_state.dart';
 
 @LazySingleton()
 class MapBloc extends Bloc<MapEvent, MapState> {
-  final GetNearbyPinsUseCase _useCase;
-  final GeoHasher _geoHasher = GeoHasher();
+  final GetNearbyPinsUseCase getNearbyPinsUseCase;
 
-  final Map<int, Map<String, Map<String, Marker>>> _markersCache = {};
-  final Set<String> _visitedCells = {};
-  bool _isFetching = false;
+  // cache for the pre-fetched tiles before :
+  // key : " precision + geohash "
+  // value : set " list " of markers followed this part
+  /// why linked ?????
+  final LinkedHashMap<String, Set<Marker>> _tileCache = LinkedHashMap();
+  static const int _maxTiles = 200;
 
-  MapBloc({required GetNearbyPinsUseCase useCase})
-      : _useCase = useCase,
-        super(MapState.initial()) {
-    //  Apply debounce (300ms) and restartable() to cancel old requests
+  MapBloc({required this.getNearbyPinsUseCase}) : super(MapState.initial()) {
     on<FetchMapData>(
       _onFetchMapData,
       transformer: debounce(const Duration(milliseconds: 300)),
     );
+
     on<MarkerSelected>((event, emit) {
-      print("DEBUG: Marker Tapped! ID: ${event.placeId}, Category: ${event.businessCategory}");
+      if (kDebugMode) {
+        print(
+          "DEBUG: Marker Tapped! ID: ${event.placeId}, Category: ${event.businessCategory}",
+        );
+      }
       _onMarkerSelected(
         placeId: event.placeId,
         businessCategory: event.businessCategory,
         emit: emit,
       );
     });
-
   }
 
   Future<void> _onFetchMapData(
-      FetchMapData event,
-      Emitter<MapState> emit,
-      ) async {
-    final int precision = _getPrecision(event.zoom);
-    _markersCache.putIfAbsent(precision, () => {});
+    FetchMapData event,
+    Emitter<MapState> emit,
+  ) async {
+    if (kDebugMode) {
+      print("PRINT: THE SELECTED CATEGORY IS : ${event.businessType}");
+    }
+    if (event.businessType != null) {
+      clearMapCache();
+      emit(state.copyWith(currentMarkers: {}));
+    }
+    final precision = _getPrecision(event.zoom);
 
-    // 2. Identify specifically which hashes in the viewport are missing
-    final Set<String> visibleHashes = _generateHashesForViewport(event.center, precision);
-    final List<String> missingHashes = visibleHashes
-        .where((h) => !_visitedCells.contains('$precision:$h'))
-        .toList();
-
-    // Immediate Cache UI Update (Zero Latency)
-    // Show what we already have before even checking the network
-    final cachedMarkers = _filterMarkers(event.bounds, precision);
+    // 1. Instant Cache Display
+    // get the instant already found markers based on the boundaries of the map and the precision
+    final cachedMarkers = _filterFromCache(event.bounds, precision);
     if (cachedMarkers.isNotEmpty) {
-      emit(state.copyWith(
-        status: MapStatus.loaded,
-        currentMarkers: cachedMarkers,
-      ));
+      emit(
+        state.copyWith(status: MapStatus.loaded, currentMarkers: cachedMarkers),
+      );
     }
+    // 2. Skip network if area is already fully cached
+    // after getting the instant cached markers we should complete bec :
+    // what if we are in partial place ( half of it cashed and the other the first time we see it )
+    // this line check if the whole area is cached or not , if yes we already give all the cached marker for it if not we will complete to get them
+    if (_isAreaCached(event.center, precision)) return;
 
-    //  Stop request if everything visible is already cached
-    if (missingHashes.isEmpty) {
-      print("DEBUG: All visible cells cached. Skipping request.");
-      return;
-    }
-
-    if (_isFetching) return;
-    _isFetching = true;
-
-    // Optional: Only show loading if we have NO markers yet
-    if (state.currentMarkers.isEmpty) {
-      emit(state.copyWith(status: MapStatus.loading));
-    }
-
-    final result = await _useCase.getNearbyPinsUseCase(
-      event.bounds.southwest.longitude,
-      event.bounds.southwest.latitude,
-      event.bounds.northeast.longitude,
-      event.bounds.northeast.latitude,
-      event.zoom,
+    final result = await getNearbyPinsUseCase.getNearbyPinsUseCase(
+      swLng: event.bounds.southwest.longitude,
+      swLat: event.bounds.southwest.latitude,
+      neLng: event.bounds.northeast.longitude,
+      neLat: event.bounds.northeast.latitude,
+      zoom: event.zoom,
+      businessType: event.businessType?.toLowerCase(),
     );
-
     await result.fold(
-          (error) async {
-        _isFetching = false;
-        emit(state.copyWith(status: MapStatus.error));
-      },
-          (entities) async {
-        final markers = await Future.wait(entities.map((entity) {
-          return MarkerMapper.toMarker(entity, () =>
-              add(
-                  MarkerSelected(
-                      placeId: entity.placeId,
-                      businessCategory: entity.placeCategory
-                  )
-              ));
-        })
+      (failure) async => emit(state.copyWith(status: MapStatus.error)),
+      (data) async {
+        // 3. BACKGROUND: Heavy Geohash Calculation
+        final workerResult = await compute(
+          processGeohashesInBackground,
+          MapWorkerInput(data, precision),
         );
 
-        for (final marker in markers) {
-          final geohash = _geoHasher.encode(
-            marker.position.longitude,
-            marker.position.latitude,
-            precision: precision,
-          );
+        // 4. MAIN THREAD BATCHING: Convert Widgets to Markers in chunks
+        for (var entry in workerResult.groupedEntities.entries) {
+          final Set<Marker> markersInTile = {};
 
-          _markersCache[precision]!.putIfAbsent(geohash, () => <String, Marker>{});
-          _markersCache[precision]![geohash]![marker.markerId.value] = marker;
+          for (var entity in entry.value) {
+            final marker = await MarkerMapper.toMarker(
+              place: entity,
+              onTap: () => add(
+                MarkerSelected(
+                  placeId: entity.placeId,
+                  businessCategory: "store",/// FIX EL HABL DAAAAAH
+                ),
+              ),
+            );
+            markersInTile.add(marker);
+          }
+
+          // Update LRU Cache
+          _tileCache.remove(entry.key); // Refresh position
+          _tileCache[entry.key] = markersInTile;
+
+          // Yield to let UI render (Prevent freezing)
+          await Future.delayed(Duration.zero);
         }
 
-        // Mark all hashes in the current view as "visited"
-        for (final h in visibleHashes) {
-          _visitedCells.add('$precision:$h');
+        // 5. Cleanup Cache (Evict oldest tiles)
+        while (_tileCache.length > _maxTiles) {
+          _tileCache.remove(_tileCache.keys.first);
         }
 
-        _isFetching = false;
-
-        emit(state.copyWith(
-          status: MapStatus.loaded,
-          currentMarkers: _filterMarkers(event.bounds, precision),
-        ));
+        emit(
+          state.copyWith(
+            status: MapStatus.loaded,
+            currentMarkers: _filterFromCache(event.bounds, precision),
+          ),
+        );
       },
     );
   }
 
-  // Updated filter to correctly return all cached markers for current precision
-  Set<Marker> _filterMarkers(LatLngBounds bounds, int precision) {
-    if (!_markersCache.containsKey(precision)) return {};
-
-    return _markersCache[precision]!
-        .values
-        .expand((m) => m.values)
+  Set<Marker> _filterFromCache(LatLngBounds bounds, int precision) {
+    return _tileCache.entries
+        .where((e) => e.key.startsWith('$precision:'))
+        .expand((e) => e.value)
+        .where((m) => bounds.contains(m.position))
         .toSet();
   }
 
-  ///  Center + 8 neighbors
-  Set<String> _generateHashesForViewport(LatLng center, int precision) {
-    final String centerHash = _geoHasher.encode(
+  bool _isAreaCached(LatLng center, int p) {
+    final hash = GeoHasher().encode(
       center.longitude,
       center.latitude,
-      precision: precision,
+      precision: p,
     );
-
-    final neighbors = _geoHasher.neighbors(centerHash);
-    return {centerHash, ...neighbors.values};
+    return _tileCache.containsKey("$p:$hash");
   }
 
   ///  Matches backend geographic levels
@@ -170,24 +161,22 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   void _onMarkerSelected({
     required String businessCategory,
     required String placeId,
-    required Emitter<MapState> emit
+    required Emitter<MapState> emit,
   }) {
-    HapticFeedback.lightImpact();
-
-    final category = businessCategory.toLowerCase();
-
-    if (category == "store" || category == "restaurant" || category =="clothing" || category =="pharmacy") {
-      emit(state.copyWith(navAction: NavigateToStoreDetails(placeId: placeId , screensType: ScreensType.store )));
-    }
-    else if (category == "clinic") {
-      emit(state.copyWith(navAction: NavigateToServiceDetails(placeId: placeId , screensType: ScreensType.clinic)));
-    }
-    else {
-      emit(state.copyWith(navAction: NavigateToGeneralDetails(placeId: placeId , screensType: ScreensType.generic)));
-    }
-
-    // Clear the navigation action immediately so it doesn't trigger again
-    emit(state.copyWith(navAction: null));
+    final placeScreenCategory = getPlaceScreenCategoryUseCase(
+      businessCategory.toLowerCase(),
+    );
+    emit(
+      state.copyWith(
+        navAction: NavigateToDetailsScreen(
+          placeId: placeId,
+          screenType: placeScreenCategory,
+        ),
+      ),
+    );
   }
 
+  void clearMapCache() {
+    _tileCache.clear();
+  }
 }

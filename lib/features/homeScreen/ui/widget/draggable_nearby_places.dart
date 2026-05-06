@@ -1,12 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/themes/app_colors.dart';
-import '../../../../core/values/app_dimen.dart';
+import '../../../../core/themes/app_dimen.dart';
+import '../../../../core/themes/app_text_style.dart';
 import '../../../../shared/components/header_text_style.dart';
+import '../../../../shared/widget/error_widget.dart';
 import '../../../place_screen/presentation/store/ui/store_skeleton_widget.dart';
 import '../bloc/home_bloc.dart';
-import 'nearby_place_card.dart';
+import '../components/nearby_place_card.dart';
 
 class DraggableNearbyPlacesSheet extends StatelessWidget {
   const DraggableNearbyPlacesSheet({super.key});
@@ -21,7 +23,9 @@ class DraggableNearbyPlacesSheet extends StatelessWidget {
         return Container(
           decoration: const BoxDecoration(
             color: AppColors.darkGray,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(AppDimens.radiusL),
+            ),
           ),
           child: BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
@@ -32,14 +36,15 @@ class DraggableNearbyPlacesSheet extends StatelessWidget {
                   if (scrollInfo.metrics.pixels >=
                           scrollInfo.metrics.maxScrollExtent - 200 &&
                       state.status != HomeStatus.loading &&
-                      !state.isMaxReached) {
+                      !state.isMaxReached &&
+                      state.status != HomeStatus.failure) {
                     context.read<HomeBloc>().add(
                       FetchNearbyPlacesEvent(
                         lat: state.lat,
                         lng: state.lng,
                         pageNum: state.pageNum + 1,
                         limit: 10,
-                        businessCategory: state.businessCategory
+                        businessCategory: state.businessCategory,
                       ),
                     );
                   }
@@ -47,9 +52,7 @@ class DraggableNearbyPlacesSheet extends StatelessWidget {
                 },
                 child: ListView.builder(
                   controller: scrollController,
-                  itemCount: listLength == 0
-                      ? 2
-                      : listLength + 2,
+                  itemCount: listLength == 0 ? 2 : listLength + 2,
                   itemBuilder: (context, index) {
                     //  Header
                     if (index == 0) {
@@ -62,43 +65,55 @@ class DraggableNearbyPlacesSheet extends StatelessWidget {
                         return Center(
                           child: Column(
                             children: List.generate(
-                              7,
+                              3,
                               (index) => const ProductItemSkeleton(),
                             ),
                           ),
                         );
                       }
 
-                      if (state.status == HomeStatus.failure) {
-                        return const Padding(
+                      if(state.status == HomeStatus.success){
+                        return Padding(
                           padding: EdgeInsets.symmetric(vertical: 100),
                           child: Center(
-                            child: Text(
-                              "Something went wrong.\nPlease try again later.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.white),
+                            child: CustomErrorWidget(
+                              errorImage:"assets/images/no_results.webp" ,
+                              errorMessage: "No places are found for this category",
+                              errorMessageStyle: AppTextStyles.errorText
+                                  .copyWith(color: AppColors.white),
                             ),
                           ),
                         );
                       }
 
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 100),
-                        child: Center(
-                          child: Text(
-                            "No nearby places found",
-                            style: TextStyle(color: Colors.white),
+                      if (state.status == HomeStatus.failure) {
+                        final String? errorImageUrl = switch(state.failureType){
+                          null => throw UnimplementedError(),
+                          FailureTypes.server => "assets/images/cloud_error.webp",
+                          FailureTypes.network =>"assets/images/network_error.webp",
+                          FailureTypes.general =>"assets/images/general_error.png",
+                          FailureTypes.canceling => null,
+                        };
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 100),
+                          child: Center(
+                            child: CustomErrorWidget(
+                              errorImage:errorImageUrl ,
+                              errorMessage: state.errorMsg,
+                              errorMessageStyle: AppTextStyles.errorText
+                                  .copyWith(color: AppColors.white),
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     }
 
-                    // 🔹 Footer
+                    //  Footer
                     if (index == listLength + 1) {
                       return _buildListFooter(state);
                     }
 
-                    // 🔹 Real Items
+                    //  Real Items
                     final place = state.nearbyPlaces[index - 1];
 
                     return GestureDetector(
@@ -155,21 +170,14 @@ class DraggableNearbyPlacesSheet extends StatelessWidget {
 
   Widget _buildListFooter(HomeState state) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Center(
-        child: state.isMaxReached
-            ? Text(
-                "No more places to show",
-                style: TextStyle(color: Colors.grey[500], fontSize: 13),
-              )
-            : Column(
-                children:  [
-                  ProductItemSkeleton(),
-                  ProductItemSkeleton(),
-                  CircularProgressIndicator()
-                ],
-                ),
+      padding: const EdgeInsets.symmetric(vertical: AppDimens.paddingS),
+      child: state.isMaxReached
+          ? SizedBox(height: AppDimens.spacingM)
+          : Center(
+              child: Column(
+                children: [ProductItemSkeleton()],
               ),
-      );
+            ),
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
+import 'package:near_buy_gp/core/error/app_failure.dart';
 import 'package:near_buy_gp/features/homeScreen/domain/entities/nearby_places_entity.dart';
 import 'package:near_buy_gp/features/homeScreen/domain/usecases/get_nearby_places.dart';
 import 'package:near_buy_gp/shared/util/screens_enum.dart';
@@ -59,7 +60,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required String placeId,
     required Emitter<HomeState> emit,
   }) {
-    final category = businessCategory.toLowerCase();
+    final String category = businessCategory.toLowerCase() ;
 
     if (category == "store" ||
         category == "restaurant" ||
@@ -97,36 +98,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(state.copyWith(navigateState: null));
   }
 
-  // this is will be removed soon in the next api improvement
-  String? mapToApiCategory(String? businessCategory) {
-    // 1. Handle the "all" case
-    if (businessCategory == 'all' || businessCategory ==null) return null;
-
-    // 2. Define the groups
-    const stores = {
-      'electronics', 'clothing', 'supermarket', 'pharmacy',
-      'fashion', 'grocery', 'home', 'toys'
-    };
-    const restaurants = {
-      'fast_food', 'cafe', 'dessert', 'seafood', 'food_beverage'
-    };
-    const clinics = {
-      'dentist', 'dermatology', 'pediatric', 'general_clinic',
-      'medical', 'health'
-    };
-    const gyms = {
-      'crossfit', 'bodybuilding', 'pilates', 'fitness', 'sports'
-    };
-
-    // 3. Check and return the mapped value
-    if (stores.contains(businessCategory)) return 'store';
-    if (restaurants.contains(businessCategory)) return 'restaurant';
-    if (clinics.contains(businessCategory)) return 'clinic';
-    if (gyms.contains(businessCategory)) return 'gym';
-
-    // Default to 'service' for everything else (repair, cleaning, beauty, etc.)
-    return 'service';
-  }
 
 
   Future<void> _onFetchNearbyPlaces(
@@ -137,20 +108,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     // We only set status to 'loading' so the UI shows the bottom spinner.
     emit(state.copyWith(status: HomeStatus.loading));
 // Inside HomeBloc _onFetchNearbyPlaces
-    final mappedCategory = mapToApiCategory(event.businessCategory);
-
     final result = await getNearbyPlacesUseCase(
       lat: event.lat,
       lng: event.lng,
       pageNum: event.pageNum,
       limit: event.limit,
-      businessCategory: mappedCategory, // Send the mapped value (store, gym, etc.)
+      businessCategory: event.businessCategory?.toLowerCase() == "all" ? null : event.businessCategory?.toLowerCase().replaceAll(" ", "_"), // Send the mapped value (store, gym, etc.)
     );
 
 
     result.fold(
       (error) =>
-          emit(state.copyWith(status: HomeStatus.failure, errorMsg: error)),
+          emit(state.copyWith(status: HomeStatus.failure, errorMsg: error.failureMessage , failureType: mapFailureType(error))),
       (newPlaces) {
         // APPEND DATA
         // If pageNum is 1, it's a fresh start. Otherwise, we add newPlaces to the old ones.
@@ -165,6 +134,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         emit(
           state.copyWith(
             status: HomeStatus.success,
+            errorMsg: null,
+            failureType: null,
             nearbyPlaces: updatedList,
             isMaxReached: reachedMax,
             lng: event.lng,
@@ -174,5 +145,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
       },
     );
+  }
+
+  FailureTypes? mapFailureType(AppFailure error) {
+    return switch(error){
+
+      NetworkFailure() => FailureTypes.network,
+      ServerFailure() => FailureTypes.server,
+      CancelFailure() => null,
+      GeneralFailure() => FailureTypes.general,
+    };
   }
 }

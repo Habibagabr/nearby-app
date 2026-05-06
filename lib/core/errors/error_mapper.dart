@@ -1,6 +1,8 @@
 import 'exceptions.dart';
 import 'failures.dart';
 
+
+//FIXME : this will be removed later
 Failure mapExceptionToFailure(Exception exception) {
 
   if (exception is AppException) {

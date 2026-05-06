@@ -1,17 +1,12 @@
+import 'package:flutter/material.dart';
+
+import '../../../../shared/util/business_category.dart';
+
 class CategoryIconResolver {
-  static const Set<String> _supported = {
-    'clothing', 'cafe', 'pharmacy', 'gym', 'restaurant'
-  };
-
-  static String resolve(String category) {
-    final baseUrl = "assets/images/markers/";
-    final cleanCategory = category.toLowerCase().trim();
-
-    // If it's in our list, use it; otherwise, use default
-    final fileName = _supported.contains(cleanCategory)
-        ? cleanCategory
-        : 'default';
-
-    return 'assets/images/markers/default.png';
+  static IconData resolve(String category) {
+    return businessCategories.firstWhere(
+          (element) => element.apiValue == category,
+      orElse: () => businessCategories.last,
+    ).icon;
   }
 }

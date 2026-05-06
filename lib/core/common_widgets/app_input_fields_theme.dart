@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
-import '../values/app_dimen.dart';
-import 'app_text_style.dart';
+import '../themes/app_colors.dart';
+import '../themes/app_dimen.dart';
+import '../themes/app_text_style.dart';
 
+
+// FIXME: This logic is may be deleted soon
 class AppInputFieldsTheme {
   AppInputFieldsTheme._();
 

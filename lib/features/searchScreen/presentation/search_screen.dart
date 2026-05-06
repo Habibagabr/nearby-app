@@ -1,82 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:near_buy_gp/core/di/injection.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
-import 'package:near_buy_gp/features/searchScreen/presentation/ui/components/filters_section.dart';
-import 'package:near_buy_gp/features/searchScreen/presentation/ui/components/seach_bar_header.dart';
+import 'package:near_buy_gp/core/themes/app_dimen.dart';
+import 'package:near_buy_gp/features/searchScreen/presentation/bloc/search_bloc.dart';
+import 'package:near_buy_gp/features/searchScreen/presentation/ui/components/popular_search_header.dart';
+import 'package:near_buy_gp/features/searchScreen/presentation/ui/components/popular_search_item.dart';
+import 'package:near_buy_gp/features/searchScreen/presentation/ui/components/search_result_item.dart';
+import 'package:near_buy_gp/features/searchScreen/presentation/ui/sections/filters_section.dart';
+import 'package:near_buy_gp/features/searchScreen/presentation/ui/sections/seach_bar_header.dart';
+import 'package:near_buy_gp/shared/widget/error_widget.dart';
+import '../../../shared/util/get_error_image.dart';
 
-final List<String> popularSearches = [
-  "Nearby coffee shops",
-  "Pharmacy open now",
-  "Men clothing store",
-  "Best burger restaurants",
-  "Supermarket delivery",
-  "Kids clothing sale",
-  "Gym with monthly plans",
-  "Electronics store near me",
-  "Hair salon for women",
-  "Breakfast places nearby",
-  "Pizza and pasta restaurants",
-  "Flower shop delivery",
-  "Pet shop supplies",
-  "Bookstore offers",
-  "Bakery fresh bread",
-];
-class SearchScreen extends StatelessWidget {
+class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
   @override
+  SearchScreenState createState() => SearchScreenState();
+}
+
+class SearchScreenState extends State<SearchScreen> {
+  bool showPopularSearch = true;
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: CustomScrollView(
-        slivers: [
-          const SliverToBoxAdapter(child: SearchBarHeader()),
-          const SliverToBoxAdapter(child: FilterSection()),
-
-          SliverList.builder(
-            itemCount: popularSearches.length + 1,
-            itemBuilder: (context, index) {
-              return index == 0
-                  ? Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-
-                child: Text(
-                  "Popular Search",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
-              )
-                  : Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 4),
-                  child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB), // light background
-                  borderRadius: BorderRadius.circular(40), // pill shape
-                  border: Border.all(
-                    color: const Color(0xFFE5E7EB), // light grey border
-                    width: 1,
-                  ),
-                ),
-                child:  Text(
-                  popularSearches[index-1],
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF374151), // dark grey text
-                  ),
-                ),
-              )
-              );
-            },
-          ),
-        ],
+    return BlocProvider(
+      create: (_) => getIt<SearchBloc>(),
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: SearchBarHeader()),
+            SliverToBoxAdapter(child: FilterSection()),
+            BlocBuilder<SearchBloc, SearchState>(
+              builder: (context, state) {
+                if (state is SearchLoading) {
+                  return SliverFillRemaining(
+                    child: Center(
+                      widthFactor: 1,
+                      heightFactor: 5,
+                      child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CircularProgressIndicator(
+                          color: AppColors.darkGray,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                if (state is SearchFailed) {
+                  final String? errorImage = getErrorImage(state.appFailure);
+                  return SliverToBoxAdapter(
+                    child: Container(
+                      margin: EdgeInsets.symmetric(vertical: AppDimens.spacingM),
+                      child:Center(
+                      child: CustomErrorWidget(
+                        errorImage: errorImage,
+                        errorMessage: state.errorMsg,
+                      ),
+                    )
+                    ),
+                  );
+                }
+                if (state is SearchSuccess) {
+                  final String errorImage = "assets/images/no_results.webp";
+                  if (state.resultEmpty != null) {
+                    return SliverToBoxAdapter(
+                      child: Container(
+                          margin: EdgeInsets.symmetric(vertical: AppDimens.spacingM),
+                          child:Center(
+                            child: CustomErrorWidget(
+                              errorImage: errorImage,
+                              errorMessage: state.resultEmpty,
+                            ),
+                          )
+                      ),
+                    );
+                  } else {
+                    return SliverList.builder(
+                      itemCount: (state.searchResults!.length),
+                      itemBuilder: (BuildContext context, int index) {
+                        return Padding(
+                          padding: EdgeInsetsGeometry.all(AppDimens.paddingM),
+                          child: SearchResultItem(
+                            searchResponseEntity: state.searchResults![index],
+                          ),
+                        );
+                      },
+                    );
+                  }
+                }
+                return SliverList.builder(
+                  itemCount: popularSearches.length + 1,
+                  itemBuilder: (context, index) {
+                    return index == 0
+                        ? buildHeader()
+                        : buildSearchItem(index - 1);
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -10,6 +10,7 @@ class NavigateState{
 }
 
 enum HomeStatus { initial, loading, success, failure }
+enum FailureTypes {server , network , canceling , general}
 
 @immutable
 class HomeState {
@@ -22,6 +23,7 @@ class HomeState {
   final int pageNum;
   final NavigateState ? navigateState;
   final String? businessCategory;
+  final FailureTypes ? failureType;
 
   const HomeState({
     this.nearbyPlaces = const [],
@@ -32,7 +34,8 @@ class HomeState {
     this.lng=0,
     this.pageNum=1,
     this.navigateState,
-    this.businessCategory
+    this.businessCategory,
+    this.failureType
   });
 
   // The copyWith method allows us to update specific fields while keeping others
@@ -46,6 +49,7 @@ class HomeState {
     double? lng ,
     NavigateState ? navigateState,
     String? businessCategory,
+    FailureTypes ? failureType
 
   }) {
     return HomeState(
@@ -57,7 +61,8 @@ class HomeState {
         lat: lat ?? this.lat,
         lng: lng ?? this.lng,
       navigateState: navigateState,
-      businessCategory: businessCategory??this.businessCategory
+      businessCategory: businessCategory??this.businessCategory,
+      failureType: failureType ?? this.failureType
     );
   }
 }

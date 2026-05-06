@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
-import 'package:near_buy_gp/core/ui/popup_component.dart';
 import 'package:near_buy_gp/features/place_screen/presentation/bloc/place_bloc.dart';
 import 'package:near_buy_gp/features/place_screen/presentation/bloc/place_state.dart';
 import 'package:near_buy_gp/features/place_screen/presentation/utils/open_maps.dart';
 
+import '../../../../core/common_widgets/popup_component.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../bloc/place_event.dart';
 

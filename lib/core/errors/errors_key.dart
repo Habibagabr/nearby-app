@@ -1,3 +1,6 @@
+
+//FIXME : this will be removed later
+
 class ErrorKeys {
   static const serverError = 'error_server';
   static const validationError = 'error_validation';

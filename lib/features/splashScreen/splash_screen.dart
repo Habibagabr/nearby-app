@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -28,23 +29,6 @@ class _SplashScreenState extends State<SplashScreen> {
     context.read<SplashScreenBloc>().add(SplashScreenStarted());
   }
 
-  Future<void> _preloadMarkerIcons() async {
-    await Future.wait([
-      precacheImage(
-        const AssetImage('assets/images/markers/cafe.png'),
-        context,
-      ),
-      precacheImage(
-        const AssetImage('assets/images/markers/gym.png'),
-        context,
-      ),
-      precacheImage(
-        const AssetImage('assets/images/markers/default.png'),
-        context,
-      ),
-    ]);
-  }
-
   void _requestLocationPermission() {
     context.read<LocationBloc>().add(RequestPermission());
   }
@@ -63,16 +47,18 @@ class _SplashScreenState extends State<SplashScreen> {
         BlocListener<SplashScreenBloc, SplashScreenState>(
           listener: (context, state) async {
             if (state is SplashScreenReady) {
-              await _preloadMarkerIcons();
-              if (!mounted) return;
+              if(kDebugMode){
+                print("PRINT : the splash screen is ready and we go to the location request");
+              }
               _requestLocationPermission();
+
             }
           },
         ),
 
         /// Location handling
         BlocListener<LocationBloc, LocationState>(
-          listener: (context, state)  {
+          listener: (context, state) {
             if (state.status == LocationStatus.initial ||
                 state.status == LocationStatus.loading) {
               return;
@@ -88,12 +74,20 @@ class _SplashScreenState extends State<SplashScreen> {
                   limit: 10,
                 ),
               );
+              if(kDebugMode){
+                print("PRINT location 1 : the location request is : ${state.status}");
+              }
+
               _navigateHome(context);
               return;
+            }
+            if(kDebugMode){
+              print("PRINT location 2 : the location request is : ${state.status}");
             }
 
             // denied / disabled
             _navigateHome(context);
+
           },
         ),
       ],

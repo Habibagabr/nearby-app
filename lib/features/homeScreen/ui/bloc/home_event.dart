@@ -32,3 +32,4 @@ class CategorySelected extends HomeEvent {
 
   CategorySelected({required this.businessCategory});
 }
+

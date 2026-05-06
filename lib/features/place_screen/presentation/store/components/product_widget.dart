@@ -72,7 +72,7 @@ class ProductItemWidget extends StatelessWidget {
 
                   const SizedBox(height: 6),
 
-                  /// 🔸 Description
+                  ///  Description
                   Text(
                     product.description,
                     maxLines: 2,
@@ -86,14 +86,14 @@ class ProductItemWidget extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  /// 🔸 Attributes
+                  ///  Attributes
                   Expanded(child: _buildExtraSection()),
 
-                  /// 🔸 Bottom Row
+                  ///  Bottom Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      /// 🟠 Price
+                      ///  Price
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,

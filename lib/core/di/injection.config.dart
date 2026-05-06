@@ -108,6 +108,20 @@ import 'package:near_buy_gp/features/place_screen/presentation/bloc/place_bloc.d
     as _i496;
 import 'package:near_buy_gp/features/profileScreen/presentation/ui/bloc/profile_bloc.dart'
     as _i335;
+import 'package:near_buy_gp/features/searchScreen/data/datasource/search_remote_service.dart'
+    as _i1044;
+import 'package:near_buy_gp/features/searchScreen/data/datasource/search_remote_service_impl.dart'
+    as _i493;
+import 'package:near_buy_gp/features/searchScreen/data/repository/search_repository_impl.dart'
+    as _i542;
+import 'package:near_buy_gp/features/searchScreen/domain/repository/search_repository.dart'
+    as _i980;
+import 'package:near_buy_gp/features/searchScreen/domain/usecases/auto_complete_usecase.dart'
+    as _i330;
+import 'package:near_buy_gp/features/searchScreen/domain/usecases/serach_usecase.dart'
+    as _i354;
+import 'package:near_buy_gp/features/searchScreen/presentation/bloc/search_bloc.dart'
+    as _i117;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -168,6 +182,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i659.MapRemoteDataSource>(
       () => _i819.MapRemoteDataSourceImpl(dio: gh<_i361.Dio>()),
     );
+    gh.lazySingleton<_i1044.SearchRemoteService>(
+      () => _i493.SearchRemoteServiceImpl(gh<_i361.Dio>()),
+    );
     gh.lazySingleton<_i732.RegisterRemoteDataSource>(
       () => _i34.RegisterRemoteDataSourceImpl(gh<_i361.Dio>()),
     );
@@ -188,11 +205,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i269.HomeRepository>(
       () => _i1041.HomeRepositoryImpl(gh<_i859.HomeRemoteService>()),
     );
+    gh.lazySingleton<_i980.SearchRepository>(
+      () => _i542.SearchRepositoryImpl(gh<_i1044.SearchRemoteService>()),
+    );
     gh.lazySingleton<_i514.RegisterRepositoryInterface>(
       () => _i757.AuthRepositoryImpl(gh<_i732.RegisterRemoteDataSource>()),
     );
     gh.factory<_i363.LoginRepository>(
       () => _i529.LoginRepositoryImp(gh<_i895.LoginRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i330.AutoCompleteUseCase>(
+      () => _i330.AutoCompleteUseCase(gh<_i980.SearchRepository>()),
+    );
+    gh.lazySingleton<_i354.SearchUseCase>(
+      () => _i354.SearchUseCase(gh<_i980.SearchRepository>()),
     );
     gh.lazySingleton<_i434.PlaceRepository>(
       () => _i354.PlaceRepositoryImpl(gh<_i90.PlacesRemoteDataSource>()),
@@ -203,9 +229,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i876.GetNearbyPinsUseCase>(
       () => _i876.GetNearbyPinsUseCase(repository: gh<_i576.MapRepository>()),
     );
-    gh.lazySingleton<_i809.MapBloc>(
-      () => _i809.MapBloc(useCase: gh<_i876.GetNearbyPinsUseCase>()),
-    );
     gh.lazySingleton<_i184.RegisterUseCase>(
       () => _i184.RegisterUseCase(
         gh<_i514.RegisterRepositoryInterface>(),
@@ -215,6 +238,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i764.SignupScreenBloc>(
       () => _i764.SignupScreenBloc(gh<_i184.RegisterUseCase>()),
     );
+    gh.factory<_i117.SearchBloc>(
+      () => _i117.SearchBloc(
+        gh<_i354.SearchUseCase>(),
+        gh<_i330.AutoCompleteUseCase>(),
+      ),
+    );
     gh.lazySingleton<_i600.LoginUseCase>(
       () => _i600.LoginUseCase(
         gh<_i363.LoginRepository>(),
@@ -223,6 +252,10 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i292.LoginScreenBloc>(
       () => _i292.LoginScreenBloc(gh<_i600.LoginUseCase>()),
+    );
+    gh.lazySingleton<_i809.MapBloc>(
+      () =>
+          _i809.MapBloc(getNearbyPinsUseCase: gh<_i876.GetNearbyPinsUseCase>()),
     );
     gh.lazySingleton<_i809.LoadPlaceScreenUseCase>(
       () => _i809.LoadPlaceScreenUseCase(gh<_i434.PlaceRepository>()),

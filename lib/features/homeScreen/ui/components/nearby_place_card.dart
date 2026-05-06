@@ -75,7 +75,7 @@ class _NearbyPlaceCardState extends State<NearbyPlaceCard> {
                         const Center(child: CircularProgressIndicator()),
                         errorWidget: (context, url, error) =>
                          Image.asset(
-                          'assets/images/mapbackground.jpg',
+                          'assets/images/mapbackground.webp',
                           height: 200,
                           width: 150,
                           fit: BoxFit.cover,
@@ -109,7 +109,7 @@ class _NearbyPlaceCardState extends State<NearbyPlaceCard> {
               ),
             )else
               Image.asset(
-                'assets/images/mapbackground.jpg',
+                'assets/images/mapbackground.webp',
                 height: 200,
                 width: 150,
                 fit: BoxFit.cover,

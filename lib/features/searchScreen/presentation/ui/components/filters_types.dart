@@ -1,22 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:near_buy_gp/core/location/presentation/bloc/location_bloc.dart';
+import 'package:near_buy_gp/features/searchScreen/presentation/bloc/search_bloc.dart';
 import 'package:near_buy_gp/features/searchScreen/presentation/ui/components/filter_item.dart';
+import 'package:near_buy_gp/features/searchScreen/presentation/utils/filter_value_type.dart';
+
+import '../../utils/filter_item_entity.dart';
 
 class FiltersType extends StatefulWidget {
   final String filterTitle;
-  final List<Widget> filterValues;
+  final List<FilterItemEntity> filterValues;
 
-  const FiltersType({super.key, required this.filterTitle, required this.filterValues});
+  const FiltersType({
+    super.key,
+    required this.filterTitle,
+    required this.filterValues,
+  });
 
   @override
   FiltersTypeState createState() => FiltersTypeState();
 }
 
 class FiltersTypeState extends State<FiltersType> {
-  // Track the currently selected index (-1 means none selected)
   int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    // 1. Get the current location and search state once
+    final locationState = context.watch<LocationBloc>().state;
+    final searchState = context.watch<SearchBloc>().state;
+
+    final double lat = locationState.location?.latitude ?? 0.0;
+    final double lng = locationState.location?.longitude ?? 0.0;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       width: double.infinity,
@@ -28,22 +44,53 @@ class FiltersTypeState extends State<FiltersType> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           const SizedBox(height: 24),
-          // FIX: Wrap the ListView in a SizedBox with a fixed height
           SizedBox(
             height: 60,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: widget.filterValues.length,
-              // Remove NeverScrollableScrollPhysics to allow horizontal scrolling
               itemBuilder: (context, index) {
+                final item = widget.filterValues[index];
                 return FilterItem(
-                  filterValue: widget.filterValues[index],
+                  filterValue: item.filterItem,
                   isSelected: selectedIndex == index,
                   onTap: () {
-                    setState(() {
-                      print("Tapped index: $index");
-                      selectedIndex = index;
-                    });
+                    setState(() => selectedIndex = index);
+
+                    // 2. Prepare the event parameters
+                    int? rate = searchState.miniRate;
+                    bool? opened = searchState.isOpenNow;
+
+                    if (item.filterValueType == FilterValueType.miniRate) {
+                      rate = item.filterValue;
+                    }
+
+                    if (selectedIndex != 0) {
+                      // 3. Send the event with ALL required context
+                      context.read<SearchBloc>().add(
+                        FilterValuePressed(
+                          minimumRate: rate,
+                          isOpenedNow: opened,
+                          query: searchState.query,
+                          // Keep current query
+                          userLat: lat,
+                          // Pass the lat
+                          userLng: lng, // Pass the lng
+                        ),
+                      );
+                    } else {
+                      context.read<SearchBloc>().add(
+                        FilterValuePressed(
+                          minimumRate: null,
+                          isOpenedNow: opened,
+                          query: searchState.query,
+                          // Keep current query
+                          userLat: lat,
+                          // Pass the lat
+                          userLng: lng, // Pass the lng
+                        ),
+                      );
+                    }
                   },
                 );
               },

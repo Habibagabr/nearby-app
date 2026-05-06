@@ -107,7 +107,7 @@ class AppTextStyles {
   // Errors
   static const TextStyle errorText = TextStyle(
     color: AppColors.error,
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
     height: 1.4,
   );

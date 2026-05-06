@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:near_buy_gp/features/profileScreen/presentation/ui/bloc/profile_bloc.dart';
+import 'package:near_buy_gp/features/profileScreen/presentation/ui/components/preference_managing.dart';
 import 'package:near_buy_gp/features/profileScreen/presentation/ui/components/profile_header.dart';
 import 'package:near_buy_gp/features/profileScreen/presentation/ui/components/profile_header_skeleton.dart';
 import 'package:near_buy_gp/features/profileScreen/presentation/ui/components/recent_search_skeleton.dart';
 import 'package:near_buy_gp/features/profileScreen/presentation/ui/components/saved_places_skeleton.dart';
 
+import '../../../../core/common_widgets/app_alert_dialog.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/themes/app_colors.dart';
-import '../../../../core/ui/app_alert_dialog.dart';
 import 'components/account_managing.dart';
 import 'components/profile_saved_places.dart';
 import 'components/recent_search.dart';
@@ -59,6 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SliverToBoxAdapter(child: ProfileHeader()),
                     SliverToBoxAdapter(child: SavedPlaces()),
                     RecentlySearch(recentSearch: recentSearch),
+                    SliverToBoxAdapter(child: PreferenceManaging()),
                     SliverToBoxAdapter(child: AccountManagement()),
                   ],
                 );

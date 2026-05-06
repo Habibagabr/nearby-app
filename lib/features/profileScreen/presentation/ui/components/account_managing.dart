@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/features/profileScreen/presentation/ui/bloc/profile_bloc.dart';
 
+import '../../../../../core/common_widgets/popup_component.dart';
 import '../../../../../core/routing/app_routes.dart';
-import '../../../../../core/ui/popup_component.dart';
 import '../../../../../shared/components/header_text_style.dart';
 import '../common/data_card.dart';
 
@@ -26,11 +25,20 @@ class AccountManagement extends StatelessWidget {
             icon: Icons.settings,
             topRight: 24,
             topLeft: 24,
+            actionWidget: Icon(
+              Icons.navigate_next_outlined,
+              color: AppColors.darkGray.withAlpha(100),
+            ),
           ),
           DataCard(
             cardSubTitle: "manage your data",
             cardTitle: "Privacy & Security",
             icon: Icons.privacy_tip,
+            actionWidget: Icon(
+              Icons.navigate_next_outlined,
+              color: AppColors.darkGray.withAlpha(100),
+            ),
+
           ),
           DataCard(
             cardSubTitle: "Sign out from your Account",
@@ -41,6 +49,10 @@ class AccountManagement extends StatelessWidget {
             titleColor: Colors.red,
             bottomLeft: 24,
             bottomRight: 24,
+            actionWidget: Icon(
+              Icons.navigate_next_outlined,
+              color: AppColors.darkGray.withAlpha(100),
+            ),
             onCardClicked: () {
               // Store the bloc reference BEFORE opening the popup
               final profileBloc = context.read<ProfileBloc>();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
+import 'package:near_buy_gp/core/themes/app_dimen.dart';
 
 class CategoryItem extends StatelessWidget {
   final String categoryName;
@@ -20,14 +21,14 @@ class CategoryItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsetsGeometry.directional(end: 12, start: 4),
-        padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
+        margin: EdgeInsetsGeometry.directional(start: AppDimens.spacingXS , end: AppDimens.spacingXS),
+        padding: EdgeInsetsGeometry.symmetric(horizontal: AppDimens.spacingS),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.darkGray : Colors.grey,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppDimens.radiusM),
         ),
         child: Row(
-          spacing: 8,
+          spacing: AppDimens.spacingXS,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Icon(

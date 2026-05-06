@@ -10,14 +10,13 @@ class PlaceMarkerWidget extends StatelessWidget {
   const PlaceMarkerWidget({
     super.key,
     required this.place,
-    required this.onTap, // 2. Require it in the constructor
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final bool isCluster = place.count > 1;
 
-    // 3. Wrap the UI in a GestureDetector to handle the click
     return GestureDetector(
       onTap: onTap,
       child: Material(
@@ -65,7 +64,7 @@ class PlaceMarkerWidget extends StatelessWidget {
         children: [
           CircleAvatar(
             backgroundColor: Colors.white,
-            child: Image.asset(iconPath, width: 22, height: 22),
+            child: Icon(iconPath, size: 22),
           ),
           const SizedBox(width: 12),
           Expanded(

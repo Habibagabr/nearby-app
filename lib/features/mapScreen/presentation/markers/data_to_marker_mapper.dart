@@ -10,7 +10,7 @@ class MarkerMapper {
   // Static cache to prevent repeated widget-to-bitmap conversions
   static final Map<String, BitmapDescriptor> _iconCache = {};
 
-  static Future<Marker> toMarker(NearbyPinEntity place , VoidCallback onTap) async {
+  static Future<Marker> toMarker({required NearbyPinEntity place, required VoidCallback onTap}) async {
     try {
       final bool isCluster = place.count > 1;
       // Key by count for clusters, by ID for unique businesses
