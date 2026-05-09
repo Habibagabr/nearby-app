@@ -100,7 +100,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
               onTap: () => add(
                 MarkerSelected(
                   placeId: entity.placeId,
-                  businessCategory: "store",/// FIX EL HABL DAAAAAH
+                  businessCategory: entity.placeCategory,
                 ),
               ),
             );

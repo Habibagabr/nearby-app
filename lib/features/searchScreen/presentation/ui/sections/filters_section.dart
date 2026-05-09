@@ -10,6 +10,7 @@ import '../../../../../core/common_widgets/switch.dart';
 import '../../../../../core/themes/app_dimen.dart';
 import '../../../../../core/themes/app_text_style.dart';
 import '../../bloc/search_bloc.dart';
+import '../components/price_range_slider.dart';
 // import 'package:near_buy_gp/core/themes/app_colors.dart'; // Ensure this path is correct
 
 final List<FilterItemEntity> rateRange = [
@@ -136,11 +137,28 @@ class FilterSectionState extends State<FilterSection> {
 
         if (isFiltersShown)
           // prices filter
-          FiltersType(filterTitle: "Price Range", filterValues: priceRange),
-        if (isFiltersShown)
-          //minimum rate filter
-          FiltersType(filterTitle: "Minimum Rating", filterValues: rateRange),
-
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Price Range",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                PriceRangeSlider(),
+                //minimum rate filter
+                FiltersType(
+                  filterTitle: "Minimum Rating",
+                  filterValues: rateRange,
+                ),
+              ],
+            ),
+          ),
         //open now filter
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),

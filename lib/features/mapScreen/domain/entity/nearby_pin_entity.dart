@@ -7,6 +7,7 @@ class NearbyPinEntity{
   final double placeLat;
   final double placeLng;
   final int count;
+  final String placeType;
 
   NearbyPinEntity({
     required this.placeName,
@@ -16,6 +17,7 @@ class NearbyPinEntity{
     required this.placeRate,
     required this.placeLat,
     required this.placeLng,
-    required this.count
+    required this.count,
+    required this.placeType
   });
 }

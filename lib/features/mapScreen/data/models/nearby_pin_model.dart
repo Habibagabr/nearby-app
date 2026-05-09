@@ -9,6 +9,8 @@ class NearbyPinModel {
   final double placeLat;
   final double placeLng;
   final int count;
+  final String placeType;
+
   NearbyPinModel({
     required this.placeName,
     required this.placeCategory,
@@ -18,11 +20,11 @@ class NearbyPinModel {
     required this.placeLat,
     required this.placeLng,
     required this.count,
+    required this.placeType,
   });
 
   factory NearbyPinModel.fromJson(Map<String, dynamic> json) {
-
-    final model =  NearbyPinModel(
+    final model = NearbyPinModel(
       count: json['count'] as int? ?? 1,
       placeName: json['name'],
       placeCategory: json['category'],
@@ -31,14 +33,13 @@ class NearbyPinModel {
       placeRate: (json['rate'] as num).toDouble(),
       placeLat: (json['coordinates'][1] as num).toDouble(),
       placeLng: (json['coordinates'][0] as num).toDouble(),
+      placeType: json['type'],
     );
     return model;
-
   }
 
   NearbyPinEntity toEntity() {
-
-    final entity =  NearbyPinEntity(
+    return NearbyPinEntity(
       placeCategory: placeCategory,
       placeId: placeId,
       placeName: placeName,
@@ -47,7 +48,7 @@ class NearbyPinModel {
       placeLng: placeLng,
       placeState: placeState,
       count: count,
+      placeType: placeType,
     );
-    return entity;
   }
 }

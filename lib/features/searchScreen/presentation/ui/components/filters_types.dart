@@ -33,17 +33,13 @@ class FiltersTypeState extends State<FiltersType> {
     final double lat = locationState.location?.latitude ?? 0.0;
     final double lng = locationState.location?.longitude ?? 0.0;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      width: double.infinity,
-      child: Column(
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             widget.filterTitle,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
-          const SizedBox(height: 24),
           SizedBox(
             height: 60,
             child: ListView.builder(
@@ -97,7 +93,6 @@ class FiltersTypeState extends State<FiltersType> {
             ),
           ),
         ],
-      ),
     );
   }
 }

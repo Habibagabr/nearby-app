@@ -50,7 +50,7 @@ class PlaceMarkerWidget extends StatelessWidget {
   }
 
   Widget _buildBusinessUI() {
-    final iconPath = CategoryIconResolver.resolve(place.placeCategory);
+    final iconPath = CategoryIconResolver.resolve(place.placeType);
     return Container(
       width: 300,
       height: 110,

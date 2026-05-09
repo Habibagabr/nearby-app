@@ -3,6 +3,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+import '../utils/rating_starts.dart';
+
 class NearbyPlaceCard extends StatefulWidget {
   final String name;
   final String category;
@@ -137,15 +139,7 @@ class _NearbyPlaceCardState extends State<NearbyPlaceCard> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            for (int i = 0; i < starsNumber; i++)
-                              const Icon(Icons.star, color: Colors.amber, size: 16),
-                            if (halfStar)
-                              const Icon(Icons.star_half, color: Colors.amber, size: 16),
-                          ],
-                        ),
+                        RatingStars(rate: widget.rating)
                       ],
                     ),
                     const SizedBox(height: 4),
