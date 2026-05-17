@@ -61,7 +61,9 @@ class _SearchBarHeaderState extends State<SearchBarHeader> {
 
   void _onSearchChanged(String value) {
     // Debounce is handled inside SearchBloc via EventTransformer — fire freely
-    context.read<SearchBloc>().add(AutoCompleteTriggered(query: value));
+    if(value.isNotEmpty) {
+      context.read<SearchBloc>().add(AutoCompleteTriggered(query: value));
+    }
   }
 
   void _onSearchSubmitted(String query) {

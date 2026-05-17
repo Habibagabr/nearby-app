@@ -12,6 +12,7 @@ import 'package:near_buy_gp/features/searchScreen/presentation/ui/sections/filte
 import 'package:near_buy_gp/features/searchScreen/presentation/ui/sections/seach_bar_header.dart';
 import 'package:near_buy_gp/shared/widget/error_widget.dart';
 import '../../../shared/util/get_error_image.dart';
+import '../domain/entities/search_response_entity.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -103,6 +104,92 @@ class SearchScreenState extends State<SearchScreen> {
                       },
                     );
                   }
+                }
+                if (state is SearchAutoCompleteLoading ||
+                    state is SearchAutoCompleteSuccess) {
+                  final previousState = (state as dynamic).previousSearchState;
+
+                  // ============================================================
+                  // PREVIOUS SEARCH SUCCESS
+                  // ============================================================
+
+                  if (previousState is SearchSuccess) {
+                    // EMPTY RESULT
+                    if (previousState.resultEmpty != null) {
+                      return SliverToBoxAdapter(
+                        child: Container(
+                          margin: EdgeInsets.symmetric(
+                            vertical: AppDimens.spacingM,
+                          ),
+
+                          child: Center(
+                            child: CustomErrorWidget(
+                              errorImage: "assets/images/no_results.webp",
+
+                              errorMessage: previousState.resultEmpty,
+
+                              errorMessageStyle: AppTextStyles.bodyLarge
+                                  .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    // SEARCH RESULTS
+                    return SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return Padding(
+                          padding: EdgeInsets.all(AppDimens.paddingM),
+
+                          child: SearchResultItem(
+                            searchResponseEntity:
+                                previousState.searchResults![index],
+                          ),
+                        );
+                      }, childCount: previousState.searchResults?.length ?? 0),
+                    );
+                  }
+
+                  // ============================================================
+                  // PREVIOUS SEARCH FAILURE
+                  // ============================================================
+
+                  if (previousState is SearchFailed) {
+                    final String? errorImage = getErrorImage(
+                      previousState.appFailure,
+                    );
+
+                    return SliverToBoxAdapter(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(
+                          vertical: AppDimens.spacingM,
+                        ),
+
+                        child: Center(
+                          child: CustomErrorWidget(
+                            errorImage: errorImage,
+
+                            errorMessage: previousState.errorMsg,
+
+                            errorMessageStyle: AppTextStyles.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  // ============================================================
+                  // NO PREVIOUS STATE
+                  // ============================================================
+
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
                 }
                 return SliverList.builder(
                   itemCount: popularSearches.length + 1,

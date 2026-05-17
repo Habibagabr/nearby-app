@@ -29,20 +29,11 @@ class SearchState {
     double? maxPrice,
   }) {
     return SearchState(
-      miniRate:
-      miniRate == _sentinel
-          ? this.miniRate
-          : miniRate as int?,
+      miniRate: miniRate == _sentinel ? this.miniRate : miniRate as int?,
 
-      isOpenNow:
-      isOpenNow == _sentinel
-          ? this.isOpenNow
-          : isOpenNow as bool?,
+      isOpenNow: isOpenNow == _sentinel ? this.isOpenNow : isOpenNow as bool?,
 
-      query:
-      query == _sentinel
-          ? this.query
-          : query as String?,
+      query: query == _sentinel ? this.query : query as String?,
 
       miniPrice: miniPrice ?? this.miniPrice,
       maxPrice: maxPrice ?? this.maxPrice,
@@ -102,8 +93,10 @@ final class SearchFailed extends SearchState {
 
 final class SearchAutoCompleteSuccess extends SearchState {
   final List<AutoCompleteResponseEntity>? autoCompleteResponse;
+  final SearchState? previousSearchState;
 
   const SearchAutoCompleteSuccess({
+    this.previousSearchState,
     this.autoCompleteResponse,
     super.miniRate,
     super.isOpenNow,
@@ -114,7 +107,10 @@ final class SearchAutoCompleteSuccess extends SearchState {
 }
 
 final class SearchAutoCompleteLoading extends SearchState {
+  final SearchState? previousSearchState;
+
   const SearchAutoCompleteLoading({
+    this.previousSearchState,
     super.miniRate,
     super.isOpenNow,
     super.query,

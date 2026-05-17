@@ -9,7 +9,6 @@ import 'package:near_buy_gp/features/searchScreen/domain/usecases/serach_usecase
 import 'package:rxdart/rxdart.dart';
 
 part 'search_event.dart';
-
 part 'search_state.dart';
 
 EventTransformer<T> debounce<T>(Duration duration) {
@@ -20,6 +19,8 @@ EventTransformer<T> debounce<T>(Duration duration) {
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final SearchUseCase _searchUseCase;
   final AutoCompleteUseCase _autoCompleteUseCase;
+
+  SearchState? _previousSearchState;
 
   SearchBloc(this._searchUseCase, this._autoCompleteUseCase)
     : super(const SearchInitial(miniPrice: 0.0, maxPrice: 1000.0)) {
@@ -35,22 +36,25 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     on<AutoCompleteTriggered>(
       _handleAutoCompleteTriggered,
-      transformer: debounce(const Duration(milliseconds: 500)),
+      transformer: debounce(const Duration(milliseconds: 1000)),
     );
 
     // ================= SEARCH EMPTY =================
 
-    on<SearchEmpty>(
-      (event, emit) => emit(
+    on<SearchEmpty>((event, emit) {
+      _previousSearchState = null;
+
+      emit(
         SearchInitial(
           miniRate: state.miniRate,
           isOpenNow: state.isOpenNow,
           query: state.query,
+
           miniPrice: state.miniPrice,
           maxPrice: state.maxPrice,
         ),
-      ),
-    );
+      );
+    });
 
     // ================= FILTERS =================
 
@@ -170,7 +174,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     AutoCompleteTriggered event,
     Emitter<SearchState> emit,
   ) async {
-    if (event.query == null || event.query!.isEmpty) {
+    // ============================================================
+    // EMPTY QUERY
+    // ============================================================
+
+    if (event.query == null || event.query!.trim().isEmpty) {
       emit(
         SearchInitial(
           miniRate: state.miniRate,
@@ -184,8 +192,19 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       return;
     }
 
+    // SAVE PREVIOUS REAL SEARCH STATE
+
+    if (state is SearchSuccess || state is SearchFailed) {
+      _previousSearchState = state;
+    }
+
+    // LOADING
+
     emit(
       SearchAutoCompleteLoading(
+        // SAVE PREVIOUS STATE
+        previousSearchState: _previousSearchState,
+
         query: event.query,
 
         miniRate: state.miniRate,
@@ -196,34 +215,54 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       ),
     );
 
+    // ============================================================
+    // API CALL
+    // ============================================================
+
     final result = await _autoCompleteUseCase(query: event.query!);
 
     result.fold(
-      (failure) => emit(
-        SearchInitial(
-          query: event.query,
+      // ============================================================
+      // FAILURE
+      // ============================================================
+      (failure) {
+        emit(
+          SearchAutoCompleteSuccess(
+            previousSearchState: _previousSearchState,
 
-          miniRate: state.miniRate,
-          isOpenNow: state.isOpenNow,
+            autoCompleteResponse: [],
 
-          miniPrice: state.miniPrice,
-          maxPrice: state.maxPrice,
-        ),
-      ),
+            query: event.query,
 
-      (suggestions) => emit(
-        SearchAutoCompleteSuccess(
-          autoCompleteResponse: suggestions,
+            miniRate: state.miniRate,
+            isOpenNow: state.isOpenNow,
 
-          query: event.query,
+            miniPrice: state.miniPrice,
+            maxPrice: state.maxPrice,
+          ),
+        );
+      },
 
-          miniRate: state.miniRate,
-          isOpenNow: state.isOpenNow,
+      // ============================================================
+      // SUCCESS
+      // ============================================================
+      (suggestions) {
+        emit(
+          SearchAutoCompleteSuccess(
+            previousSearchState: _previousSearchState,
 
-          miniPrice: state.miniPrice,
-          maxPrice: state.maxPrice,
-        ),
-      ),
+            autoCompleteResponse: suggestions,
+
+            query: event.query,
+
+            miniRate: state.miniRate,
+            isOpenNow: state.isOpenNow,
+
+            miniPrice: state.miniPrice,
+            maxPrice: state.maxPrice,
+          ),
+        );
+      },
     );
   }
 
@@ -258,25 +297,39 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
     }
 
-    if (event.userLat == 0.0 || event.userLat == null || event.userLng == 0.0 || event.userLat == null) {
-      emit(
-        SearchFailed(
-          errorMsg: "Sorry , we can't get nearest places to you , adjust location permissions first",
+    // ============================================================
+    // LOCATION ERROR
+    // ============================================================
 
-          appFailure: GeneralFailure(generalFailureMessage: 'Error occurred'),
+    if (event.userLat == 0.0 ||
+        event.userLat == null ||
+        event.userLng == 0.0 ||
+        event.userLng == null) {
+      final failedState = SearchFailed(
+        errorMsg:
+            "Sorry, we can't get nearest places to you, adjust location permissions first",
 
-          query: updatedState.query,
+        appFailure: GeneralFailure(generalFailureMessage: 'Error occurred'),
 
-          miniRate: updatedState.miniRate,
-          isOpenNow: updatedState.isOpenNow,
+        query: updatedState.query,
 
-          miniPrice: updatedState.miniPrice,
-          maxPrice: updatedState.maxPrice,
-        ),
+        miniRate: updatedState.miniRate,
+        isOpenNow: updatedState.isOpenNow,
+
+        miniPrice: updatedState.miniPrice,
+        maxPrice: updatedState.maxPrice,
       );
+
+      emit(failedState);
+
+      _previousSearchState = failedState;
 
       return;
     }
+
+    // ============================================================
+    // LOADING
+    // ============================================================
 
     emit(
       SearchLoading(
@@ -289,6 +342,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         maxPrice: updatedState.maxPrice,
       ),
     );
+
+    // ============================================================
+    // API CALL
+    // ============================================================
 
     final result = await _searchUseCase(
       query: updatedState.query!,
@@ -304,9 +361,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
 
     result.fold(
-      // ================= FAILURE =================
-      (failure) => emit(
-        SearchFailed(
+      // ============================================================
+      // FAILURE
+      // ============================================================
+      (failure) {
+        final failedState = SearchFailed(
           errorMsg: failure.failureMessage,
 
           appFailure: failure,
@@ -318,28 +377,36 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
           miniPrice: updatedState.miniPrice,
           maxPrice: updatedState.maxPrice,
-        ),
-      ),
-
-      // ================= SUCCESS =================
-      (results) {
-        emit(
-          SearchSuccess(
-            searchResults: results,
-
-            query: updatedState.query,
-
-            miniRate: updatedState.miniRate,
-            isOpenNow: updatedState.isOpenNow,
-
-            miniPrice: updatedState.miniPrice,
-            maxPrice: updatedState.maxPrice,
-
-            resultEmpty: results.isEmpty
-                ? "There is no result for this query, change the filters or search query"
-                : null,
-          ),
         );
+
+        emit(failedState);
+
+        _previousSearchState = failedState;
+      },
+
+      // ============================================================
+      // SUCCESS
+      // ============================================================
+      (results) {
+        final successState = SearchSuccess(
+          searchResults: results,
+
+          query: updatedState.query,
+
+          miniRate: updatedState.miniRate,
+          isOpenNow: updatedState.isOpenNow,
+
+          miniPrice: updatedState.miniPrice,
+          maxPrice: updatedState.maxPrice,
+
+          resultEmpty: results.isEmpty
+              ? "There is no result for this query, change the filters or search query"
+              : null,
+        );
+
+        emit(successState);
+
+        _previousSearchState = successState;
       },
     );
   }
