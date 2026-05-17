@@ -14,7 +14,6 @@ part 'search_state.dart';
 
 EventTransformer<T> debounce<T>(Duration duration) {
   return (events, mapper) => events.debounceTime(duration).flatMap(mapper);
-  // flat map = the function which will be executed when the debounceTime passed
 }
 
 @injectable
@@ -23,87 +22,177 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final AutoCompleteUseCase _autoCompleteUseCase;
 
   SearchBloc(this._searchUseCase, this._autoCompleteUseCase)
-    : super(const SearchInitial()) {
+    : super(const SearchInitial(miniPrice: 0.0, maxPrice: 1000.0)) {
+    // ================= AUTOCOMPLETE SUGGESTION =================
+
     on<AutoCompleteSuggestionPressed>(_handleAutoCompleteSuggestionPressed);
+
+    // ================= SEARCH =================
+
     on<SearchTriggered>(_handleSearchTriggered);
+
+    // ================= AUTOCOMPLETE =================
+
     on<AutoCompleteTriggered>(
       _handleAutoCompleteTriggered,
       transformer: debounce(const Duration(milliseconds: 500)),
     );
+
+    // ================= SEARCH EMPTY =================
+
     on<SearchEmpty>(
       (event, emit) => emit(
-        SearchInitial(miniRate: state.miniRate, isOpenNow: state.isOpenNow),
+        SearchInitial(
+          miniRate: state.miniRate,
+          isOpenNow: state.isOpenNow,
+          query: state.query,
+          miniPrice: state.miniPrice,
+          maxPrice: state.maxPrice,
+        ),
       ),
     );
+
+    // ================= FILTERS =================
+
     on<FilterValuePressed>(
       _handleSearchByFilters,
       transformer: debounce(const Duration(milliseconds: 500)),
     );
+
+    // ================= PRICE RANGE =================
+
+    on<PriceRangeChanged>(
+      _handlePriceRangeChanged,
+      transformer: debounce(const Duration(milliseconds: 500)),
+    );
   }
+
+  // ============================================================
+  // PRICE RANGE
+  // ============================================================
+
+  Future<void> _handlePriceRangeChanged(
+    PriceRangeChanged event,
+    Emitter<SearchState> emit,
+  ) async {
+    final updatedState = state.copyWith(
+      miniPrice: event.minPrice,
+      maxPrice: event.maxPrice,
+    );
+
+    emit(updatedState);
+
+    if (state.query != null) {
+      add(
+        SearchTriggered(
+          searchQuery: updatedState.query,
+
+          userLat: event.userLat,
+          userLng: event.userLng,
+
+          miniRate: updatedState.miniRate,
+          isOpenedNow: updatedState.isOpenNow,
+
+          miniPrice: updatedState.miniPrice,
+          maxPrice: updatedState.maxPrice,
+        ),
+      );
+    }
+  }
+
+  // ============================================================
+  // FILTERS
+  // ============================================================
 
   Future<void> _handleSearchByFilters(
     FilterValuePressed event,
     Emitter<SearchState> emit,
   ) async {
-    // 1. Update local state
-    if (kDebugMode) {
-      print(
-        "PRINT: FILTER PRESSED IS : ${event.minimumRate} , isOpenedFilter : ${state.isOpenNow}",
-      );
-    }
-    final newState = state.copyWith(
+    final updatedState = state.copyWith(
       miniRate: event.minimumRate,
       isOpenNow: event.isOpenedNow,
+      query: event.query,
     );
 
-    // 2. Emit so UI shows the filter change
-    emit(newState);
+    emit(updatedState);
 
-    // 3. Trigger search with the NEW values
-    add(
-      SearchTriggered(
-        searchQuery: newState.query,
-        userLat: event.userLat,
-        userLng: event.userLng,
-        miniRate: newState.miniRate,
-        isOpenedNow: newState.isOpenNow,
-      ),
-    );
+    if (state.query != null) {
+      add(
+        SearchTriggered(
+          searchQuery: updatedState.query,
+
+          userLat: event.userLat,
+          userLng: event.userLng,
+
+          miniRate: updatedState.miniRate,
+          isOpenedNow: updatedState.isOpenNow,
+
+          miniPrice: updatedState.miniPrice,
+          maxPrice: updatedState.maxPrice,
+        ),
+      );
+    }
   }
+
+  // ============================================================
+  // AUTOCOMPLETE PRESSED
+  // ============================================================
 
   Future<void> _handleAutoCompleteSuggestionPressed(
     AutoCompleteSuggestionPressed event,
     Emitter<SearchState> emit,
   ) async {
-    final newState = state.copyWith(query: event.query);
-    emit(newState); // Save the query first
+    final updatedState = state.copyWith(query: event.query);
+
+    emit(updatedState);
 
     add(
       SearchTriggered(
         searchQuery: event.query,
+
         userLat: event.userLat,
         userLng: event.userLng,
-        miniRate: state.miniRate,
-        isOpenedNow: state.isOpenNow,
+
+        miniRate: updatedState.miniRate,
+        isOpenedNow: updatedState.isOpenNow,
+
+        miniPrice: updatedState.miniPrice,
+        maxPrice: updatedState.maxPrice,
       ),
     );
   }
+
+  // ============================================================
+  // AUTOCOMPLETE
+  // ============================================================
 
   Future<void> _handleAutoCompleteTriggered(
     AutoCompleteTriggered event,
     Emitter<SearchState> emit,
   ) async {
     if (event.query == null || event.query!.isEmpty) {
-      emit(SearchInitial(miniRate: state.miniRate, isOpenNow: state.isOpenNow));
+      emit(
+        SearchInitial(
+          miniRate: state.miniRate,
+          isOpenNow: state.isOpenNow,
+
+          miniPrice: state.miniPrice,
+          maxPrice: state.maxPrice,
+        ),
+      );
+
       return;
     }
 
-    // Pass filters to the Autocomplete Loading state so they don't vanish while typing
     emit(
       SearchAutoCompleteLoading(
+        query: event.query,
+
         miniRate: state.miniRate,
         isOpenNow: state.isOpenNow,
-        query: event.query,
+
+        miniPrice: state.miniPrice,
+        maxPrice: state.maxPrice,
       ),
     );
 
@@ -112,102 +201,145 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     result.fold(
       (failure) => emit(
         SearchInitial(
+          query: event.query,
+
           miniRate: state.miniRate,
           isOpenNow: state.isOpenNow,
-          query: event.query,
+
+          miniPrice: state.miniPrice,
+          maxPrice: state.maxPrice,
         ),
       ),
+
       (suggestions) => emit(
         SearchAutoCompleteSuccess(
           autoCompleteResponse: suggestions,
+
+          query: event.query,
+
           miniRate: state.miniRate,
           isOpenNow: state.isOpenNow,
-          query: event.query,
+
+          miniPrice: state.miniPrice,
+          maxPrice: state.maxPrice,
         ),
       ),
     );
   }
 
+  // ============================================================
+  // SEARCH
+  // ============================================================
+
   Future<void> _handleSearchTriggered(
     SearchTriggered event,
     Emitter<SearchState> emit,
   ) async {
-    if (kDebugMode) {
-      print(
-        "PRINT: SEARCH -> miniRate = ${state.miniRate} , query = ${state.query} , isOpened : ${state.isOpenNow}",
-      );
-    }
-    // Merge event data with existing state data to prevent null overwrites
     final updatedState = state.copyWith(
       query: event.searchQuery,
+
       miniRate: event.miniRate,
       isOpenNow: event.isOpenedNow,
+
+      miniPrice: event.miniPrice,
+      maxPrice: event.maxPrice,
     );
 
     emit(updatedState);
 
-    if (event.searchQuery == null ||
-        event.userLat == null ||
-        event.userLng == null) {
+    if (kDebugMode) {
+      print(
+        "SEARCH => "
+        "query: ${updatedState.query} | "
+        "miniRate: ${updatedState.miniRate} | "
+        "openNow: ${updatedState.isOpenNow} | "
+        "minPrice: ${updatedState.miniPrice} | "
+        "maxPrice: ${updatedState.maxPrice}",
+      );
+    }
+
+    if (event.userLat == 0.0 || event.userLat == null || event.userLng == 0.0 || event.userLat == null) {
       emit(
         SearchFailed(
-          errorMsg: "Error occurred",
+          errorMsg: "Sorry , we can't get nearest places to you , adjust location permissions first",
+
           appFailure: GeneralFailure(generalFailureMessage: 'Error occurred'),
+
+          query: updatedState.query,
+
           miniRate: updatedState.miniRate,
           isOpenNow: updatedState.isOpenNow,
-          query: updatedState.query,
+
+          miniPrice: updatedState.miniPrice,
+          maxPrice: updatedState.maxPrice,
         ),
       );
+
       return;
     }
 
     emit(
       SearchLoading(
+        query: updatedState.query,
+
         miniRate: updatedState.miniRate,
         isOpenNow: updatedState.isOpenNow,
-        query: updatedState.query,
+
+        miniPrice: updatedState.miniPrice,
+        maxPrice: updatedState.maxPrice,
       ),
     );
 
     final result = await _searchUseCase(
       query: updatedState.query!,
+
       userLat: event.userLat!,
       userLng: event.userLng!,
+
       minimumRate: updatedState.miniRate,
       isOpenNow: updatedState.isOpenNow,
+
+      minimumPrice: updatedState.miniPrice,
+      maxPrice: updatedState.maxPrice,
     );
 
     result.fold(
+      // ================= FAILURE =================
       (failure) => emit(
         SearchFailed(
           errorMsg: failure.failureMessage,
+
           appFailure: failure,
+
+          query: updatedState.query,
+
           miniRate: updatedState.miniRate,
           isOpenNow: updatedState.isOpenNow,
-          query: updatedState.query,
+
+          miniPrice: updatedState.miniPrice,
+          maxPrice: updatedState.maxPrice,
         ),
       ),
+
+      // ================= SUCCESS =================
       (results) {
-        if (results.isEmpty) {
-          emit(
-            SearchSuccess(
-              searchResults: results,
-              miniRate: updatedState.miniRate,
-              isOpenNow: updatedState.isOpenNow,
-              query: updatedState.query,
-              resultEmpty: "There is no result for this query , Change the filters or your search query "
-            ),
-          );
-        } else {
-          emit(
-            SearchSuccess(
-              searchResults: results,
-              miniRate: updatedState.miniRate,
-              isOpenNow: updatedState.isOpenNow,
-              query: updatedState.query,
-            ),
-          );
-        }
+        emit(
+          SearchSuccess(
+            searchResults: results,
+
+            query: updatedState.query,
+
+            miniRate: updatedState.miniRate,
+            isOpenNow: updatedState.isOpenNow,
+
+            miniPrice: updatedState.miniPrice,
+            maxPrice: updatedState.maxPrice,
+
+            resultEmpty: results.isEmpty
+                ? "There is no result for this query, change the filters or search query"
+                : null,
+          ),
+        );
       },
     );
   }

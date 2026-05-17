@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:near_buy_gp/core/location/presentation/bloc/location_bloc.dart';
+import 'package:near_buy_gp/core/themes/app_dimen.dart';
 import 'package:near_buy_gp/features/searchScreen/presentation/bloc/search_bloc.dart';
 import 'package:near_buy_gp/features/searchScreen/presentation/ui/components/filter_item.dart';
 import 'package:near_buy_gp/features/searchScreen/presentation/utils/filter_value_type.dart';
@@ -34,65 +35,52 @@ class FiltersTypeState extends State<FiltersType> {
     final double lng = locationState.location?.longitude ?? 0.0;
 
     return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.filterTitle,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+      spacing: AppDimens.spacingM,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.filterTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        SizedBox(
+          height: 60,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: widget.filterValues.length,
+            itemBuilder: (context, index) {
+              final item = widget.filterValues[index];
+              return FilterItem(
+                filterValue: item.filterItem,
+                isSelected: selectedIndex == index,
+                onTap: () {
+                  setState(() => selectedIndex = index);
+
+                  // 2. Prepare the event parameters
+                  int? rate = searchState.miniRate;
+
+                  if (item.filterValueType == FilterValueType.miniRate) {
+                    rate = item.filterValue;
+                  }
+
+                  // ============================ RATE UI ============================
+
+                  context.read<SearchBloc>().add(
+                    FilterValuePressed(
+                      minimumRate: selectedIndex != 0 ? rate : null,
+
+                      userLat: lat,
+                      userLng: lng,
+
+                      isOpenedNow: searchState.isOpenNow,
+                      query: searchState.query,
+                    ),
+                  );
+                },
+              );
+            },
           ),
-          SizedBox(
-            height: 60,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: widget.filterValues.length,
-              itemBuilder: (context, index) {
-                final item = widget.filterValues[index];
-                return FilterItem(
-                  filterValue: item.filterItem,
-                  isSelected: selectedIndex == index,
-                  onTap: () {
-                    setState(() => selectedIndex = index);
-
-                    // 2. Prepare the event parameters
-                    int? rate = searchState.miniRate;
-                    bool? opened = searchState.isOpenNow;
-
-                    if (item.filterValueType == FilterValueType.miniRate) {
-                      rate = item.filterValue;
-                    }
-
-                    if (selectedIndex != 0) {
-                      // 3. Send the event with ALL required context
-                      context.read<SearchBloc>().add(
-                        FilterValuePressed(
-                          minimumRate: rate,
-                          isOpenedNow: opened,
-                          query: searchState.query,
-                          // Keep current query
-                          userLat: lat,
-                          // Pass the lat
-                          userLng: lng, // Pass the lng
-                        ),
-                      );
-                    } else {
-                      context.read<SearchBloc>().add(
-                        FilterValuePressed(
-                          minimumRate: null,
-                          isOpenedNow: opened,
-                          query: searchState.query,
-                          // Keep current query
-                          userLat: lat,
-                          // Pass the lat
-                          userLng: lng, // Pass the lng
-                        ),
-                      );
-                    }
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+        ),
+      ],
     );
   }
 }

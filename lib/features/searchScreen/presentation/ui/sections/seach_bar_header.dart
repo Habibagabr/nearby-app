@@ -68,15 +68,17 @@ class _SearchBarHeaderState extends State<SearchBarHeader> {
     _hideOverlay();
     final location = context.read<LocationBloc>().state;
     final searchState = context.read<SearchBloc>().state;
-    context.read<SearchBloc>().add(
-      SearchTriggered(
-        searchQuery: query,
-        userLat: location.location?.latitude,
-        userLng: location.location?.longitude,
-        isOpenedNow: searchState.isOpenNow,
-        miniRate: searchState.miniRate,
-      ),
-    );
+    if (query.isNotEmpty) {
+      context.read<SearchBloc>().add(
+        SearchTriggered(
+          searchQuery: query,
+          userLat: location.location?.latitude,
+          userLng: location.location?.longitude,
+          isOpenedNow: searchState.isOpenNow,
+          miniRate: searchState.miniRate,
+        ),
+      );
+    }
   }
 
   // ── Build ───────────────────────────────────────────────────────────────────

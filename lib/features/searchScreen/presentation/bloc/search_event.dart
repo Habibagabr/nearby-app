@@ -1,66 +1,89 @@
+// ============================ search_event.dart ============================
+
 part of 'search_bloc.dart';
 
 @immutable
 sealed class SearchEvent {}
 
-class SearchEmpty extends SearchEvent {}
-
-class AutoCompleteTriggered extends SearchEvent {
-  final String? query;
-
-  AutoCompleteTriggered({this.query});
-}
-
-class SearchTriggered extends SearchEvent {
+final class SearchTriggered extends SearchEvent {
   final String? searchQuery;
   final double? userLat;
   final double? userLng;
-  final double? miniPrice;
-  final double? maxPrice;
+
   final int? miniRate;
   final bool? isOpenedNow;
+
+  final double? miniPrice;
+  final double? maxPrice;
 
   SearchTriggered({
     this.searchQuery,
     this.userLat,
     this.userLng,
-    this.maxPrice,
     this.miniRate,
-    this.miniPrice,
     this.isOpenedNow,
+    this.miniPrice,
+    this.maxPrice,
   });
 }
 
-class AutoCompleteSuggestionPressed extends SearchEvent {
+final class AutoCompleteTriggered extends SearchEvent {
+  final String? query;
+
+  AutoCompleteTriggered({
+    required this.query,
+  });
+}
+
+final class AutoCompleteSuggestionPressed extends SearchEvent {
   final String query;
   final double? userLat;
   final double? userLng;
-  final int? miniPrice;
-  final double? maxPrice;
-  final double? miniRate;
 
   AutoCompleteSuggestionPressed({
     required this.query,
     required this.userLat,
     required this.userLng,
-    this.maxPrice,
-    this.miniRate,
-    this.miniPrice,
   });
 }
 
-class FilterValuePressed extends SearchEvent {
-  final String? query;
-  final double? userLat;
-  final double? userLng;
+final class SearchEmpty extends SearchEvent {}
+
+
+
+// FILTERS EXCEPT PRICE
+final class FilterValuePressed extends SearchEvent {
   final int? minimumRate;
   final bool? isOpenedNow;
 
+  final String? query;
+
+  final double? userLat;
+  final double? userLng;
+
   FilterValuePressed({
     this.minimumRate,
-    this.query,
     this.isOpenedNow,
-    this.userLng,
+    this.query,
     this.userLat,
+    this.userLng,
+  });
+}
+
+
+
+// PRICE EVENT SEPARATED
+final class PriceRangeChanged extends SearchEvent {
+  final double minPrice;
+  final double maxPrice;
+
+  final double? userLat;
+  final double? userLng;
+
+   PriceRangeChanged({
+    required this.minPrice,
+    required this.maxPrice,
+    required this.userLat,
+    required this.userLng,
   });
 }

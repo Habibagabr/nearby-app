@@ -46,7 +46,7 @@ class CustomErrorWidgetState extends State<CustomErrorWidget> {
               duration: const Duration(milliseconds: 500),
               child: Container(
                 padding: EdgeInsetsDirectional.symmetric(
-                  horizontal: AppDimens.paddingM,
+                  horizontal: AppDimens.paddingL,
                   vertical: AppDimens.paddingS,
                 ),
                 decoration: BoxDecoration(shape: BoxShape.circle , color: AppColors.darkGray),

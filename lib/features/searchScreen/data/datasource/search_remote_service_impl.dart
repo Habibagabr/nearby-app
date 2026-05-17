@@ -15,8 +15,8 @@ class SearchRemoteServiceImpl implements SearchRemoteService {
     required String searchQuery,
     required double userLat,
     required double userLng,
-    double? maxPrice,
-    double? miniPrice,
+    required double maxPrice,
+    required double miniPrice,
     int? miniRate,
     bool? isOpenNow,
   }) async {
@@ -26,8 +26,8 @@ class SearchRemoteServiceImpl implements SearchRemoteService {
       data: {
         "query": searchQuery,
         "userLocation": location,
-        if (miniPrice != null) "priceMin": miniPrice,
-        if (maxPrice != null) "priceMax": maxPrice,
+         "priceMin": miniPrice,
+         "priceMax": maxPrice,
         if (miniRate != null) "ratingMin": miniRate,
         if (isOpenNow != null) "openNow": isOpenNow,
       },

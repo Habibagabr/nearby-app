@@ -150,6 +150,7 @@ class FilterSectionState extends State<FilterSection> {
                     fontSize: 20,
                   ),
                 ),
+                SizedBox(height: AppDimens.spacingXL),
                 PriceRangeSlider(),
                 //minimum rate filter
                 FiltersType(
@@ -181,13 +182,17 @@ class FilterSectionState extends State<FilterSection> {
                 onTurnedOn: (isOn) {
                   final searchState = context.read<SearchBloc>().state;
                   final locationState = context.read<LocationBloc>().state;
+                  // ============================ OPEN NOW UI ============================
+
                   context.read<SearchBloc>().add(
                     FilterValuePressed(
-                      minimumRate: searchState.miniRate,
+                      isOpenedNow: isOn ? true : null,
+
+                      userLng: locationState.location?.longitude,
+                      userLat: locationState.location?.latitude,
+
                       query: searchState.query,
-                      isOpenedNow: (isOn) ? isOn : null,
-                      userLng: locationState.location!.longitude,
-                      userLat: locationState.location!.latitude,
+                      minimumRate: searchState.miniRate,
                     ),
                   );
                 },

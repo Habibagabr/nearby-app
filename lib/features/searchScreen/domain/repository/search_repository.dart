@@ -11,8 +11,8 @@ abstract class SearchRepository {
     required query,
     required double userLat,
     required double userLng,
-    double? minimumPrice,
-    double? maxPrice,
+    required double minimumPrice,
+    required double maxPrice,
     int? minimumRate,
     bool? isOpenNow
   });

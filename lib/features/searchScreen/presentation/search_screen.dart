@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:near_buy_gp/core/di/injection.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 import 'package:near_buy_gp/core/themes/app_dimen.dart';
+import 'package:near_buy_gp/core/themes/app_text_style.dart';
 import 'package:near_buy_gp/features/searchScreen/presentation/bloc/search_bloc.dart';
 import 'package:near_buy_gp/features/searchScreen/presentation/ui/components/popular_search_header.dart';
 import 'package:near_buy_gp/features/searchScreen/presentation/ui/components/popular_search_item.dart';
@@ -53,13 +54,19 @@ class SearchScreenState extends State<SearchScreen> {
                   final String? errorImage = getErrorImage(state.appFailure);
                   return SliverToBoxAdapter(
                     child: Container(
-                      margin: EdgeInsets.symmetric(vertical: AppDimens.spacingM),
-                      child:Center(
-                      child: CustomErrorWidget(
-                        errorImage: errorImage,
-                        errorMessage: state.errorMsg,
+                      margin: EdgeInsets.symmetric(
+                        vertical: AppDimens.spacingM,
                       ),
-                    )
+                      child: Center(
+                        child: CustomErrorWidget(
+                          errorImage: errorImage,
+                          errorMessage: state.errorMsg,
+                          errorMessageStyle: AppTextStyles.bodyLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
                     ),
                   );
                 }
@@ -68,13 +75,19 @@ class SearchScreenState extends State<SearchScreen> {
                   if (state.resultEmpty != null) {
                     return SliverToBoxAdapter(
                       child: Container(
-                          margin: EdgeInsets.symmetric(vertical: AppDimens.spacingM),
-                          child:Center(
-                            child: CustomErrorWidget(
-                              errorImage: errorImage,
-                              errorMessage: state.resultEmpty,
+                        margin: EdgeInsets.symmetric(
+                          vertical: AppDimens.spacingM,
+                        ),
+                        child: Center(
+                          child: CustomErrorWidget(
+                            errorImage: errorImage,
+                            errorMessage: state.resultEmpty,
+                            errorMessageStyle: AppTextStyles.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
-                          )
+                          ),
+                        ),
                       ),
                     );
                   } else {

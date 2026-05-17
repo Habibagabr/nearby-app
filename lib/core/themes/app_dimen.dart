@@ -8,7 +8,7 @@ class AppDimens {
   static const double spacingS  = 8.0;
   static const double spacingM  = 16.0; // the stander
   static const double spacingL  = 24.0;
-  static const double spacingXL  = 24.0;
+  static const double spacingXL  = 42.0;
   static const double spacingXXL = 52.0;
 
   // Padding

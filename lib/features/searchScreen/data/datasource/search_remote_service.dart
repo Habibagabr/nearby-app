@@ -6,8 +6,8 @@ abstract class SearchRemoteService {
     required String searchQuery,
     required double userLat,
     required double userLng,
-    double? maxPrice,
-    double? miniPrice,
+    required double maxPrice,
+    required double miniPrice,
     int? miniRate,
     bool? isOpenNow,
   });
