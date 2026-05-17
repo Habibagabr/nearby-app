@@ -189,7 +189,14 @@ class SearchScreenState extends State<SearchScreen> {
                   // NO PREVIOUS STATE
                   // ============================================================
 
-                  return const SliverToBoxAdapter(child: SizedBox.shrink());
+                  return SliverList.builder(
+                    itemCount: popularSearches.length + 1,
+                    itemBuilder: (context, index) {
+                      return index == 0
+                          ? buildHeader()
+                          : buildSearchItem(index - 1);
+                    },
+                  );
                 }
                 return SliverList.builder(
                   itemCount: popularSearches.length + 1,
