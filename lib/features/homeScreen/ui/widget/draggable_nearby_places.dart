@@ -6,7 +6,7 @@ import '../../../../core/themes/app_dimen.dart';
 import '../../../../core/themes/app_text_style.dart';
 import '../../../../shared/components/header_text_style.dart';
 import '../../../../shared/widget/error_widget.dart';
-import '../../../place_screen/presentation/store/ui/store_skeleton_widget.dart';
+import '../../../placeScreen/presentation/store/ui/store_skeleton_widget.dart';
 import '../bloc/home_bloc.dart';
 import '../components/nearby_place_card.dart';
 

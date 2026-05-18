@@ -90,22 +90,22 @@ import 'package:near_buy_gp/features/mapScreen/domain/usecases/get_nearby_pins.d
     as _i876;
 import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_bloc.dart'
     as _i809;
-import 'package:near_buy_gp/features/place_screen/data/dataSource/places_remote_data_source.dart'
-    as _i90;
-import 'package:near_buy_gp/features/place_screen/data/dataSource/places_remote_data_source_impl.dart'
-    as _i801;
-import 'package:near_buy_gp/features/place_screen/data/repository/place_repository_impl.dart'
-    as _i354;
-import 'package:near_buy_gp/features/place_screen/domain/repository/place_repository.dart'
-    as _i434;
-import 'package:near_buy_gp/features/place_screen/domain/usecase/check_user_register.dart'
-    as _i624;
-import 'package:near_buy_gp/features/place_screen/domain/usecase/get_initial_place_data_usecase.dart'
-    as _i809;
-import 'package:near_buy_gp/features/place_screen/domain/usecase/get_place_items_usecase.dart'
-    as _i166;
-import 'package:near_buy_gp/features/place_screen/presentation/bloc/place_bloc.dart'
-    as _i496;
+import 'package:near_buy_gp/features/placeScreen/data/dataSource/places_remote_data_source.dart'
+    as _i298;
+import 'package:near_buy_gp/features/placeScreen/data/dataSource/places_remote_data_source_impl.dart'
+    as _i1059;
+import 'package:near_buy_gp/features/placeScreen/data/repository/place_repository_impl.dart'
+    as _i314;
+import 'package:near_buy_gp/features/placeScreen/domain/repository/place_repository.dart'
+    as _i454;
+import 'package:near_buy_gp/features/placeScreen/domain/usecase/check_user_register.dart'
+    as _i518;
+import 'package:near_buy_gp/features/placeScreen/domain/usecase/get_initial_place_data_usecase.dart'
+    as _i689;
+import 'package:near_buy_gp/features/placeScreen/domain/usecase/get_place_items_usecase.dart'
+    as _i475;
+import 'package:near_buy_gp/features/placeScreen/presentation/bloc/place_bloc.dart'
+    as _i184;
 import 'package:near_buy_gp/features/profileScreen/presentation/ui/bloc/profile_bloc.dart'
     as _i335;
 import 'package:near_buy_gp/features/searchScreen/data/datasource/search_remote_service.dart'
@@ -145,8 +145,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i342.LocationRepository>(
       () => _i417.LocationRepositoryImpl(gh<_i342.LocationService>()),
     );
-    gh.lazySingleton<_i624.CheckUserRegister>(
-      () => _i624.CheckUserRegister(sessionManager: gh<_i447.SessionManager>()),
+    gh.factory<_i518.CheckUserRegister>(
+      () => _i518.CheckUserRegister(sessionManager: gh<_i447.SessionManager>()),
     );
     gh.factory<_i335.ProfileBloc>(
       () => _i335.ProfileBloc(sessionManager: gh<_i447.SessionManager>()),
@@ -179,6 +179,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i100.ErrorInterceptor>(),
       ),
     );
+    gh.lazySingleton<_i298.PlacesRemoteDataSource>(
+      () => _i1059.PlacesRemoteDataSourceImpl(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i454.PlaceRepository>(
+      () => _i314.PlaceRepositoryImpl(gh<_i298.PlacesRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i689.LoadPlaceScreenUseCase>(
+      () => _i689.LoadPlaceScreenUseCase(gh<_i454.PlaceRepository>()),
+    );
+    gh.lazySingleton<_i475.LoadPlaceItemsUseCase>(
+      () => _i475.LoadPlaceItemsUseCase(gh<_i454.PlaceRepository>()),
+    );
     gh.lazySingleton<_i659.MapRemoteDataSource>(
       () => _i819.MapRemoteDataSourceImpl(dio: gh<_i361.Dio>()),
     );
@@ -194,12 +206,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i895.LoginRemoteDataSource>(
       () => _i490.LoginRemoteDataSourceImpl(gh<_i361.Dio>()),
     );
-    gh.lazySingleton<_i90.PlacesRemoteDataSource>(
-      () => _i801.PlacesRemoteDataSourceImpl(gh<_i361.Dio>()),
-    );
     gh.lazySingleton<_i576.MapRepository>(
       () => _i467.MapRepositoryImpl(
         mapRemoteDataSource: gh<_i659.MapRemoteDataSource>(),
+      ),
+    );
+    gh.factory<_i184.PlaceBloc>(
+      () => _i184.PlaceBloc(
+        loadPlaceScreen: gh<_i689.LoadPlaceScreenUseCase>(),
+        loadPlaceItems: gh<_i475.LoadPlaceItemsUseCase>(),
+        checkUserRegister: gh<_i518.CheckUserRegister>(),
       ),
     );
     gh.lazySingleton<_i269.HomeRepository>(
@@ -219,9 +235,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i354.SearchUseCase>(
       () => _i354.SearchUseCase(gh<_i980.SearchRepository>()),
-    );
-    gh.lazySingleton<_i434.PlaceRepository>(
-      () => _i354.PlaceRepositoryImpl(gh<_i90.PlacesRemoteDataSource>()),
     );
     gh.lazySingleton<_i716.GetNearbyPlacesUseCase>(
       () => _i716.GetNearbyPlacesUseCase(gh<_i269.HomeRepository>()),
@@ -257,21 +270,8 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i809.MapBloc(getNearbyPinsUseCase: gh<_i876.GetNearbyPinsUseCase>()),
     );
-    gh.lazySingleton<_i809.LoadPlaceScreenUseCase>(
-      () => _i809.LoadPlaceScreenUseCase(gh<_i434.PlaceRepository>()),
-    );
-    gh.lazySingleton<_i166.LoadPlaceItemsUseCase>(
-      () => _i166.LoadPlaceItemsUseCase(gh<_i434.PlaceRepository>()),
-    );
     gh.lazySingleton<_i715.HomeBloc>(
       () => _i715.HomeBloc(gh<_i716.GetNearbyPlacesUseCase>()),
-    );
-    gh.factory<_i496.PlaceBloc>(
-      () => _i496.PlaceBloc(
-        loadPlaceScreen: gh<_i809.LoadPlaceScreenUseCase>(),
-        loadPlaceItems: gh<_i166.LoadPlaceItemsUseCase>(),
-        checkUserRegister: gh<_i624.CheckUserRegister>(),
-      ),
     );
     return this;
   }

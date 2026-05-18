@@ -20,8 +20,8 @@ class SavedPlacesState extends State<SavedPlaces> {
 
     SavedPlaceItem(
       placeImages: [
-        "assets/images/restaurant.jpeg",
-        "assets/images/restaurant.jpeg",
+        'assets/images/mapbackground.webp',
+        'assets/images/mapbackground.webp',
       ],
       placeName: "Mario's Italian",
       placeCategory: "Restaurant",
@@ -29,7 +29,7 @@ class SavedPlacesState extends State<SavedPlaces> {
 
     SavedPlaceItem(
       placeImages: [
-        "assets/images/clinic.jpeg"
+        'assets/images/mapbackground.webp',
       ],
       placeName: "Care Plus Clinic",
       placeCategory: "Clinic",
@@ -37,8 +37,8 @@ class SavedPlacesState extends State<SavedPlaces> {
 
     SavedPlaceItem(
       placeImages: [
-        "assets/images/supermarket.jpeg",
-        "assets/images/supermarket.jpeg",
+        'assets/images/mapbackground.webp',
+        'assets/images/mapbackground.webp',
       ],
       placeName: "Fresh Market",
       placeCategory: "Supermarket",
@@ -46,8 +46,8 @@ class SavedPlacesState extends State<SavedPlaces> {
 
     SavedPlaceItem(
       placeImages: [
-        "assets/images/gym.jpeg",
-        "assets/images/gym.jpeg",
+        'assets/images/mapbackground.webp',
+        'assets/images/mapbackground.webp',
       ],
       placeName: "Power Gym",
       placeCategory: "Gym",
@@ -55,7 +55,7 @@ class SavedPlacesState extends State<SavedPlaces> {
 
     SavedPlaceItem(
       placeImages: [
-        "assets/images/clothing.jpeg",
+        'assets/images/mapbackground.webp',
       ],
       placeName: "Urban Style",
       placeCategory: "Clothing Shop",
@@ -63,7 +63,7 @@ class SavedPlacesState extends State<SavedPlaces> {
 
     SavedPlaceItem(
       placeImages: [
-        "assets/images/restaurant.jpeg",
+        'assets/images/mapbackground.webp',
       ],
       placeName: "Pizza Hub",
       placeCategory: "Restaurant",
@@ -71,7 +71,7 @@ class SavedPlacesState extends State<SavedPlaces> {
 
     SavedPlaceItem(
       placeImages: [
-        "assets/images/gym.jpeg",
+        'assets/images/mapbackground.webp',
       ],
       placeName: "Fit Zone",
       placeCategory: "Gym",

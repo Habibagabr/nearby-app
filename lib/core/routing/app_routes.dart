@@ -5,7 +5,7 @@ import 'package:near_buy_gp/shared/util/screens_enum.dart';
 
 import '../../features/authenticationScreens/loginScreen/presentation/ui/login_screen.dart';
 import '../../features/authenticationScreens/signupScreen/presentation/ui/signup_screen.dart';
-import '../../features/place_screen/presentation/place_base_screen.dart';
+import '../../features/placeScreen/presentation/place_base_screen.dart';
 import '../../features/splashScreen/splash_screen.dart';
 import '../../main_layout/main_shell.dart';
 

@@ -14,7 +14,7 @@ class SplashScreenContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'assets/images/pinicon.png',
+              'assets/images/pinicon.webp',
               width: AppDimens.iconLarge,
             ),
             const SizedBox(height: AppDimens.spacingS),

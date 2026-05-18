@@ -20,7 +20,7 @@ class AppLogo extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset(
-              "assets/images/pinicon.png",
+              "assets/images/pinicon.webp",
               width: AppDimens.iconSmall,
             ),
             SizedBox(width: AppDimens.spacingS),
