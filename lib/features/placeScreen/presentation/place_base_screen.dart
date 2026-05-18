@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
@@ -127,6 +128,9 @@ class _PlaceBaseScreenState extends State<PlaceBaseScreen> {
 
     /// Send first event once
     _bloc.add(EnterPlaceScreen(widget.placeId));
+    if(kDebugMode){
+      print("PRINT:PLACE SCREEN : ENTERED : ${widget.placeId}");
+    }
   }
 
   @override
@@ -173,7 +177,7 @@ class _PlaceBaseScreenState extends State<PlaceBaseScreen> {
 
   Widget _buildScreenByType(PlaceCategoryEntity placeData) {
     switch (widget.screensType) {
-      case ScreensType.store:
+      case ScreensType.store :
         return StoreMainWidget(storeEntity: placeData);
 
       case ScreensType.clinic:

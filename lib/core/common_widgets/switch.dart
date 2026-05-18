@@ -1,45 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
 
-class CustomSwitch extends StatefulWidget {
-  final double? switchTrackingWidth;
-  final double? switchTrackingHeight;
-  final double? switchBallSize;
-  final ValueChanged<bool>? onTurnedOn;
-  const CustomSwitch({super.key , required this.switchTrackingWidth , required this.switchTrackingHeight , required this.switchBallSize , this.onTurnedOn});
+class CustomSwitch extends StatelessWidget {
+  final double switchTrackingWidth;
+  final double switchTrackingHeight;
+  final double switchBallSize;
+  final VoidCallback onChange; // Changed to VoidCallback to let parent handle evaluation
+  final bool isSwitchOn;
 
-  @override
-  State<CustomSwitch> createState() => _CustomSwitchState();
-}
-
-class _CustomSwitchState extends State<CustomSwitch> {
-  bool isOn = false;
+  const CustomSwitch({
+    super.key,
+    required this.switchTrackingWidth,
+    required this.isSwitchOn,
+    required this.switchTrackingHeight,
+    required this.switchBallSize,
+    required this.onChange,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          isOn = !isOn;
-        });
-        widget.onTurnedOn?.call(isOn);
-      },
+      onTap: onChange, // Directly pass click event up
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        width: widget.switchTrackingWidth,
-        height: widget.switchTrackingHeight,
+        width: switchTrackingWidth,
+        height: switchTrackingHeight,
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(50),
-          color: isOn ? AppColors.darkGray : const Color(0xFFD1D5DB),
+          color: isSwitchOn ? AppColors.darkGray : const Color(0xFFD1D5DB),
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 250),
-          alignment:
-          isOn ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: isSwitchOn ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
-            width: widget.switchBallSize,
-            height: widget.switchBallSize,
+            width: switchBallSize,
+            height: switchBallSize,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white,

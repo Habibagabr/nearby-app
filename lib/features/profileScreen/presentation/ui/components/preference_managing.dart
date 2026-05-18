@@ -25,6 +25,9 @@ class PreferenceManaging extends StatelessWidget {
               switchTrackingWidth: 60,
               switchTrackingHeight: 28,
               switchBallSize: 24,
+              /// FIX ME LATER
+              isSwitchOn: false,
+              onChange: (){},
             ),
           ),
           DataCard(
@@ -55,6 +58,9 @@ class PreferenceManaging extends StatelessWidget {
               switchTrackingWidth: 60,
               switchTrackingHeight: 28,
               switchBallSize: 24,
+              ///FIX ME LATER
+              isSwitchOn: false,
+              onChange: (){},
             ),
             onCardClicked: () {},
           ),

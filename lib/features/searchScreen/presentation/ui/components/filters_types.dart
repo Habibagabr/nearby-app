@@ -22,14 +22,25 @@ class FiltersType extends StatefulWidget {
   FiltersTypeState createState() => FiltersTypeState();
 }
 
+int getSelectedIndex(int? rate) {
+  return switch (rate) {
+    null => 0,
+    2 => 1,
+    3 => 2,
+    4 => 3,
+    _ => 0,
+  };
+}
+
 class FiltersTypeState extends State<FiltersType> {
-  int selectedIndex = 0;
+  late int selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     // 1. Get the current location and search state once
     final locationState = context.watch<LocationBloc>().state;
     final searchState = context.watch<SearchBloc>().state;
+    selectedIndex = getSelectedIndex(searchState.miniRate) ;
 
     final double lat = locationState.location?.latitude ?? 0.0;
     final double lng = locationState.location?.longitude ?? 0.0;
@@ -55,7 +66,7 @@ class FiltersTypeState extends State<FiltersType> {
                 onTap: () {
                   setState(() => selectedIndex = index);
 
-                  // 2. Prepare the event parameters
+                  //  Prepare the event parameters
                   int? rate = searchState.miniRate;
 
                   if (item.filterValueType == FilterValueType.miniRate) {

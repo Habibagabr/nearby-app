@@ -7,10 +7,12 @@ class FilterItemEntity {
   final Widget filterItem;
   final dynamic filterValue;
   final FilterValueType filterValueType;
+  final int filterValueIndex;
 
   FilterItemEntity({
     required this.filterItem,
     required this.filterValue,
     required this.filterValueType,
+    required this.filterValueIndex
   });
 }
