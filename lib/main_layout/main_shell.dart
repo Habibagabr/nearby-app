@@ -44,14 +44,6 @@ class MainShell extends StatelessWidget {
         activeColorSecondary: AppColors.darkGray,
         inactiveColorPrimary: AppColors.white,
       ),
-      // PersistentBottomNavBarItem(
-      //   icon: Icon(Icons.map),
-      //   title: "Map",
-      //   textStyle: TextStyle(color: AppColors.darkGray),
-      //   activeColorPrimary: AppColors.white,
-      //   activeColorSecondary: AppColors.darkGray,
-      //   inactiveColorPrimary: AppColors.white,
-      // ),
       PersistentBottomNavBarItem(
         icon: Icon(Icons.search),
         title: "Search",

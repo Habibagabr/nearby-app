@@ -25,6 +25,16 @@ class SearchScreenState extends State<SearchScreen> {
   bool showPopularSearch = true;
 
   @override
+  void dispose() {
+
+    context.read<SearchBloc>().add(
+      SearchEmpty(),
+    );
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => getIt<SearchBloc>(),
