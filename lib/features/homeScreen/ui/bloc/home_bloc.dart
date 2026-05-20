@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 import 'package:near_buy_gp/core/error/app_failure.dart';
@@ -13,21 +16,48 @@ part 'home_state.dart';
 @LazySingleton()
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetNearbyPlacesUseCase getNearbyPlacesUseCase;
+  StreamSubscription? _connectivitySubscription;
 
   HomeBloc(this.getNearbyPlacesUseCase) : super(HomeState()) {
     on<FetchNearbyPlacesEvent>(_onFetchNearbyPlaces);
     on<PlaceSelected>((event, emit) {
-      (_onPlaceSelected(
+      _onPlaceSelected(
         placeId: event.placeId,
         businessCategory: event.businessCategory,
         emit: emit,
-      ));
+      );
     });
-    on<CategorySelected>((event, emit)async {
-      await (_onCategorySelected(
+    on<CategorySelected>((event, emit) async {
+      await _onCategorySelected(
         businessCategory: event.businessCategory,
         emit: emit,
-      ));
+      );
+    });
+
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      results,
+    ) {
+      final isOnline = !results.contains(ConnectivityResult.none);
+
+      // Check explicit error tracking state instead of volatile status flags
+      if (isOnline && state.hasNetworkError) {
+        if (state.lat != 0 || state.lng != 0) {
+          // If 1st page failed, request page 1. If subsequent pages failed, retry that exact page
+          final recoveryPage = state.nearbyPlaces.isEmpty
+              ? 1
+              : state.pageNum + 1;
+
+          add(
+            FetchNearbyPlacesEvent(
+              lat: state.lat,
+              lng: state.lng,
+              pageNum: recoveryPage,
+              limit: 3,
+              businessCategory: state.businessCategory,
+            ),
+          );
+        }
+      }
     });
   }
 
@@ -41,6 +71,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         pageNum: 1,
         nearbyPlaces: [],
         isMaxReached: false,
+        status: HomeStatus.loading,
+        hasNetworkError:
+            false,
       ),
     );
 
@@ -60,7 +93,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required String placeId,
     required Emitter<HomeState> emit,
   }) {
-    final String category = businessCategory.toLowerCase() ;
+    final String category = businessCategory.toLowerCase();
 
     if (category == "store" ||
         category == "restaurant" ||
@@ -93,47 +126,66 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         ),
       );
     }
-
-    // Clear the navigation action immediately so it doesn't trigger again
     emit(state.copyWith(navigateState: null));
   }
-
-
 
   Future<void> _onFetchNearbyPlaces(
     FetchNearbyPlacesEvent event,
     Emitter<HomeState> emit,
   ) async {
-    // Avoid clearing existing data when fetching page 2+
-    // We only set status to 'loading' so the UI shows the bottom spinner.
-    emit(state.copyWith(status: HomeStatus.loading));
-// Inside HomeBloc _onFetchNearbyPlaces
+    final List<NearbyPlaceEntity> historicalPlaces = List.from(
+      state.nearbyPlaces,
+    );
+
+    emit(
+      state.copyWith(
+        status: HomeStatus.loading,
+        lat: event.lat,
+        lng: event.lng,
+        hasNetworkError: false,
+      ),
+    );
+
     final result = await getNearbyPlacesUseCase(
       lat: event.lat,
       lng: event.lng,
       pageNum: event.pageNum,
       limit: event.limit,
-      businessCategory: event.businessCategory?.toLowerCase() == "all" ? null : event.businessCategory?.toLowerCase().replaceAll(" ", "_"), // Send the mapped value (store, gym, etc.)
+      businessCategory: event.businessCategory?.toLowerCase() == "all"
+          ? null
+          : event.businessCategory?.toLowerCase().replaceAll(" ", "_"),
     );
 
-
     result.fold(
-      (error) =>
-          emit(state.copyWith(status: HomeStatus.failure, errorMsg: error.failureMessage , failureType: mapFailureType(error))),
+      (error) {
+        if (kDebugMode) {
+          print("PRINT:HOME SCREEN : ERROR TYPE ${mapFailureType(error)}");
+        }
+
+        emit(
+          state.copyWith(
+            status: HomeStatus.failure,
+            hasNetworkError: true,
+            // Marked to catch auto-recovery cycles
+            errorMsg: error.failureMessage,
+            failureType: mapFailureType(error),
+            lat: event.lat,
+            lng: event.lng,
+          ),
+        );
+      },
       (newPlaces) {
-        // APPEND DATA
-        // If pageNum is 1, it's a fresh start. Otherwise, we add newPlaces to the old ones.
         final List<NearbyPlaceEntity> updatedList = event.pageNum == 1
             ? newPlaces
-            : [...state.nearbyPlaces, ...newPlaces];
+            : [...historicalPlaces, ...newPlaces];
 
-        //  REFINED MAX REACHED LOGIC
-        // If the API returns fewer items than the 'limit', we know there is no more data left.
         final bool reachedMax = newPlaces.length < event.limit;
 
         emit(
           state.copyWith(
             status: HomeStatus.success,
+            hasNetworkError: false,
+            // Reset cleanly on network resolution success
             errorMsg: null,
             failureType: null,
             nearbyPlaces: updatedList,
@@ -148,12 +200,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   FailureTypes? mapFailureType(AppFailure error) {
-    return switch(error){
-
+    return switch (error) {
       NetworkFailure() => FailureTypes.network,
       ServerFailure() => FailureTypes.server,
       CancelFailure() => null,
       GeneralFailure() => FailureTypes.general,
     };
+  }
+
+  @override
+  Future<void> close() {
+    _connectivitySubscription?.cancel();
+    return super.close();
   }
 }

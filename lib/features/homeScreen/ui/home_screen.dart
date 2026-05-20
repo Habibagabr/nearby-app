@@ -9,6 +9,7 @@ import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_bloc.dart';
 import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_state.dart';
 
 import '../../../core/location/presentation/bloc/location_bloc.dart';
+import '../../../core/location/presentation/bloc/location_event.dart'; // 🌟 Added import for events
 import '../../../core/location/presentation/bloc/location_state.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../shared/util/business_category.dart';
@@ -24,37 +25,74 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  late GoogleMapController _mapController;
+//  Added WidgetsBindingObserver mixin to track background/foreground state transitions
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  GoogleMapController? _mapController;
   bool isFirstScreenMove = false;
   double _currentZoom = 18;
   String categorySelected = businessCategories[0].display;
-  late LatLngBounds bounds;
-  late LatLng center;
+  LatLngBounds? bounds;
+  LatLng? center;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // Safely clean observer out of system memory
+    _mapController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final locationBloc = context.read<LocationBloc>();
+
+      // If previous status was stuck on denied or error, re-check instantly on return
+      if (locationBloc.state.status == LocationStatus.permissionDenied ||
+          locationBloc.state.status == LocationStatus.serviceDisabled) {
+        locationBloc.add(RequestPermission());
+      }
+    }
+  }
 
   Future<void> _onCameraIdle() async {
-    bounds = await _mapController.getVisibleRegion();
-    if (!mounted) return;
+    if (_mapController == null || !mounted) return;
 
-    center = LatLng(
-      (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
-      (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
-    );
+    try {
+      final currentBounds = await _mapController!.getVisibleRegion();
 
-    final apiValue = businessCategories
-        .firstWhere((item) => item.display == categorySelected)
-        .apiValue;
+      final calculatedCenter = LatLng(
+        (currentBounds.northeast.latitude + currentBounds.southwest.latitude) / 2,
+        (currentBounds.northeast.longitude + currentBounds.southwest.longitude) / 2,
+      );
 
-    context.read<MapBloc>().add(
-      FetchMapData(
-        bounds: bounds,
-        zoom: _currentZoom,
-        center: center,
-        businessType: categorySelected == businessCategories[0].display
-            ? null
-            : apiValue,
-      ),
-    );
+      setState(() {
+        bounds = currentBounds;
+        center = calculatedCenter;
+      });
+
+      final apiValue = businessCategories
+          .firstWhere((item) => item.display == categorySelected)
+          .apiValue;
+
+      context.read<MapBloc>().add(
+        FetchMapData(
+          bounds: currentBounds,
+          zoom: _currentZoom,
+          center: calculatedCenter,
+          businessType: categorySelected == businessCategories[0].display
+              ? null
+              : apiValue,
+        ),
+      );
+    } catch (e) {
+      debugPrint("Map controller initialization guard caught: $e");
+    }
   }
 
   @override
@@ -65,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
         listeners: [
           BlocListener<MapBloc, MapState>(
             listenWhen: (prev, curr) =>
-                curr.navAction != prev.navAction && curr.navAction != null,
+            curr.navAction != prev.navAction && curr.navAction != null,
             listener: (context, state) {
               final action = state.navAction!;
               PlaceDetailsRoute(
@@ -76,12 +114,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BlocListener<LocationBloc, LocationState>(
             listenWhen: (prev, curr) {
+              if (prev.status != LocationStatus.tracking && curr.status == LocationStatus.tracking) {
+                return true;
+              }
               if (prev.location == null || curr.location == null) return false;
               return prev.location!.latitude != curr.location!.latitude ||
                   prev.location!.longitude != curr.location!.longitude;
             },
             listener: (context, state) {
-              // Get the current category from the HomeBloc state
+              if (state.location == null) return;
+
               final currentCategory = context
                   .read<HomeBloc>()
                   .state
@@ -100,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BlocListener<HomeBloc, HomeState>(
             listenWhen: (prev, curr) =>
-                prev.navigateState != curr.navigateState &&
+            prev.navigateState != curr.navigateState &&
                 curr.navigateState != null,
             listener: (context, state) {
               final nav = state.navigateState!;
@@ -139,23 +181,24 @@ class _HomeScreenState extends State<HomeScreen> {
                           categorySelected = category.display;
                         });
 
-                        context.read<MapBloc>().add(
-                          FetchMapData(
-                            bounds: bounds,
-                            zoom: _currentZoom,
-                            center: center,
-                            businessType:
-                                selectedDisplay == businessCategories[0].display
-                                ? null
-                                : selectedApiValue,
-                          ),
-                        );
+                        if (bounds != null && center != null) {
+                          context.read<MapBloc>().add(
+                            FetchMapData(
+                              bounds: bounds!,
+                              zoom: _currentZoom,
+                              center: center!,
+                              businessType: selectedDisplay == businessCategories[0].display
+                                  ? null
+                                  : selectedApiValue,
+                            ),
+                          );
+                        }
 
                         context.read<HomeBloc>().add(
-                          CategorySelected(businessCategory: category.apiValue),
+                          CategorySelected(
+                            businessCategory: category.apiValue,
+                          ),
                         );
-                      } else {
-                        return;
                       }
                     },
                   );
@@ -188,6 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 onMapCreated: (controller) {
                   _mapController = controller;
+                  _onCameraIdle();
                 },
                 onCameraMove: (position) {
                   _currentZoom = position.zoom;
@@ -202,14 +246,8 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
 
-        if (locationState.status == LocationStatus.serviceDisabled) {
-          return buildCenterMessage(
-            "Please enable GPS from device settings",
-            imageUrl: "assets/images/mapbackground.webp",
-          );
-        }
-
-        if (locationState.status == LocationStatus.permissionDenied) {
+        if (locationState.status == LocationStatus.serviceDisabled ||
+            locationState.status == LocationStatus.permissionDenied) {
           return buildCenterMessage(
             "Please enable GPS from device settings",
             imageUrl: "assets/images/mapbackground.webp",

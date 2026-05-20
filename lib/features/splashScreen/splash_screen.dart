@@ -71,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   lat: state.location!.latitude,
                   lng: state.location!.longitude,
                   pageNum: 1,
-                  limit: 10,
+                  limit: 3,
                 ),
               );
               if(kDebugMode){
