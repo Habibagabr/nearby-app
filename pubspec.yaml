@@ -73,8 +73,6 @@ dependencies:
   connectivity_plus: ^7.1.1
   fluttertoast: ^9.0.0
 
-
-
 # any thing under this used during development not running
 dev_dependencies:
   flutter_test:
