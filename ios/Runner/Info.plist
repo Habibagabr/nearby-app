@@ -57,5 +57,10 @@
         <string>tel</string>
     </array>
 
+    <key>NSCameraUsageDescription</key>
+    <string>Used for AR</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Used to show nearby places in AR</string>
+
 </dict>
 </plist>
