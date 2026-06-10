@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:near_buy_gp/features/notificationScreen/ui/notification_main_screen.dart';
+import 'package:near_buy_gp/features/onboardingScreens/presentation/ui/screens/personalized_screen.dart';
 import 'package:near_buy_gp/shared/util/screens_enum.dart';
 
 import '../../features/authenticationScreens/loginScreen/presentation/ui/login_screen.dart';
@@ -11,10 +12,22 @@ import '../../main_layout/main_shell.dart';
 
 part 'app_routes.g.dart';
 
+@TypedGoRoute<PersonalizedScreenRoute>(
+  path:'/personalizedScreen'
+)
+class PersonalizedScreenRoute extends GoRouteData with _$PersonalizedScreenRoute {
+  const PersonalizedScreenRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const PersonalizedScreen();
+  }
+}
+
+
 @TypedGoRoute<SplashRoute>(
   path: '/',
 )
-// Added "with _$SplashRoute"
 class SplashRoute extends GoRouteData with _$SplashRoute {
   const SplashRoute();
 

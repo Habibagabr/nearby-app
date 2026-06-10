@@ -11,6 +11,7 @@ import 'core/routing/app_router.dart';
 import 'core/themes/app_colors.dart';
 import 'core/common_widgets/app_input_fields_theme.dart';
 import 'features/mapScreen/presentation/bloc/map_bloc.dart';
+import 'features/onboardingScreens/main_onboarding.dart';
 import 'l10n/app_localizations.dart';
 
 void main() {
@@ -49,7 +50,7 @@ class NearBuy extends StatelessWidget {
         ),
 
       ],
-      child: MaterialApp.router(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
 
         //  Localization
@@ -73,7 +74,8 @@ class NearBuy extends StatelessWidget {
         ),
 
         //  Router
-        routerConfig: appRouter,
+        // routerConfig: appRouter,
+        home: MainOnboarding(),
 
       ),
     );

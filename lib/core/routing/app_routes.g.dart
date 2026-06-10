@@ -7,6 +7,7 @@ part of 'app_routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
+  $personalizedScreenRoute,
   $splashRoute,
   $loginRoute,
   $signupRoute,
@@ -14,6 +15,33 @@ List<RouteBase> get $appRoutes => [
   $placeDetailsRoute,
   $notificationScreenRoute,
 ];
+
+RouteBase get $personalizedScreenRoute => GoRouteData.$route(
+  path: '/personalizedScreen',
+
+  factory: _$PersonalizedScreenRoute._fromState,
+);
+
+mixin _$PersonalizedScreenRoute on GoRouteData {
+  static PersonalizedScreenRoute _fromState(GoRouterState state) =>
+      const PersonalizedScreenRoute();
+
+  @override
+  String get location => GoRouteData.$location('/personalizedScreen');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $splashRoute =>
     GoRouteData.$route(path: '/', factory: _$SplashRoute._fromState);
