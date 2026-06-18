@@ -6,16 +6,16 @@ import 'package:near_buy_gp/shared/util/screens_enum.dart';
 
 import '../../features/authenticationScreens/loginScreen/presentation/ui/login_screen.dart';
 import '../../features/authenticationScreens/signupScreen/presentation/ui/signup_screen.dart';
+import '../../features/onboardingScreens/main_onboarding.dart';
 import '../../features/placeScreen/presentation/place_base_screen.dart';
 import '../../features/splashScreen/splash_screen.dart';
 import '../../main_layout/main_shell.dart';
 
 part 'app_routes.g.dart';
 
-@TypedGoRoute<PersonalizedScreenRoute>(
-  path:'/personalizedScreen'
-)
-class PersonalizedScreenRoute extends GoRouteData with _$PersonalizedScreenRoute {
+@TypedGoRoute<PersonalizedScreenRoute>(path: '/personalizedScreen')
+class PersonalizedScreenRoute extends GoRouteData
+    with _$PersonalizedScreenRoute {
   const PersonalizedScreenRoute();
 
   @override
@@ -24,10 +24,17 @@ class PersonalizedScreenRoute extends GoRouteData with _$PersonalizedScreenRoute
   }
 }
 
+@TypedGoRoute<OnBoardingScreenRoute>(path: '/onBoardingScreen')
+class OnBoardingScreenRoute extends GoRouteData with _$OnBoardingScreenRoute {
+  const OnBoardingScreenRoute();
 
-@TypedGoRoute<SplashRoute>(
-  path: '/',
-)
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const MainOnboarding();
+  }
+}
+
+@TypedGoRoute<SplashRoute>(path: '/')
 class SplashRoute extends GoRouteData with _$SplashRoute {
   const SplashRoute();
 
@@ -37,9 +44,7 @@ class SplashRoute extends GoRouteData with _$SplashRoute {
   }
 }
 
-@TypedGoRoute<LoginRoute>(
-  path: '/login',
-)
+@TypedGoRoute<LoginRoute>(path: '/login')
 // Added "with _$LoginRoute"
 class LoginRoute extends GoRouteData with _$LoginRoute {
   const LoginRoute();
@@ -50,9 +55,7 @@ class LoginRoute extends GoRouteData with _$LoginRoute {
   }
 }
 
-@TypedGoRoute<SignupRoute>(
-  path: '/signup',
-)
+@TypedGoRoute<SignupRoute>(path: '/signup')
 // Added "with _$SignupRoute"
 class SignupRoute extends GoRouteData with _$SignupRoute {
   const SignupRoute();
@@ -63,49 +66,32 @@ class SignupRoute extends GoRouteData with _$SignupRoute {
   }
 }
 
-@TypedGoRoute<MainShellRoute>(
-  path:'/main',
-)
-class MainShellRoute extends GoRouteData with _$MainShellRoute{
-
+@TypedGoRoute<MainShellRoute>(path: '/main')
+class MainShellRoute extends GoRouteData with _$MainShellRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return  MainShell();
+    return MainShell();
   }
-
 }
 
-
-@TypedGoRoute<PlaceDetailsRoute>(
-  path: '/details/:placeId',
-)
-class PlaceDetailsRoute extends GoRouteData
-    with _$PlaceDetailsRoute {
-
+@TypedGoRoute<PlaceDetailsRoute>(path: '/details/:placeId')
+class PlaceDetailsRoute extends GoRouteData with _$PlaceDetailsRoute {
   final String placeId;
   final ScreensType screensType;
 
-  const PlaceDetailsRoute({required this.placeId , required this.screensType});
+  const PlaceDetailsRoute({required this.placeId, required this.screensType});
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return PlaceBaseScreen(placeId: placeId, screensType : screensType);
+    return PlaceBaseScreen(placeId: placeId, screensType: screensType);
   }
 }
 
-@TypedGoRoute<NotificationScreenRoute>(
-  path: '/notification',
-)
+@TypedGoRoute<NotificationScreenRoute>(path: '/notification')
 class NotificationScreenRoute extends GoRouteData
     with _$NotificationScreenRoute {
-
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return NotificationMainScreen();
   }
 }
-
-
-
-
-

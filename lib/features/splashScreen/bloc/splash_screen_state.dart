@@ -7,4 +7,5 @@ class SplashScreenInitial extends SplashScreenState {}
 
 class SplashScreenLoading extends SplashScreenState {}
 
-class SplashScreenReady extends SplashScreenState {}
+class NavigateToOnBoarding extends SplashScreenState {}
+class CheckLocationPermissionBeforeHome extends SplashScreenState {}

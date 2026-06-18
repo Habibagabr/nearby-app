@@ -27,15 +27,15 @@ class RegisterUseCase extends UseCase<LoginEntity, RegisterParams> {
   final RegisterRepositoryInterface authRepo;
   final SessionManager sessionManager;
 
-  RegisterUseCase(this.authRepo , this.sessionManager);
+  RegisterUseCase(this.authRepo, this.sessionManager);
 
   @override
   Future<Either<Failure, LoginEntity>> call(params) async {
-    final result =  await authRepo.register(
-        email: params.email,
-        password: params.password,
-        userName: params.userName,
-        role: params.role
+    final result = await authRepo.register(
+      email: params.email,
+      password: params.password,
+      userName: params.userName,
+      role: params.role,
     );
     // markers only calling in the term of success not in failure
     return result.map((authEntity) {
@@ -43,12 +43,9 @@ class RegisterUseCase extends UseCase<LoginEntity, RegisterParams> {
         token: authEntity.accessToken,
         userId: authEntity.id,
         role: authEntity.role,
-        userName:  authEntity.userName
+        userName: authEntity.userName,
       );
       return authEntity;
     });
-
   }
-
 }
-

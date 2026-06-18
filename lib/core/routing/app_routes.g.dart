@@ -8,6 +8,7 @@ part of 'app_routes.dart';
 
 List<RouteBase> get $appRoutes => [
   $personalizedScreenRoute,
+  $onBoardingScreenRoute,
   $splashRoute,
   $loginRoute,
   $signupRoute,
@@ -28,6 +29,33 @@ mixin _$PersonalizedScreenRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/personalizedScreen');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $onBoardingScreenRoute => GoRouteData.$route(
+  path: '/onBoardingScreen',
+
+  factory: _$OnBoardingScreenRoute._fromState,
+);
+
+mixin _$OnBoardingScreenRoute on GoRouteData {
+  static OnBoardingScreenRoute _fromState(GoRouterState state) =>
+      const OnBoardingScreenRoute();
+
+  @override
+  String get location => GoRouteData.$location('/onBoardingScreen');
 
   @override
   void go(BuildContext context) => context.go(location);

@@ -90,6 +90,8 @@ import 'package:near_buy_gp/features/mapScreen/domain/usecases/get_nearby_pins.d
     as _i876;
 import 'package:near_buy_gp/features/mapScreen/presentation/bloc/map_bloc.dart'
     as _i809;
+import 'package:near_buy_gp/features/onboardingScreens/presentation/bloc/onboarding_bloc.dart'
+    as _i45;
 import 'package:near_buy_gp/features/placeScreen/data/dataSource/places_remote_data_source.dart'
     as _i298;
 import 'package:near_buy_gp/features/placeScreen/data/dataSource/places_remote_data_source_impl.dart'
@@ -122,23 +124,39 @@ import 'package:near_buy_gp/features/searchScreen/domain/usecases/serach_usecase
     as _i354;
 import 'package:near_buy_gp/features/searchScreen/presentation/bloc/search_bloc.dart'
     as _i117;
+import 'package:near_buy_gp/features/splashScreen/bloc/splash_screen_bloc.dart'
+    as _i727;
+import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
-  _i174.GetIt init({
+  Future<_i174.GetIt> init({
     String? environment,
     _i526.EnvironmentFilter? environmentFilter,
-  }) {
+  }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
+    await gh.factoryAsync<_i460.SharedPreferences>(
+      () => registerModule.sharedPreference,
+      preResolve: true,
+    );
     gh.lazySingleton<_i558.FlutterSecureStorage>(() => registerModule.storage);
     gh.lazySingleton<_i361.BaseOptions>(() => registerModule.options);
     gh.lazySingleton<_i100.ErrorInterceptor>(() => _i100.ErrorInterceptor());
     gh.lazySingleton<_i852.LoggerInterceptor>(() => _i852.LoggerInterceptor());
-    gh.lazySingleton<_i342.LocationService>(() => _i293.LocationServiceImpl());
     gh.lazySingleton<_i447.SessionManager>(
-      () => _i850.SessionManagerImpl(gh<_i558.FlutterSecureStorage>()),
+      () => _i850.SessionManagerImpl(
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i460.SharedPreferences>(),
+      ),
     );
+    gh.factory<_i45.OnboardingBloc>(
+      () => _i45.OnboardingBloc(gh<_i447.SessionManager>()),
+    );
+    gh.factory<_i727.SplashScreenBloc>(
+      () => _i727.SplashScreenBloc(gh<_i447.SessionManager>()),
+    );
+    gh.lazySingleton<_i342.LocationService>(() => _i293.LocationServiceImpl());
     gh.lazySingleton<_i617.RequestInterceptor>(
       () => _i617.RequestInterceptor(gh<_i558.FlutterSecureStorage>()),
     );

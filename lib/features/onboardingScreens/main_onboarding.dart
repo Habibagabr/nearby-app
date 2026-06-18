@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:near_buy_gp/core/themes/app_dimen.dart';
 import 'package:near_buy_gp/core/themes/app_colors.dart';
+import 'package:near_buy_gp/core/themes/app_dimen.dart';
+import 'package:near_buy_gp/features/onboardingScreens/presentation/bloc/onboarding_bloc.dart';
 import 'package:near_buy_gp/features/onboardingScreens/presentation/ui/components/ar_location_card.dart';
 import 'package:near_buy_gp/features/onboardingScreens/presentation/ui/components/search_sample.dart';
 import 'package:near_buy_gp/features/onboardingScreens/presentation/ui/models/onboarding_model.dart';
 import 'package:near_buy_gp/features/onboardingScreens/presentation/ui/screens/personalized_screen.dart';
 import 'package:near_buy_gp/shared/components/app_logo.dart';
 
+import '../../core/di/injection.dart';
 import '../../core/routing/app_routes.dart';
 
 List<OnboardingModel> onboardingScreensData = [
@@ -154,182 +157,216 @@ class _MainOnboardingState extends State<MainOnboarding> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
+    return BlocProvider(
+      create: (context) => getIt<OnboardingBloc>(),
+      child: BlocListener<OnboardingBloc, OnboardingState>(
+        listener: (context, state) {
+          if (state is NavigateToHome) {
+            // Safe clean route transition to Home Screen shell
+            context.go(MainShellRoute().location);
+          }
+          if (state is OnboardingErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        child: Scaffold(
+          extendBodyBehindAppBar: true,
 
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        toolbarHeight: 70,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        leadingWidth: 160,
-        leading: AppLogo(AppColors.white),
-        actionsPadding: EdgeInsetsGeometry.directional(end: 18),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              // TODO: Navigate to login/home
-            },
-            child: const Center(
-              child: Text(
-                "Skip",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                  fontSize: 16,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            toolbarHeight: 70,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            surfaceTintColor: Colors.transparent,
+            leadingWidth: 160,
+            leading: AppLogo(AppColors.white),
+            actionsPadding: EdgeInsetsGeometry.directional(end: 18),
+            actions: [
+              GestureDetector(
+                onTap: () {
+                  context.read<OnboardingBloc>().add(SkipPressed());
+                },
+                child: const Center(
+                  child: Text(
+                    "Skip",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: const AssetImage("assets/images/mapbackground.webp"),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  AppColors.darkGray.withOpacity(.90),
+                  BlendMode.srcOver,
                 ),
               ),
             ),
-          ),
-        ],
-      ),
 
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: const AssetImage("assets/images/mapbackground.webp"),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              AppColors.darkGray.withOpacity(.90),
-              BlendMode.srcOver,
-            ),
-          ),
-        ),
-
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimens.spacingM),
-
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                const SizedBox(height: 16),
-
-                /// HEADER
-                Text(
-                  onboardingScreensData[screenIndex].screenHeader,
-                  style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.spacingM,
                 ),
 
-                if (onboardingScreensData[screenIndex].screenSubHeader != null)
-                  const SizedBox(height: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                Text(
-                  onboardingScreensData[screenIndex].screenSubHeader ?? "",
-                  style: const TextStyle(fontSize: 18, color: Colors.white70),
-                ),
-
-                SizedBox(
-                  height:
-                      onboardingScreensData[screenIndex].screenSubHeader != null
-                      ? 20
-                      : 5,
-                ),
-
-                /// DESCRIPTION
-                Text(
-                  onboardingScreensData[screenIndex].screenDescription ?? "",
-                  style: const TextStyle(
-                    fontSize: 15,
-                    height: 1.5,
-                    color: Colors.white70,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                /// IMAGE AREA
-                Expanded(child: onboardingScreensData[screenIndex].bodyContent),
-
-                /// INDICATOR
-                SizedBox(height: 100),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    onboardingScreensData.length + 1,
-                    (index) => AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      width: screenIndex == index ? 24 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: screenIndex == index
-                            ? AppColors.orange
-                            : Colors.white38,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                /// NAVIGATION
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if (screenIndex != 0)
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            screenIndex--;
-                          });
-                        },
-                        icon: const Icon(
-                          Icons.arrow_back_ios,
-                          color: Colors.white,
-                        ),
-                      )
-                    else
-                      SizedBox(width: 100),
+                    const SizedBox(height: 16),
 
-                    ElevatedButton(
-                      onPressed: () {
-                        if (screenIndex < onboardingScreensData.length - 1) {
-                          setState(() {
-                            screenIndex++;
-                          });
-                        } else {
-                          /// FIX ME
-                          Navigator.push(
-                            context,
-                              PageRouteBuilder(
-                                  pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) => const PersonalizedScreen(),
-                                transitionDuration: Duration.zero,
-                                reverseTransitionDuration: Duration.zero,
-                              )
-                          );
-                        }
-                      },
+                    /// HEADER
+                    Text(
+                      onboardingScreensData[screenIndex].screenHeader,
+                      style: const TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
 
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.orange.withAlpha(200),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 14,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                    if (onboardingScreensData[screenIndex].screenSubHeader !=
+                        null)
+                      const SizedBox(height: 8),
+
+                    Text(
+                      onboardingScreensData[screenIndex].screenSubHeader ?? "",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white70,
+                      ),
+                    ),
+
+                    SizedBox(
+                      height:
+                          onboardingScreensData[screenIndex].screenSubHeader !=
+                              null
+                          ? 20
+                          : 5,
+                    ),
+
+                    /// DESCRIPTION
+                    Text(
+                      onboardingScreensData[screenIndex].screenDescription,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        height: 1.5,
+                        color: Colors.white70,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// IMAGE AREA
+                    Expanded(
+                      child: onboardingScreensData[screenIndex].bodyContent,
+                    ),
+
+                    /// INDICATOR
+                    SizedBox(height: 100),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        onboardingScreensData.length + 1,
+                        (index) => AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: screenIndex == index ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: screenIndex == index
+                                ? AppColors.orange
+                                : Colors.white38,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                         ),
                       ),
-
-                      child: Text("Next"),
                     ),
+
+                    const SizedBox(height: 24),
+
+                    /// NAVIGATION
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        if (screenIndex != 0)
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                screenIndex--;
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.white,
+                            ),
+                          )
+                        else
+                          SizedBox(width: 100),
+
+                        ElevatedButton(
+                          onPressed: () {
+                            if (screenIndex <
+                                onboardingScreensData.length - 1) {
+                              setState(() {
+                                screenIndex++;
+                              });
+                            } else {
+                              /// FIX ME
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder:
+                                      (
+                                        BuildContext context,
+                                        Animation<double> animation,
+                                        Animation<double> secondaryAnimation,
+                                      ) => const PersonalizedScreen(),
+                                  transitionDuration: Duration.zero,
+                                  reverseTransitionDuration: Duration.zero,
+                                ),
+                              );
+                            }
+                          },
+
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.orange.withAlpha(200),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 14,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+
+                          child: Text("Next"),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
                   ],
                 ),
-
-                const SizedBox(height: 24),
-              ],
+              ),
             ),
           ),
         ),

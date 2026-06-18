@@ -42,7 +42,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this); // Safely clean observer out of system memory
+    WidgetsBinding.instance.removeObserver(
+      this,
+    ); // Safely clean observer out of system memory
     _mapController?.dispose();
     super.dispose();
   }
@@ -67,8 +69,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       final currentBounds = await _mapController!.getVisibleRegion();
 
       final calculatedCenter = LatLng(
-        (currentBounds.northeast.latitude + currentBounds.southwest.latitude) / 2,
-        (currentBounds.northeast.longitude + currentBounds.southwest.longitude) / 2,
+        (currentBounds.northeast.latitude + currentBounds.southwest.latitude) /
+            2,
+        (currentBounds.northeast.longitude +
+                currentBounds.southwest.longitude) /
+            2,
       );
 
       setState(() {
@@ -103,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         listeners: [
           BlocListener<MapBloc, MapState>(
             listenWhen: (prev, curr) =>
-            curr.navAction != prev.navAction && curr.navAction != null,
+                curr.navAction != prev.navAction && curr.navAction != null,
             listener: (context, state) {
               final action = state.navAction!;
               PlaceDetailsRoute(
@@ -114,7 +119,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
           BlocListener<LocationBloc, LocationState>(
             listenWhen: (prev, curr) {
-              if (prev.status != LocationStatus.tracking && curr.status == LocationStatus.tracking) {
+              if (prev.status != LocationStatus.tracking &&
+                  curr.status == LocationStatus.tracking) {
                 return true;
               }
               if (prev.location == null || curr.location == null) return false;
@@ -142,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
           BlocListener<HomeBloc, HomeState>(
             listenWhen: (prev, curr) =>
-            prev.navigateState != curr.navigateState &&
+                prev.navigateState != curr.navigateState &&
                 curr.navigateState != null,
             listener: (context, state) {
               final nav = state.navigateState!;
@@ -187,7 +193,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               bounds: bounds!,
                               zoom: _currentZoom,
                               center: center!,
-                              businessType: selectedDisplay == businessCategories[0].display
+                              businessType:
+                                  selectedDisplay ==
+                                      businessCategories[0].display
                                   ? null
                                   : selectedApiValue,
                             ),
@@ -195,9 +203,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         }
 
                         context.read<HomeBloc>().add(
-                          CategorySelected(
-                            businessCategory: category.apiValue,
-                          ),
+                          CategorySelected(businessCategory: category.apiValue),
                         );
                       }
                     },

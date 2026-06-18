@@ -21,51 +21,45 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  bool _navigated = false;
+  bool _isNavigating = false;
 
   @override
   void initState() {
     super.initState();
+    //  Safely trigger the startup event right when the widget initializes
     context.read<SplashScreenBloc>().add(SplashScreenStarted());
   }
 
-  void _requestLocationPermission() {
-    context.read<LocationBloc>().add(RequestPermission());
-  }
 
-  void _navigateHome(BuildContext context) {
-    if (_navigated) return;
-    _navigated = true;
-    context.go(MainShellRoute().location);
+  void _safeNavigate(String targetRoute) {
+    if (_isNavigating) return;
+    setState(() => _isNavigating = true);
+    context.go(targetRoute);
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        /// Splash finished
         BlocListener<SplashScreenBloc, SplashScreenState>(
-          listener: (context, state) async {
-            if (state is SplashScreenReady) {
-              if(kDebugMode){
-                print("PRINT : the splash screen is ready and we go to the location request");
-              }
-              _requestLocationPermission();
+          listener: (context, state) {
+            if (state is NavigateToOnBoarding) {
 
+              _safeNavigate(OnBoardingScreenRoute().location);
+            }
+            else if (state is CheckLocationPermissionBeforeHome) {
+              context.read<LocationBloc>().add(RequestPermission());
             }
           },
         ),
 
-        /// Location handling
         BlocListener<LocationBloc, LocationState>(
           listener: (context, state) {
-            if (state.status == LocationStatus.initial ||
-                state.status == LocationStatus.loading) {
+            if (state.status == LocationStatus.initial || state.status == LocationStatus.loading) {
               return;
             }
 
-            if (state.status == LocationStatus.tracking &&
-                state.location != null) {
+            if (state.status == LocationStatus.tracking && state.location != null) {
               context.read<HomeBloc>().add(
                 FetchNearbyPlacesEvent(
                   lat: state.location!.latitude,
@@ -74,20 +68,9 @@ class _SplashScreenState extends State<SplashScreen> {
                   limit: 3,
                 ),
               );
-              if(kDebugMode){
-                print("PRINT location 1 : the location request is : ${state.status}");
-              }
-
-              _navigateHome(context);
-              return;
-            }
-            if(kDebugMode){
-              print("PRINT location 2 : the location request is : ${state.status}");
             }
 
-            // denied / disabled
-            _navigateHome(context);
-
+            _safeNavigate(MainShellRoute().location);
           },
         ),
       ],

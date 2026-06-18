@@ -9,4 +9,6 @@ abstract class SessionManager{
   Future<String?> getToken();
   Future<String?> getUserId();
   Future<void> clearSession();
+  Future<void> setFirstLaunchedStatus({required bool isFirstLaunch});
+  Future<bool> checkFirstLaunchedStatus();
 }
